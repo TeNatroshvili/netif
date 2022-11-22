@@ -16,5 +16,9 @@
 - Add Acount
 - in oberen Zeile statt gitlab.com - gitlab.htlstp.ac.at hinschreiben
 - dann Enter und deinen zuvor erstellten Token eingeben.
-- venv ordner aus Teams in der Entwicklungsdokumentation zum netif projektordner hinzufügen
+- Terminal in VSCode öffnen
+- "python -m venv venv" ausführen
+- "./venv/Scripts/activate"
+- "python.exe -m pip install --upgrade pip"
+- "pip install flask"
 - Comitten und lets goo
