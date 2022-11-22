@@ -1,0 +1,18 @@
+- GitLab Workflow Extension hinzufügen (2te von oben wenn man nach GitLab sucht)
+- gitlab.htlstp.ac.at im Browser öffnen und einloggen.
+- Im Projekt NETIF auf Clone klicken
+- Visual Studio Code (HTTPS) auswählen.
+- Speicherort am PC auswählen
+- Loginfenster taucht auf und dann einloggen
+- In der GitLab Website rechts oben auf deinen Avatar klicken
+- Preferences auswählen
+- Access Token auswählen
+- Bei Token Name Visual Studi Code reinschreiben
+- Expiration Date entfernen
+- api ankreuzen
+- Create klicken
+- Token kopieren!!! danach nicht mehr sichtbar
+- GitLab Workflow symbol auf linken seite
+- Add Acount
+- in oberen Zeile statt gitlab.com - gitlab.htlstp.ac.at hinschreiben
+- dann Enter und deinen zuvor erstellten Token eingeben.
