@@ -17,8 +17,15 @@
 - in oberen Zeile statt gitlab.com - gitlab.htlstp.ac.at hinschreiben
 - dann Enter und deinen zuvor erstellten Token eingeben.
 - Terminal in VSCode öffnen
-- "python -m venv venv" ausführen
-- "./venv/Scripts/activate"
+- "python -m venv .venv" ausführen
+- "./.venv/Scripts/activate"
 - "python.exe -m pip install --upgrade pip"
 - "pip install flask"
 - Comitten und lets goo
+----
+- wenn ein error kommt, dass das laden von scrips disabled ist
+- powershell im admin aufmachen
+- "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned" ausführen
+- "A" eingeben wenn gefragg wird
+----------------
+pip install scrapy
