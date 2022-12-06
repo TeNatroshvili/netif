@@ -4,6 +4,9 @@
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
 from scrapy import signals
+from selenium.webdriver.common.by import By
+import time
+from scrapy.http import HtmlResponse
 
 # useful for handling different item types with a single interface
 from itemadapter import is_item, ItemAdapter
@@ -89,7 +92,7 @@ class ScrapynetifDownloaderMiddleware:
         # - or raise IgnoreRequest
         # Browser konstruktieren，mit spider.bro
         bro = spider.bro
-        print("jjojo")
+        print("jjojoooooooo")
         # requst.url -> die url die das Programm schickt
         bro.get(request.url)
 
@@ -111,7 +114,6 @@ class ScrapynetifDownloaderMiddleware:
         # mit HTMLresponse eine Response Objekt erstellen
         n_response = HtmlResponse(url=request.url, body=page, encoding='utf-8', request=request)
 
-        print("ok")
         # returnen
         return n_response
         #return response
