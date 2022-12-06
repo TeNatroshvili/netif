@@ -87,7 +87,34 @@ class ScrapynetifDownloaderMiddleware:
         # - return a Response object
         # - return a Request object
         # - or raise IgnoreRequest
-        return response
+        # Browser konstruktieren，mit spider.bro
+        bro = spider.bro
+        print("jjojo")
+        # requst.url -> die url die das Programm schickt
+        bro.get(request.url)
+
+        # das mit Richtlinien
+        agree_btn = bro.find_element(By.XPATH,
+                                     './/div[@class="eom-button-row style-scope ytd-consent-bump-v2-lightbox"][1]/ytd-button-renderer[2]//button')
+        agree_btn.click()
+        time.sleep(4)
+        # search input
+        search_input = bro.find_element(By.XPATH, './/input[@id="search"]')
+        search_input.send_keys('Finally you dumb SELENIUM gonna wirte some here')
+        # search click
+        search_btn = bro.find_element(By.ID, 'search-icon-legacy')
+        search_btn.click()
+        time.sleep(2)
+        # 
+        page = bro.page_source
+
+        # mit HTMLresponse eine Response Objekt erstellen
+        n_response = HtmlResponse(url=request.url, body=page, encoding='utf-8', request=request)
+
+        print("ok")
+        # returnen
+        return n_response
+        #return response
 
     def process_exception(self, request, exception, spider):
         # Called when a download handler or a process_request()
