@@ -92,22 +92,27 @@ class ScrapynetifDownloaderMiddleware:
         # - or raise IgnoreRequest
         # Browser konstruktieren，mit spider.bro
         bro = spider.bro
-        print("jjojoooooooo")
         # requst.url -> die url die das Programm schickt
         bro.get(request.url)
-
+        frame = bro.find_element(By.XPATH,'//html/frameset/frame')
+        bro.switch_to.frame(frame)
+        time.sleep(3)
+        login_input=bro.find_element(By.XPATH,'.//input[@id="password"]')
+        login_input.send_keys('Syp2223')
+        
+        login_button=bro.find_element(By.XPATH,'//input[@class="button"]')
+        login_button.click()
         # das mit Richtlinien
-        agree_btn = bro.find_element(By.XPATH,
-                                     './/div[@class="eom-button-row style-scope ytd-consent-bump-v2-lightbox"][1]/ytd-button-renderer[2]//button')
-        agree_btn.click()
-        time.sleep(4)
-        # search input
-        search_input = bro.find_element(By.XPATH, './/input[@id="search"]')
-        search_input.send_keys('Finally you dumb SELENIUM gonna wirte some here')
-        # search click
-        search_btn = bro.find_element(By.ID, 'search-icon-legacy')
-        search_btn.click()
-        time.sleep(2)
+        # agree_btn = bro.find_element(By.XPATH,'.//div[@class="eom-button-row style-scope ytd-consent-bump-v2-lightbox"][1]/ytd-button-renderer[2]//button')
+        # agree_btn.click()
+        # time.sleep(5)
+        # # search input
+        # search_input = bro.find_element(By.XPATH, './/input[@id="search"]')
+        # search_input.send_keys('some Peppa pig videos')
+        # # search click
+        # search_btn = bro.find_element(By.ID, 'search-icon-legacy')
+        # search_btn.click()
+        # time.sleep(2)
         # 
         page = bro.page_source
 
