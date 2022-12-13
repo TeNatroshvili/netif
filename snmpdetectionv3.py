@@ -14,7 +14,7 @@ for i in range(255):
 # Replace with the IP address of the switch
     switch_ip = devices[i]
     #switch_ip = "10.128.10.19"
-
+    print(i+1)
 # Replace with the SNMP community string
     community = "public"
 
@@ -24,7 +24,7 @@ for i in range(255):
     error_indication, error_status, error_index, var_binds = next(
         getCmd(SnmpEngine(),
             CommunityData(community),
-            UdpTransportTarget((switch_ip, 161)),
+            UdpTransportTarget((switch_ip, 161), timeout=0, retries=0),
             ContextData(),
             ObjectType(ObjectIdentity(name_oid)))
     )
