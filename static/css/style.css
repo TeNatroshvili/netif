@@ -25,7 +25,6 @@ body {
 
 .header {
     background-color: var(--green);
-    width: 100vw;
     height: 5rem;
 
     display: grid;
@@ -98,6 +97,14 @@ body {
 .logo-text {
     padding: .4em;
     width: 6rem;
+}
+
+/* Content */
+
+.content {
+    position: absolute;
+    top: 5rem;
+    bottom: 3.4rem;
 }
 
 /* Footer */

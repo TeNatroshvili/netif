@@ -1,0 +1,21 @@
+/**********************
+file: veditor.css
+author: Baumann Danièl
+created: 2022-12-13
+changed: 2022-12-13
+version: 1.0
+***********************/
+
+.content{
+    display: grid;
+    height: calc(100vh - 8.4rem);
+}
+
+.dragAndDrop{
+    height: calc80vh;
+}
+
+#switchField{
+    width: 80vw;
+    margin: auto;
+}
