@@ -1,0 +1,116 @@
+/**********************
+file: style.css
+author: Baumann Danièl
+created: 2022-11-22
+changed: 2022-12-13
+version: 1.2
+***********************/
+
+/* General */
+
+:root {
+    --green: #aceb1b;
+    font-size: 16px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+
+/* Header Menue */
+
+.header {
+    background-color: var(--green);
+    width: 100vw;
+    height: 5rem;
+
+    display: grid;
+    align-items: center;
+    gap: .4em;
+    grid-template-columns: 1fr 5fr 1fr;
+
+    font-size: 1.2rem;
+    font-style: bold;
+}
+
+.header .menue-items {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    align-items: center;
+    justify-items: center;
+    max-width: 1300px;
+    margin: .5rem;
+}
+
+.header .menue-items .item {
+    padding: .4em;
+    margin: auto;
+    min-width: 5em;
+    text-align: center;
+    border-radius: .2em;
+}
+
+.header .menue-items .item:hover {
+    background-color: rgba(11, 11, 11, 0.25);
+    cursor: pointer;
+    color: #fff;
+    transform: scale(1.1);
+    transition: all 125ms ease-in;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+}
+
+.header .menue-items .item:active {
+    background-color: rgba(11, 11, 11, 0.25);
+    cursor: pointer;
+    color: #fff;
+    transform: scale(1.1);
+    transition: all 125ms ease-in;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+}
+
+.header .menue-items .item a {
+    text-decoration: none;
+    color: inherit;
+    outline: 0;
+}
+
+.logo {
+    height: 4rem;
+    width: 6rem;
+    position: relative;
+    top: 1rem;
+    left: 2rem;
+}
+
+.logo img,
+.logo-text img {
+    width: max-content;
+}
+
+.logo-text {
+    padding: .4em;
+    width: 6rem;
+}
+
+/* Footer */
+
+.footer {
+    position: fixed;
+    bottom: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 3.4rem;
+    width: 100vw;
+    background-color: var(--green);
+}
