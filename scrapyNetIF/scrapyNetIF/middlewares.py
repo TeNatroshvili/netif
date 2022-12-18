@@ -91,17 +91,27 @@ class ScrapynetifDownloaderMiddleware:
         # - return a Request object
         # - or raise IgnoreRequest
         # Browser konstruktieren，mit spider.bro
-        bro = spider.bro
-        # requst.url -> die url die das Programm schickt
-        bro.get(request.url)
-        frame = bro.find_element(By.XPATH,'//html/frameset/frame')
-        bro.switch_to.frame(frame)
-        time.sleep(3)
-        login_input=bro.find_element(By.XPATH,'.//input[@id="password"]')
-        login_input.send_keys('Syp2223')
+
+        #-----------------
+        # print("ok")
+        # bro = spider.bro
+        # # # requst.url -> die url die das Programm schickt
+        # bro.get(request.url)
+        # frame = bro.find_element(By.XPATH,'//html/frameset/frame')
+        # bro.switch_to.frame(frame)
+        # time.sleep(3)
+        # login_input=bro.find_element(By.XPATH,'.//input[@id="password"]')
+        # login_input.send_keys('Syp2223')
         
-        login_button=bro.find_element(By.XPATH,'//input[@class="button"]')
-        login_button.click()
+        # login_button=bro.find_element(By.XPATH,'//input[@class="button"]')
+        # login_button.click()
+        # time.sleep(2)
+        # page = bro.page_source
+        # n_response = HtmlResponse(url=request.url, body=page, encoding='utf-8', request=request)
+    
+        return response
+        
+        #--------------
         # das mit Richtlinien
         # agree_btn = bro.find_element(By.XPATH,'.//div[@class="eom-button-row style-scope ytd-consent-bump-v2-lightbox"][1]/ytd-button-renderer[2]//button')
         # agree_btn.click()
@@ -112,15 +122,11 @@ class ScrapynetifDownloaderMiddleware:
         # # search click
         # search_btn = bro.find_element(By.ID, 'search-icon-legacy')
         # search_btn.click()
-        # time.sleep(2)
+        
         # 
-        page = bro.page_source
 
         # mit HTMLresponse eine Response Objekt erstellen
-        n_response = HtmlResponse(url=request.url, body=page, encoding='utf-8', request=request)
 
-        # returnen
-        return n_response
         #return response
 
     def process_exception(self, request, exception, spider):
@@ -134,4 +140,13 @@ class ScrapynetifDownloaderMiddleware:
         pass
 
     def spider_opened(self, spider):
+        spider.logger.info('Spider opened: %s' % spider.name)
+        spider.logger.info('Spider opened: %s' % spider.name)
+        spider.logger.info('Spider opened: %s' % spider.name)
+        spider.logger.info('Spider opened: %s' % spider.name)
+        spider.logger.info('Spider opened: %s' % spider.name)
+        spider.logger.info('Spider opened: %s' % spider.name)
+        spider.logger.info('Spider opened: %s' % spider.name)
+        spider.logger.info('Spider opened: %s' % spider.name)
+        spider.logger.info('Spider opened: %s' % spider.name)
         spider.logger.info('Spider opened: %s' % spider.name)
