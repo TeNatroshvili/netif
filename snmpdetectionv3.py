@@ -1,5 +1,13 @@
 from pysnmp.hlapi import *
 import socket
+from mongodb import get_database
+dbname = get_database()
+
+# Create a new collection
+collection = dbname["netif"]
+switches = collection["switches"]
+
+switch_id = 1
 
 devices = []
 for j in range(255):
@@ -41,5 +49,11 @@ for i in range(255):
     else:
         for var_bind in var_binds:
         # The CPU speed will be in the first variable binding
-            name = str(var_bind[1])
-            print("10.128.4." + str(i) + " --> " + name)
+            #switch_oid, switch_value = var_bind
+            #print(switch_value[1])
+            #print('%s = %s' % (switch_oid.prettyPrint(), switch_value.prettyPrint()))
+            switch_name = str(var_bind[1])
+            switch_ip = "10.128.4." + str(i)
+            print("10.128.4." + str(i) + " --> " + switch_name)
+            switches.insert_one({ "_id": switch_id, "name": switch_name, "ip": switch_ip })
+            switch_id = switch_id + 1
