@@ -1,11 +1,11 @@
 from pysnmp.hlapi import *
 
 # IP-Adresse und SNMP-Community-String des Netzwerkswitches
-ip_address = '10.128.10.19'
+ip_address = '10.128.4.45'
 community_string = 'public'
 
 # OID für das Modell des Netzwerkswitches (1.3.6.1.2.1.1.1.0)
-oid = '1.3.6.1.2.1.1.1.0'
+oid = "1.3.6.1.2.1.1.1.0"
 
 # SNMP-Abfrage durchführen
 errorIndication, errorStatus, errorIndex, varBinds = next(
@@ -25,5 +25,4 @@ elif errorStatus:
 else:
     for varBind in varBinds:
         oid, value = varBind
-        print(value[1])
-        print('%s = %s' % (oid.prettyPrint(), value.prettyPrint()))
+        print(value)

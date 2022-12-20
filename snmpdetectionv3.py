@@ -1,5 +1,6 @@
 from pysnmp.hlapi import *
 import socket
+import re
 from mongodb import get_database
 dbname = get_database()
 
@@ -19,15 +20,11 @@ for j in range(255):
     s.close()
 
 for i in range(255):
-# Replace with the IP address of the switch
     switch_ip = devices[i]
-    #switch_ip = "10.128.10.19"
-    #print(i+1)
-# Replace with the SNMP community string
     community = "public"
 
-# Replace with the OID for the CPU speed
     name_oid = "1.3.6.1.2.1.1.5.0"
+    name_oid2 = "1.3.6.1.2.1.1.1.0"
 
     error_indication, error_status, error_index, var_binds = next(
         getCmd(SnmpEngine(),
@@ -37,23 +34,27 @@ for i in range(255):
             ObjectType(ObjectIdentity(name_oid)))
     )
 
+    error_indication, error_status, error_index, var_binds2 = next(
+        getCmd(SnmpEngine(),
+            CommunityData(community),
+            UdpTransportTarget((switch_ip, 161), timeout=0, retries=0),
+            ContextData(),
+            ObjectType(ObjectIdentity(name_oid2)))
+    )
+
     if error_indication:
-     #print(error_indication)
-     #exit
-     print("10.128.4." + str(i) + " -->                                                            nicht vorhanden")
+     print(error_indication)
     elif error_status:
-    # print('%s at %s' % (error_status.prettyPrint(),
-     #                     error_index and var_binds[str(error_index) - 1][0] or '?'))
-      #exit
-      print("10.128.4." + str(i) + " -->                                                            nicht vorhanden")
+     print('%s at %s' % (error_status.prettyPrint(),
+                          error_index and var_binds[str(error_index) - 1][0] or '?'))
     else:
         for var_bind in var_binds:
-        # The CPU speed will be in the first variable binding
-            #switch_oid, switch_value = var_bind
-            #print(switch_value[1])
-            #print('%s = %s' % (switch_oid.prettyPrint(), switch_value.prettyPrint()))
+            switch_oid, switch_value = var_bind
+            switch_value2 = var_binds2
+            switch_data = re.split(r' = |, ', str(switch_value2[0])) 
             switch_name = str(var_bind[1])
             switch_ip = "10.128.4." + str(i)
-            print("10.128.4." + str(i) + " --> " + switch_name)
-            switches.insert_one({ "_id": switch_id, "name": switch_name, "ip": switch_ip })
+            switch_model = str(switch_data[1])
+            print("10.128.4." + str(i) + " --> " + switch_name +  " --> " + switch_model)
+            switches.insert_one({ "_id": switch_id, "name": switch_name, "ip": switch_ip, "model": switch_model})
             switch_id = switch_id + 1
