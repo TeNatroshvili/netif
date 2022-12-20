@@ -27,3 +27,8 @@
 - powershell im admin aufmachen
 - "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned" ausführen
 - "A" eingeben wenn gefragg wird
+----
+- von diesen link https://github.com/ktbyers/netmiko/releases
+- netmiko zip herunterladen
+- netmiko extrahieren
+- dann mit "pip install netmikospeicherplatz" installieren
