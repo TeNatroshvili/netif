@@ -1,7 +1,7 @@
 from pysnmp.hlapi import *
 import socket
 import re
-from mongodb import get_database
+from database_connection import get_database
 dbname = get_database()
 
 # Create a new collection
