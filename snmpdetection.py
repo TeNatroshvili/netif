@@ -12,7 +12,7 @@ switch_id = 1
 
 devices = []
 for j in range(255):
-    ip = "10.128.4." + str(j)
+    ip = "10.128.10." + str(j)
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.settimeout(0.01)
     if s.connect_ex((ip, 161)) == 0:
@@ -51,10 +51,10 @@ for i in range(255):
         for var_bind in var_binds:
             switch_oid, switch_value = var_bind
             switch_value2 = var_binds2
-            switch_data = re.split(r' = |, ', str(switch_value2[0])) 
+            switch_data = re.split(r' = |, | - ', str(switch_value2[0])) 
             switch_name = str(var_bind[1])
             switch_ip = "10.128.4." + str(i)
             switch_model = str(switch_data[1])
             print("10.128.4." + str(i) + " --> " + switch_name +  " --> " + switch_model)
-            switches.insert_one({ "_id": switch_id, "name": switch_name, "ip": switch_ip, "model": switch_model})
+            switches.insert_one({ "_id": switch_id, "ip": switch_ip, "name": switch_name, "model": switch_model})
             switch_id = switch_id + 1
