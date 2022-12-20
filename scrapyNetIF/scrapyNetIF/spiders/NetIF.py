@@ -4,6 +4,7 @@ from time import sleep
 from selenium.webdriver.chrome.service import Service
 from selenium import webdriver
 import time
+import requests
 
 
 def getDatasFromSNMPConfPage(response):
@@ -107,14 +108,32 @@ def getDatasFromInformationPage(response):
                 print(trunkNameList)
                 print(trunkMemberList)
 
+
+
+
+def postsomeThing(form_data):
+    print("ido post") 
+    login_data={"password":"Syp2223"}
+    url='http://10.128.10.19/ports/ports_bsc.html'
+    login_url='http://10.128.10.19/login.html'
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    response = requests.post(login_url, data=login_data, headers=headers)
+    print(response)
+    response = requests.post(url, data=form_data, headers=headers)
+    print(response)
+    
+
+
+
+
 class DemoySpider(scrapy.Spider):
     name = 'NetIF'
    # allowed_domains = ['www.youtube.com']
     
  #  start_urls = ['http://10.128.10.19/status/status_ov.html']
     
-       
 
+    
     def start_requests(self):
         urls = ['http://10.128.10.19/status/status_ov.html',
                 'http://10.128.10.19/ports/ports_bsc.html',
@@ -135,10 +154,23 @@ class DemoySpider(scrapy.Spider):
         option.add_experimental_option('excludeSwitches', ['enable-authmation'])
         ser = Service("./chromedriver.exe")
         self.bro = webdriver.Chrome(options=option,service=ser)
-    
-    
+
+    # def login_ok(login_data,arg3):
+    #     print("hereeeeeeee")
+    #     print("gelogged")
+    #     print(login_data)
+    #     print(arg3)
+    #     yield scrapy.FormRequest(url='http://10.128.10.19/login.html',formdata=login_data) 
+    #     form_data={"_submit":"Apply","R11":"2","R52":"on","R12":"2","R51":"1"}
+    #     yield scrapy.FormRequest(url='http://10.128.10.19/ports/ports_bsc.html',formdata=form_data,callback=login_data.help)
+
+    def help(self,response):
+        print(response)
 
     def parse(self, response):
+        print("login")
+
+        print("logged?")
         page_title=response.xpath('//td[@class="page_title"]/text()')[0].extract()
         print(page_title)
         match page_title:
