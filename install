@@ -27,8 +27,20 @@
 - powershell im admin aufmachen
 - "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned" ausführen
 - "A" eingeben wenn gefragg wird
-
---
-
-
-python -m pip install "pymongo[srv]"
+----------------
+pip install scrapy
+pip install selenium
+pip install -U flask-cors
+------------------
+Installieren eines Google Chrome Drivers hinsichtlich der Verwendung des Seleniums
+1. Zuerst die Version der Chrome herausfinden
+1.1 Chrome starten
+1.2 bei den 3 Punkten (rechts oben) clicken
+1.3 Optionen von "Hilfe" anzeigem
+1.4 Über Google Chrome
+1.5 dann sieht man die Versionsnummer
+2.download the right chrome driver version
+2.1 https://chromedriver.chromium.org/downloads/version-selection folgen
+2.2 bei uns https://chromedriver.storage.googleapis.com/index.html?path=108.0.5359.71/ aufmachen
+2.3 und eine zip herunterladen
+2.4 die extrahierte exe Datei hier unter Scrapy Projekt Verzeichnis reinhauen
