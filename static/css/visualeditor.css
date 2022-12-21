@@ -9,13 +9,34 @@ version: 1.0
 .content{
     display: grid;
     height: calc(100vh - 8.4rem);
+    grid-template-columns: 1fr 4fr;
+    grid-template-rows: repeat(2, auto);
+    width: 100%;
+}
+
+.switch-list{
+    grid-column: 1;
+    grid-row-start: 1;
+    grid-row-end: 3;
+    width: calc(100% - 1.3em);
+    margin-top: 3em;
+    margin-left: .4em;
+    padding: 0 .4em;
+
+    border: 1px solid #333;
 }
 
 .dragAndDrop{
-    height: calc80vh;
+    grid-column: 2;
+    grid-row: 1;
+    margin-top: 3em;
+    height: max-content;
+    border: 1px solid black;
+    border-left: none;
+
 }
 
 #switchField{
-    width: 80vw;
+    width: 100%;
     margin: auto;
 }

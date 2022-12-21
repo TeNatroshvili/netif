@@ -22,25 +22,25 @@
         var update = true;
     
         function init() {
-            var canv = document.getElementById('switchField');
-            var context = canv.getContext("2d")
+            // var canv = document.getElementById('switchField');
+            // var context = canv.getContext("2d")
            
-            // examples.showDistractor();
-            // // create stage and point it to the canvas:
-            // canvas = document.getElementById("switchField");
-            // stage = new createjs.Stage(canvas);
+            examples.showDistractor();
+            // create stage and point it to the canvas:
+            canvas = document.getElementById("switchField");
+            stage = new createjs.Stage(canvas);
     
-            // // enable touch interactions if supported on the current device:
-            // createjs.Touch.enable(stage);
+            // enable touch interactions if supported on the current device:
+            createjs.Touch.enable(stage);
     
-            // // enabled mouse over / out events
-            // // stage.enableMouseOver(10);
-            // stage.mouseMoveOutside = true; // keep tracking the mouse even when it leaves the canvas
+            // enabled mouse over / out events
+            // stage.enableMouseOver(10);
+            stage.mouseMoveOutside = true; // keep tracking the mouse even when it leaves the canvas
     
-            // // load the source image:
-            // var image = new Image();
-            // image.src = "../static/images/switch.png";
-            // image.onload = handleImageLoad;
+            // load the source image:
+            var image = new Image();
+            image.src = "../static/images/switch.png";
+            image.onload = handleImageLoad;
         }
     
         function stop() {
@@ -125,13 +125,19 @@
         </div>
     </div>
     <div class="content">
+        <div class="switch-list">
+            <p>Switch #1 - N313</p>
+            <p>Switch #2 - N314</p>
+            <p>Switch #3 - N315</p>
+            <p>Switch #4 - N330</p>
+            <p>Switch #5 - N331</p>
+            <p>Switch #6 - N306</p>
+        </div>
         <div class="dragAndDrop">
             <canvas id="switchField">
                 Canvas is not supported by your Browser
             </canvas>
         </div>
-        <img src="{{url_for('static', filename='images/switch.svg')}}" width="50px" style="z-index:100">
-        
     </div>
     <div class="footer">
         <p>© 2022-2023 - Baumann, Chen, Natroshvili, Stiefsohn</p>
