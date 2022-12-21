@@ -17,13 +17,12 @@ def set_rate_limit():
     
 
 @app.route('/')
-def hello_world():  # put application's code here
-    print("hello")
+def dashboard():
     return render_template('dashboard.html')
 
+@app.route('/visualeditor')
+def visualeditor():
+    return render_template('visualeditor.html')
 
 if __name__ == '__main__':
-    print("Lukas")
-    app.run()
-
-
+    app.run(debug=1)
