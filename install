@@ -31,6 +31,7 @@
 pip install scrapy
 pip install selenium
 pip install -U flask-cors
+pip install "pymongo[srv]"
 ------------------
 Installieren eines Google Chrome Drivers hinsichtlich der Verwendung des Seleniums
 1. Zuerst die Version der Chrome herausfinden
