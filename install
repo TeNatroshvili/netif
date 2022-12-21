@@ -27,3 +27,8 @@
 - powershell im admin aufmachen
 - "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned" ausführen
 - "A" eingeben wenn gefragg wird
+
+--
+
+
+python -m pip install "pymongo[srv]"
