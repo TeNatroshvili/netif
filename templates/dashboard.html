@@ -25,14 +25,12 @@
         </div>
     </div>
     <div class="content">
-        <form action="/setRateLimit" method="post" >
-            <input type="text" value="limit" id="data11" name="data2">
-            <input type="text" value="true" id="data12" name="data1">
-            <label for="name">Name:</label><br>
-            <input type="text" id="name" name="name"><br>
-            <label for="email">Email:</label><br>
-            <input type="text" id="email" name="email"><br><br>
-        <input type="submit" value="Submit">
+        <form action="/setSNMP" method="post" >
+            <div class="">
+                <input type="checkbox" name="snmp_on" value="1">SNMP on
+                <input type='hidden' value='0' name='snmp_on'>
+            </div>
+                    <input type="submit" value="Submit">
     </form>
     </div>
     <div class="footer">

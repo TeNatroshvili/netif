@@ -19,11 +19,24 @@ version: 1.0
     grid-row-start: 1;
     grid-row-end: 3;
     width: calc(100% - 1.3em);
-    margin-top: 3em;
-    margin-left: .4em;
+    margin: 3em 0 .2em .4em;
     padding: 0 .4em;
+    border: .25em solid var(--green);
+    overflow-y: scroll;
 
-    border: 1px solid #333;
+    background-color: var(--green);
+}
+
+.switch-list-item{
+    background-color: #f6f6f6;
+    border-radius: 4px;
+    margin: .4em 0;
+    padding: .6em;
+}
+
+.switch-list p{
+    margin: 0;
+    padding: 0;
 }
 
 .dragAndDrop{
