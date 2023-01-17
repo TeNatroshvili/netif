@@ -1,19 +1,22 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 import json
 import scrapy
 from scrapyNetIF.scrapyNetIF.spiders.NetIF import postsomeThing
+import requests
 app = Flask(__name__)
 
 
 
-@app.route('/setRateLimit',methods=['Get','POST'])
-def set_rate_limit():
-    print("requestdata")
-    print(request.args)
-    login_data={"password":"Syp2223"}
-    form_data={"_submit":"Apply","R11":"2","R52":"on","R12":"2","R51":"1"}
-    postsomeThing(form_data)
-    return "done"
+@app.route('/save_system_snmp',methods=['POST'])
+def save_system_snmp():
+    snmp = request.form["snmp_on"]
+    data = {"_submit": "Apply", "btnSaveSettings": "APPLY"}
+    #check with data need to be saved when checkboxes or set text automatically
+    if('1'==snmp):
+        data["SNMP"] = "1"
+
+    response = requests.post("http://10.128.10.19/system/system_snmp.html", data=data, auth=("username", "Syp2223"))
+    return redirect('/')
     
 
 @app.route('/')
