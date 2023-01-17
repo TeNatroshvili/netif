@@ -2,3 +2,8 @@
 venv/
 .venv/
 __pycache__/
+scrapyNetIF/scrapyNetIF/__pycache__/settings.cpython-310.pyc
+scrapyNetIF/scrapyNetIF/__pycache__/settings.cpython-310.pyc
+scrapyNetIF/scrapyNetIF/__pycache__/settings.cpython-310.pyc
+scrapyNetIF/scrapyNetIF/spiders/__pycache__/__init__.cpython-310.pyc
+scrapyNetIF/scrapyNetIF/spiders/__pycache__/NetIF.cpython-310.pyc
