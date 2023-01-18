@@ -14,6 +14,8 @@
     <script src="{{url_for('static', filename='js/easeljs-NEXT.min.js')}}"></script>
 
     <script id="editable">
+        var switches = document.getElementsByClassName('switch-list-item-ip')
+        
         var canvas, stage;
 
         var mouseTarget; // the display object currently under the mouse, or being dragged
@@ -49,28 +51,23 @@
 
         function handleImageLoad(event) {
             var image = event.target;
-            console.log(image.width)
-            var bitmap;
+            var shape;
             var container = new createjs.Container();
             stage.addChild(container);
 
-            // create and populate the screen with random daisies:
-            for (var i = 0; i < 100; i++) {
-                bitmap = new createjs.Shape("../static/images/switch.png");
-                bitmap.width = 50;
-                bitmap.height = 50;
-
-                container.addChild(bitmap);
-                bitmap.x = canvas.width;
-                bitmap.y = canvas.height;
-                bitmap.regX = bitmap.image.width;
-                bitmap.regY = bitmap.image.height;
-                bitmap.name = "bmp_" + i;
-                bitmap.cursor = "pointer";
+            for (var i = 0; i < switches.length; i++) {
+                shape = new createjs.Bitmap('../static/images/switch.png')
+                shape.width = shape.height = 100;
+            
+                var text = new createjs.Text();
+                text.text = switches[i].text
+                container.addChild(shape);
+                container.addChild(text)
+         
 
                 // using "on" binds the listener to the scope of the currentTarget by default
                 // in this case that means it executes in the scope of the button.
-                bitmap.on("mousedown", function (evt) {
+                shape.on("mousedown", function (evt) {
                     this.parent.addChild(this);
                     this.offset = {
                         x: this.x - evt.stageX,
@@ -79,19 +76,19 @@
                 });
 
                 // the pressmove event is dispatched when the mouse moves after a mousedown on the target until the mouse is released.
-                bitmap.on("pressmove", function (evt) {
+                shape.on("pressmove", function (evt) {
                     this.x = evt.stageX + this.offset.x;
                     this.y = evt.stageY + this.offset.y;
                     // indicate that the stage should be updated on the next tick:
                     update = true;
                 });
 
-                bitmap.on("rollover", function (evt) {
+                shape.on("rollover", function (evt) {
                     this.scale = this.originalScale;
                     update = true;
                 });
 
-                bitmap.on("rollout", function (evt) {
+                shape.on("rollout", function (evt) {
                     this.scale = this.originalScale;
                     update = true;
                 });
@@ -133,12 +130,12 @@
             <div class="switch-list-item">
                 <p style="font-weight: bold;">{{ item.name }}</p>
                 <p style="font-size: .8em;">{{ item.model }}</p>
-                <p>{{ item.ip }}</p>
+                <p class="switch-list-item-ip">{{ item.ip }}</p>
             </div>
             {% endfor %}
         </div>
         <div class="dragAndDrop">
-            <canvas id="switchField">
+            <canvas id="switchField" width="1920px" height="1080px">
                 Canvas is not supported by your Browser
             </canvas>
         </div>
