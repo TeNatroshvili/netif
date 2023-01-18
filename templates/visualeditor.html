@@ -24,9 +24,6 @@
         var update = true;
 
         function init() {
-            // var canv = document.getElementById('switchField');
-            // var context = canv.getContext("2d")
-
             examples.showDistractor();
             // create stage and point it to the canvas:
             canvas = document.getElementById("switchField");
@@ -56,13 +53,17 @@
             stage.addChild(container);
 
             for (var i = 0; i < switches.length; i++) {
-                shape = new createjs.Bitmap('../static/images/switch.png')
-                shape.width = shape.height = 100;
+                shape = new createjs.Container()
+                bitmap = new createjs.Bitmap(image)
+                bitmap.width = shape.height = 100;
+                var text = new createjs.Text(switches[i].innerHTML,"40px Arial");
+                text.y = 120
+                shape.addChild(bitmap)
+                shape.addChild(text)
             
-                var text = new createjs.Text();
-                text.text = switches[i].text
+               
+                console.log(text)
                 container.addChild(shape);
-                container.addChild(text)
          
 
                 // using "on" binds the listener to the scope of the currentTarget by default
