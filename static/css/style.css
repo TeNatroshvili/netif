@@ -10,6 +10,7 @@ version: 1.2
 
 :root {
     --green: #aceb1b;
+    --white: #f6f6f6;
     font-size: 16px;
     font-family: Arial, Helvetica, sans-serif;
 }
@@ -117,9 +118,10 @@ body {
 /* Content */
 
 .content {
-    position: absolute;
-    top: 5rem;
+    position: relative;
+    top: 3rem;
     bottom: 3.4rem;
+    margin-bottom: 3.4rem;
 }
 
 /* Footer */

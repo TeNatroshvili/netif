@@ -24,7 +24,7 @@ def save_system_snmp():
 
 @app.route('/')
 def dashboard():
-    return render_template('dashboard.html')
+    return render_template('dashboard.html', switches = switches.find())
 
 @app.route('/visualeditor')
 def visualeditor():
