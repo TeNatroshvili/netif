@@ -1,0 +1,13 @@
+/**********************
+file: dashboard.css
+author: Baumann Danièl
+created: 2023-01-23
+changed: 2023-01-23
+version: 1.0
+***********************/
+
+.content{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
