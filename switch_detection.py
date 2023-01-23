@@ -1,12 +1,7 @@
 from pysnmp.hlapi import *
 import socket
 import re
-from database_connection import get_database
-dbname = get_database()
-
-# Create a new collection
-collection = dbname["netif"]
-switches = collection["switches"]
+from mongodb import switches
 
 switch_id = 1
 
