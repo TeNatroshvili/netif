@@ -1,12 +1,12 @@
 from reportlab.pdfgen import canvas
-import mongotest as mo
+from reportlab.lib.pagesizes import A4
+from mongodb import switches
 
-# Erstelle ein neues PDF-Dokument mit einer Breite von 200 und einer Höhe von 300
-c = canvas.Canvas("pdftest/mein_pdf.pdf", pagesize=(700, 200))
+c = canvas.Canvas("reports/mein_pdf.pdf", pagesize=A4)
 
 # Zeichne einen Text auf das PDF-Dokument
 i=1
-for x in mo.switches.find():
+for x in switches.find():
   print(x)
   c.drawString(10, (190-(i*10)), str(x))
   i=i+1
