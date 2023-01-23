@@ -11,7 +11,7 @@ BOT_NAME = 'scrapyNetIF'
 
 SPIDER_MODULES = ['scrapyNetIF.spiders']
 NEWSPIDER_MODULE = 'scrapyNetIF.spiders'
-
+SWTICH_JSON_OBJECT={}
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'scrapyNetIF (+http://www.yourdomain.com)'

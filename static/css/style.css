@@ -34,6 +34,10 @@ body {
 
     font-size: 1.2rem;
     font-style: bold;
+
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
 }
 
 .header .menue-items {

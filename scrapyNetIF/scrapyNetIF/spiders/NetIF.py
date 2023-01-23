@@ -5,23 +5,26 @@ from selenium.webdriver.chrome.service import Service
 from selenium import webdriver
 import time
 import requests
+import json
+from pymongo import MongoClient
 
-
-def getDatasFromSNMPConfPage(response):
+def getDatasFromSNMPConfPage(response,switch_json_object):
     print("SNMPConf-script----------------")
     script=response.xpath('//script/text()')[0].extract()
     scriptText= script.split("var")
     snmpEnabled=scriptText[2].split('"')[1].split('"')[0]
+    switch_json_object["snmpEnabled"]=snmpEnabled
     print(snmpEnabled)
 
-def getDatasFromLLDPConfPage(response):
+def getDatasFromLLDPConfPage(response,switch_json_object):
     print("LLDPConf-script----------------")
     script=response.xpath('//script/text()')[0].extract()
     scriptText= script.split("var")
     lldpEnabledList=scriptText[4].split("(")[1].split(")")[0].split(",")
+    switch_json_object["lldpEnabledList"]=lldpEnabledList
     print(lldpEnabledList)
 
-def getDatasFromVlanPortConfPage(response):
+def getDatasFromVlanPortConfPage(response,switch_json_object):
     print("VlanPortConf-script----------------")
     script=response.xpath('//script/text()')[0].extract()
     scriptText= script.split("var")
@@ -29,33 +32,41 @@ def getDatasFromVlanPortConfPage(response):
     packetTypeList=scriptText[6].split("(")[1].split(")")[0].split(",")
     pvidList=scriptText[7].split("(")[1].split(")")[0].split(",")
     ingressFilteringList=scriptText[9].split("(")[1].split(")")[0].split(",")
+    switch_json_object["vlanEnabled"]=vlanEnabled
+    switch_json_object["packetTypeList"]=packetTypeList
+    switch_json_object["pvidList"]=pvidList
+    switch_json_object["ingressFilteringList"]=ingressFilteringList
     print(vlanEnabled)
     print(packetTypeList)
     print(pvidList)
     print(ingressFilteringList)
 
-def getDatasFromLacpSettingPage(response):
+def getDatasFromLacpSettingPage(response,switch_json_object):
     print("lacp_setting-script----------------")
     script=response.xpath('//script/text()')[1].extract()
     scriptText= script.split("var")
     lacpEnabledList=scriptText[6].split("(")[1].split(")")[0].split(",")
     lacpEnabledJKeyvalueList=scriptText[7].split("(")[1].split(")")[0].split(",")
+    switch_json_object["lacpEnabledList"]=lacpEnabledList
+    switch_json_object["lacpEnabledJKeyvalueList"]=lacpEnabledJKeyvalueList
     print(lacpEnabledList)
     print(lacpEnabledJKeyvalueList)
 
 
-def getDatasFromRateLimitPage(response):
+def getDatasFromRateLimitPage(response,switch_json_object):
     print("rate_limit-script----------------")
     script=response.xpath('//script/text()')[0].extract()
     scriptText= script.split("var")
     rateLimitEnabled=scriptText[7].split("(")[1].split(")")[0].split(",")[1]
     limitIndex=scriptText[6].split("(")[1].split(")")[0].split(",")[2]
     limit=scriptText[3].split("(")[1].split(")")[0].split(",")[int(limitIndex)]
+    switch_json_object["rateLimitEnabled"]=rateLimitEnabled
+    switch_json_object["limit"]=limit
     print(rateLimitEnabled)
     print(limit)
 
 
-def getDatasFromPortConfigurationPage(response):
+def getDatasFromPortConfigurationPage(response,switch_json_object):
     print("port_config-script----------------")
     script=response.xpath('//script/text()')[0].extract()
     scriptText= script.split("var")
@@ -65,18 +76,22 @@ def getDatasFromPortConfigurationPage(response):
     else:
         jumbo_enabled="unchecked"
     print(jumbo_enabled)
+    switch_json_object["jumbo_enabled"]=jumbo_enabled
 
-def getDatasFromPortsMirrorPage(response):
-    print("port_mirror-script----------------")
+def getDatasFromPortsMirrorPage(response,switch_json_object):
+   # print("port_mirror-script----------------")
     script=response.xpath('//script/text()')[0].extract()
     scriptText= script.split("var")
     port_to_mirror_to=scriptText[1].split('"')[1].split('"')[0]
     ports_to_mirrorList=scriptText[2].split("(")[1].split(")")[0].split(",")
-    print(port_to_mirror_to)
-    print(ports_to_mirrorList)
+    switch_json_object["port_to_mirror_to"]=port_to_mirror_to
+    switch_json_object["ports_to_mirrorList"]=ports_to_mirrorList
 
-def getDatasFromInformationPage(response):
-                print("infomation-script----------------")
+    # print(port_to_mirror_to)
+    # print(ports_to_mirrorList)
+
+def getDatasFromInformationPage(response,switch_json_object):
+                # print("infomation-script----------------")
                 script=response.xpath('//script/text()')[0].extract()
                 scriptText= script.split("var")
                  
@@ -89,7 +104,14 @@ def getDatasFromInformationPage(response):
                 mac_adreese=response.xpath('/html/body/form/table//tr[1]/td/table//tr[3]/td/table[1]//tr[15]/td[2]/text()').extract()
                 print(system_name," ", serial_number," ",ip_adresse," ",
                 subnet_mask," ",gateway_ip," ",mac_adreese)
-               
+                switch_json_object["system_name"]=system_name
+                switch_json_object["serial_number"]=serial_number
+                switch_json_object["ip_adresse"]=ip_adresse
+                switch_json_object["subnet_mask"]=subnet_mask
+                switch_json_object["gateway_ip"]=gateway_ip
+                switch_json_object["mac_adreese"]=mac_adreese
+
+
                 linksStatusList=scriptText[4].split("(")[1].split(")")[0].split(",")
                 portsSpeedList=scriptText[5].split("(")[1].split(")")[0].split(",")
                 flowControlStatusList=scriptText[6].split("(")[1].split(")")[0].split(",")
@@ -98,15 +120,24 @@ def getDatasFromInformationPage(response):
                 pvidList=scriptText[9].split("(")[1].split(")")[0].split(",")
                 trunkNameList=scriptText[10].split("(")[1].split(")")[0].split(",")
                 trunkMemberList=scriptText[11].split("(")[1].split(")")[0].split(",")
-                
-                print(linksStatusList)
-                print(portsSpeedList)
-                print(flowControlStatusList)
-                print(autoNegotiationList)
-                print(frameTypeList)
-                print(pvidList)
-                print(trunkNameList)
-                print(trunkMemberList)
+
+                switch_json_object["linksStatusList"]=linksStatusList
+                switch_json_object["portsSpeedList"]=linksStatusList
+                switch_json_object["flowControlStatusList"]=linksStatusList
+                switch_json_object["autoNegotiationList"]=linksStatusList
+                switch_json_object["frameTypeList"]=linksStatusList
+                switch_json_object["pvidList"]=linksStatusList
+                switch_json_object["trunkNameList"]=linksStatusList
+                switch_json_object["trunkMemberList"]=linksStatusList
+
+                # print(linksStatusList)
+                # print(portsSpeedList)
+                # print(flowControlStatusList)
+                # print(autoNegotiationList)
+                # print(frameTypeList)
+                # print(pvidList)
+                # print(trunkNameList)
+                # print(trunkMemberList)
 
 
 
@@ -118,9 +149,9 @@ def postsomeThing(form_data):
     login_url='http://10.128.10.19/login.html'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
     response = requests.post(login_url, data=login_data, headers=headers)
-    print(response)
+#    print(response)
     response = requests.post(url, data=form_data, headers=headers)
-    print(response)
+#    print(response)
     
 
 
@@ -128,14 +159,8 @@ def postsomeThing(form_data):
 
 class DemoySpider(scrapy.Spider):
     name = 'NetIF'
-   # allowed_domains = ['www.youtube.com']
-    
- #  start_urls = ['http://10.128.10.19/status/status_ov.html']
-    
-
-    
-    def start_requests(self):
-        urls = ['http://10.128.10.19/status/status_ov.html',
+    start_urls = [
+        'http://10.128.10.19/status/status_ov.html',
                 'http://10.128.10.19/ports/ports_bsc.html',
                 'http://10.128.10.19/ports/ports_config.html',
                 'http://10.128.10.19/ports/ports_mir.html',
@@ -143,10 +168,22 @@ class DemoySpider(scrapy.Spider):
                 'http://10.128.10.19/vlans/vlan_pconf.html',
                 'http://10.128.10.19/vlans/vlan_mconf.html',
                 'http://10.128.10.19/lldp/lldpconf.html',
-                'http://10.128.10.19/system/system_snmp.html'
-                ]
-        for url in urls:
-            yield scrapy.Request(url=url, callback=self.parse)
+                'http://10.128.10.19/system/system_snmp.html',
+    ]
+
+    # def start_requests(self):
+    #     urls = ['http://10.128.10.19/status/status_ov.html',
+    #             'http://10.128.10.19/ports/ports_bsc.html',
+    #             'http://10.128.10.19/ports/ports_config.html',
+    #             'http://10.128.10.19/ports/ports_mir.html',
+    #             'http://10.128.10.19/trunks/lacp.html',
+    #             'http://10.128.10.19/vlans/vlan_pconf.html',
+    #             'http://10.128.10.19/vlans/vlan_mconf.html',
+    #             'http://10.128.10.19/lldp/lldpconf.html',
+    #             'http://10.128.10.19/system/system_snmp.html'
+    #             ]
+    #     for url in urls:
+    #         yield scrapy.Request(url=url, callback=self.parse)
 
     def __init__(self): 
         print("hehrere")
@@ -168,32 +205,52 @@ class DemoySpider(scrapy.Spider):
         print(response)
 
     def parse(self, response):
-        print("login")
+    
+        switch_json_object=self.settings["SWTICH_JSON_OBJECT"]
+        print("login",switch_json_object)
 
         print("logged?")
         page_title=response.xpath('//td[@class="page_title"]/text()')[0].extract()
         print(page_title)
         match page_title:
             case "System Information":
-                getDatasFromInformationPage(response)
+
+                getDatasFromInformationPage(response,switch_json_object)
             case "Rate Limits":
-                getDatasFromRateLimitPage(response)
+                getDatasFromRateLimitPage(response,switch_json_object)
             case "Port Configuration":
-                getDatasFromPortConfigurationPage(response)
+                getDatasFromPortConfigurationPage(response,switch_json_object)
             case "Port Mirroring":
-                getDatasFromPortsMirrorPage(response)
+                getDatasFromPortsMirrorPage(response,switch_json_object)
             case "LACP Setting":
-                getDatasFromLacpSettingPage(response)
+                getDatasFromLacpSettingPage(response,switch_json_object)
             case "802.1Q Per Port Configuration":
-                getDatasFromVlanPortConfPage(response)
+                getDatasFromVlanPortConfPage(response,switch_json_object)
             case "LLDP Configuration":
-                getDatasFromLLDPConfPage(response)
+                getDatasFromLLDPConfPage(response,switch_json_object)
             case "SNMP Configuration":
-                getDatasFromSNMPConfPage(response)
+                getDatasFromSNMPConfPage(response,switch_json_object)
+
                 
 
 
-    
+    def closed(self, reason):
+        switch_json_object=self.settings.get("SWTICH_JSON_OBJECT")
+        print("im doneee")
+        print(switch_json_object)
+        CONNECTION_STRING = "mongodb://admin:admin@10.128.10.7/netif"
+
+        dbname =  MongoClient(CONNECTION_STRING)
+
+        # Create a new collection
+        collection = dbname["netif"]
+        switches = collection["chenSwitchInfos"]
+        switches.insert_one(switch_json_object)
+        print("done insert")
+        for x in switches.find():
+          print(x)
+
+
 
 
         

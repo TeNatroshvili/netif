@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/dashboard.css')}}">
 </head>
 
 <body>
@@ -25,11 +26,15 @@
         </div>
     </div>
     <div class="content">
-        <form action="/save_system_snmp" method="post">
-            <input type="checkbox" value="1" name="snmp_on">SNMP ON
-            <input type="hidden" value="0" name="snmp_on">
-            <input type="submit" value="Submit">
-        </form>
+       <div class="switch-list">
+           
+       </div>
+       <div class="report-list">
+            reports download
+       </div>
+       <div class="performance-diagram">
+            moin meister
+       </div>
     </div>
     <div class="footer">
         <p>© 2022-2023 - Baumann, Chen, Natroshvili, Stiefsohn</p>
