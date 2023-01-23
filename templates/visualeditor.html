@@ -23,6 +23,17 @@
         var offset;
         var update = true;
 
+        var container = new createjs.Container();
+
+        function hideShapeById(shape_id){
+            container.children.forEach(shape => {
+                if(shape.id == shape_id){
+                    update = true;
+                    shape.visible = !document.getElementById('eye-'+shape_id).checked;
+                }
+            });
+        }
+
         function init() {
             examples.showDistractor();
             // create stage and point it to the canvas:
@@ -49,20 +60,25 @@
         function handleImageLoad(event) {
             var image = event.target;
             var shape;
-            var container = new createjs.Container();
+            var posx = 10;
+            var posy = 10;
+
             stage.addChild(container);
 
             for (var i = 0; i < switches.length; i++) {
                 shape = new createjs.Container()
+                shape.id = switches[i].innerHTML
                 bitmap = new createjs.Bitmap(image)
+                bitmap.border
                 bitmap.width = shape.height = 100;
-                var text = new createjs.Text(switches[i].innerHTML,"40px Arial");
-                text.y = 120
+                var text = new createjs.Text(switches[i].innerHTML,"17px Arial");
+                text.y = 110
                 shape.addChild(bitmap)
                 shape.addChild(text)
             
-               
-                console.log(text)
+                shape.x = posx;
+                shape.y = posy;
+                posx = posx + 110;
                 container.addChild(shape);
          
 
@@ -94,7 +110,14 @@
                     update = true;
                 });
 
+                
+
             }
+
+            container.children.forEach(shape => {
+                    update = true;
+                    shape.visible = !document.getElementById('eye-'+shape.id).checked;
+            });
 
             examples.hideDistractor();
             createjs.Ticker.addEventListener("tick", tick);
@@ -129,14 +152,18 @@
         <div class="switch-list">
             {% for item in switches %}
             <div class="switch-list-item">
+                <div class="visible-icon">
+                    <input id="eye-{{item.ip}}" class="visible-check" type="checkbox" onclick="hideShapeById('{{ item.ip }}')">
+                    <label for="eye-{{item.ip}}">
+                </div>
                 <p style="font-weight: bold;">{{ item.name }}</p>
                 <p style="font-size: .8em;">{{ item.model }}</p>
-                <p class="switch-list-item-ip">{{ item.ip }}</p>
+                <p class="switch-list-item-ip">{{ item.ip }}</p> 
             </div>
             {% endfor %}
         </div>
         <div class="dragAndDrop">
-            <canvas id="switchField" width="1920px" height="1080px">
+            <canvas id="switchField" width="1920px" height="900px">
                 Canvas is not supported by your Browser
             </canvas>
         </div>
