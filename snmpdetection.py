@@ -12,7 +12,8 @@ switch_id = 1
 
 devices = []
 for j in range(255):
-    ip = "10.128.4." + str(j)
+# ip = "10.128.4." + str(j)
+    ip = "192.168.0." + str(j)
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.settimeout(0.01)
     if s.connect_ex((ip, 161)) == 0:
