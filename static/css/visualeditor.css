@@ -19,7 +19,7 @@ version: 1.1
     grid-row-start: 1;
     grid-row-end: 3;
     width: calc(100% - 1.3em);
-    margin: 1em 0 .4em .4em;
+    margin: 1em 0 3.4em .4em;
     padding: 0 .4em;
     border: .25em solid var(--green);
     overflow-y: scroll;

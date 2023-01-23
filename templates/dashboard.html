@@ -6,12 +6,66 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
+    <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='images/favicon.ico')}}">
     <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
     <link rel="stylesheet" href="{{url_for('static', filename='css/dashboard.css')}}">
     <script>
-        function openSettings(ip) {
-            console.log("moni")
+        var modal, btn, span, header, content, footer, settings
+        window.onload = function () {
+            // Get the modal
+            modal = document.getElementById("myModal");
+
+            // Get the button that opens the modal
+            btn = document.getElementById("myBtn");
+
+            // Get the <span> element that closes the modal
+            span = document.getElementsByClassName("close")[0];
+            header = document.getElementsByClassName("header")[0]
+            content = document.getElementsByClassName("content")[0]
+            footer = document.getElementsByClassName("footer")[0]
         }
+
+        // // When the user clicks anywhere outside of the modal, close it
+        // window.addEventListener('click', function (event) {
+        //     console.log("jojo")
+        //     if (event.target == modal) {
+        //         modal.style.display = "none";
+        //     }
+        // })
+
+        function openSettings(ip, settings) {
+
+            // var settings = JSON.parse(settings);
+
+            bluredBackground(true)
+            modal.style.display = "block";
+
+            document.getElementById("systemname").value = "Procurve xxx"//settings['system_name']
+            document.getElementById("serialnumber")
+            document.getElementById("ipadress")
+            document.getElementById("subnetmask")
+            document.getElementById("gatewayadress")
+            document.getElementById("macadress")
+        }
+
+        function bluredBackground(yes) {
+            if (yes) {
+                header.classList.add('blur')
+                content.classList.add('blur')
+                footer.classList.add('blur')
+            } else {
+                header.classList.remove('blur')
+                content.classList.remove('blur')
+                footer.classList.remove('blur')
+            }
+        }
+
+        function closeSettings() {
+            bluredBackground(false)
+            modal.style.display = "none";
+        }
+
+
     </script>
 </head>
 
@@ -22,7 +76,7 @@
         </div>
         <div class="menue-items">
             <div class="item"><a href="/">Dashboard</a></div>
-            <div class="item"><a>Reports</a></div>
+            <div class="item"><a href="/reports">Reports</a></div>
             <div class="item"><a href="/visualeditor">Visual Editor</a></div>
             <div class="logo-text"><img src="{{url_for('static', filename='images/logo_font.svg')}}" alt="NETIF"></div>
             <div class="item"><a>Ports</a></div>
@@ -32,9 +86,18 @@
     </div>
     <div class="content">
         <div class="switch-list">
+            <div class="switch-list-item">
+                <img class="gear-icon modal-toggle" onclick="openSettings('10.128.10.19','{{settings}}')"
+                    src="{{url_for('static', filename='images/gear.svg')}}">
+                <div class="name-text">
+                    <p style="font-weight: bold; font-size: 1.2em;">Test Switch</p>
+                    <p style="font-size: 1em;">Test Switch</p>
+                    <p style="font-size: 1em;">10.128.10.19</p>
+                </div>
+            </div>
             {% for item in switches %}
             <div class="switch-list-item">
-                <img class="gear-icon" onclick="openSettings('{{item.ip}}')"
+                <img class="gear-icon modal-toggle" onclick="openSettings('{{item.ip}}','{{settings}}')"
                     src="{{url_for('static', filename='images/gear.svg')}}">
                 <div class="name-text">
                     <p style="font-weight: bold; font-size: 1.2em;">{{ item.name }}</p>
@@ -45,11 +108,25 @@
             {% endfor %}
         </div>
         <div class="report-list">
-            reports download
+            latest reports
         </div>
         <div class="performance-diagram">
-            moin meister
+            netzauslastung
         </div>
+    </div>
+    <div id="myModal" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <span class="close" onclick="closeSettings()">&times;</span>
+            Systemname: <input type="text" id="systemname"><br>
+            Serial Number: <input type="text" id="serialnumber"><br>
+            IPv4 Adress: <input type="text" id="ipadress"><br>
+            Subnetmask: <input type="text" id="subnetmask"><br>
+            Gatewayadress: <input type="text" id="gatewayadress"><br>
+            MAC Adress: <input type="text" id="macadress"><br>
+            <button>Save</button>
+        </div>
+
     </div>
     <div class="footer">
         <p>© 2022-2023 - Baumann, Chen, Natroshvili, Stiefsohn</p>
