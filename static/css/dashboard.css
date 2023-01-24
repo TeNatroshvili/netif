@@ -111,3 +111,8 @@ version: 1.0
     -o-filter: blur(4px);
     -ms-filter: blur(4px);
 }
+
+.modal input{
+    padding: .5em;
+    margin: .3em
+}

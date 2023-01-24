@@ -3,6 +3,8 @@ from bson.json_util import dumps
 from scrapyNetIF.scrapyNetIF.spiders.NetIF import postsomeThing
 from report_generation import gen_report
 import requests
+import subprocess
+import os
 
 from mongodb import switches, settings
 app = Flask(__name__)
@@ -24,7 +26,14 @@ def save_system_snmp():
 @app.route('/')
 def dashboard():
     print(settings)
-    return render_template('dashboard.html', switches = switches.find(), settings = settings.find()) #dumps wenn gefixt
+    return render_template('dashboard.html', switches = switches.find())
+
+@app.route('/scrap')
+def scrap_settings():
+    # os.chdir(os.path.dirname(__file__)+"/scrapyNetIF/scrapyNetIF")
+    # process = subprocess.Popen(["scrapy", "crawl", "NetIF"])
+    # return dumps(settings.find())
+    return {"ok":"ok"}
 
 @app.route('/visualeditor')
 def visualeditor():

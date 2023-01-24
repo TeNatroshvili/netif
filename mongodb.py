@@ -6,7 +6,7 @@ dbname = get_database()
 # Create a new collection
 collection = dbname["netif"]
 switches = collection["switches"]
-settings = collection["chenSwitchInfos"]
+settings = collection["settings"]
 #switches.insert_one({ "name": "test 3", "address": "Highway 37" })
 #switches.delete_many({ "name": "test 3", "address": "Highway 37" })
 #switches.delete_many({})
@@ -14,4 +14,7 @@ settings = collection["chenSwitchInfos"]
 # for name in collection.list_collection_names():
 #     print(name)
 
-# collection.create_collection("switches")
+for switch in switches.find():
+    print(switch)
+# collection.create_collection("settings")
+# collection.drop_collection("test_switchdata")
