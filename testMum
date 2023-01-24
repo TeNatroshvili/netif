@@ -1,0 +1,9 @@
+import subprocess
+import os
+
+
+def run_spider():
+    os.chdir("netif/scrapyNetIF/scrapyNetIF")
+    process = subprocess.Popen(["scrapy", "crawl", "NetIF"])
+
+run_spider()

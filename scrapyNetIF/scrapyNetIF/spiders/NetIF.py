@@ -8,6 +8,7 @@ import requests
 import json
 from pymongo import MongoClient
 import re
+import subprocess
 
 def getDatasFromSNMPConfPage(response,switch_json_object):
    # print("SNMPConf-script----------------")
@@ -218,11 +219,12 @@ class DemoySpider(scrapy.Spider):
     #     for url in urls:
     #         yield scrapy.Request(url=url, callback=self.parse)
 
-    def __init__(self): 
-        option = webdriver.ChromeOptions()
-        option.add_experimental_option('excludeSwitches', ['enable-authmation'])
-        ser = Service("./chromedriver.exe")
-        self.bro = webdriver.Chrome(options=option,service=ser)
+    # def __init__(self):
+    #     login() 
+        # option = webdriver.ChromeOptions()
+        # option.add_experimental_option('excludeSwitches', ['enable-authmation'])
+        # ser = Service("./chromedriver.exe")
+        # self.bro = webdriver.Chrome(options=option,service=ser)
 
     # def login_ok(login_data,arg3):
     #     print("hereeeeeeee")
