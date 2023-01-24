@@ -68,8 +68,9 @@ def getDatasFromRateLimitPage(response,switch_json_object):
     rateLimitEnabled=scriptText[7].split("(")[1].split(")")[0].split(",")[1]
     limitIndex=scriptText[6].split("(")[1].split(")")[0].split(",")[2]
     limit=scriptText[3].split("(")[1].split(")")[0].split(",")[int(limitIndex)]
+
     switch_json_object["rateLimitEnabled"]=rateLimitEnabled
-    switch_json_object["limit"]=limit
+    switch_json_object["limit"]=limit.replace('"', '')
     # print(rateLimitEnabled)
     # print(limit)
 
@@ -273,10 +274,12 @@ class DemoySpider(scrapy.Spider):
         # Create a new collection
         collection = dbname["netif"]
         switches = collection["settings"]
-        switches.insert_one(switch_json_object)
+     #   switches.update_one({'_id': switch_id}, {"$set": {"ip": switch_ip, "name": switch_name, "model": switch_model}}, upsert=True)
+
+        switches.update_one({'ip_adresse':switch_json_object["ip_adresse"]},{"$set": switch_json_object}, upsert=True)
         print("json object done insert")
         for x in switches.find():
-          print("Switch",x)
+          print("Switch -----",x)
           print(x)
 
 
