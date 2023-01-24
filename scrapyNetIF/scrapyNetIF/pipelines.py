@@ -8,7 +8,8 @@
 from itemadapter import ItemAdapter
 import time
 from selenium.webdriver.common.by import By
-from scrapyNetIF.spiders.NetIF import login
+from netif.scrapyNetIF.scrapyNetIF.spiders.NetIF import login
+
 class ScrapynetifPipeline:
 
     def open_spider(self, spider):
