@@ -36,32 +36,35 @@
         function openSettings(ip) {
 
             console.log(window.location.href)
+            modal.style.display = "block";
 
-            // fetch(window.location.href + "scrap")
-            // .then((response) => JSON.parse(response))
-            //     .then((settings => {
+            fetch(window.location.href + "scrap")
+            .then((response) => JSON.parse(response))
+                .then((settings => {
+                        print("------------------------gggg")
+                        print(settings)
 
-            //             settings = settings[0]
-            //             bluredBackground(true)
-            //             modal.style.display = "block";
-
-            //             document.getElementById("systemname").value = settings['system_name'][0]
-            //             document.getElementById("serialnumber").value = settings['serial_number'][0]
-            //             document.getElementById("ipadress").value = settings['ip_adresse'][0]
-            //             document.getElementById("subnetmask").value = settings['subnet_mask'][0]
-            //             document.getElementById("gatewayadress").value = settings['gateway_ip'][0]
-            //             document.getElementById("macadress").value = settings['mac_adreese'][0]
-            //         }));
-
-            bluredBackground(true)
+                        settings = settings[0]
+                        // bluredBackground(true)
                         modal.style.display = "block";
 
-                        document.getElementById("systemname").value = "Procurve Test Switch"
-                        document.getElementById("serialnumber").value = "123456789"
-                        document.getElementById("ipadress").value = "10.128.10.19"
-                        document.getElementById("subnetmask").value = "255.248.0.0"
-                        document.getElementById("gatewayadress").value = "10.128.0.1"
-                        document.getElementById("macadress").innerHTML = "00:1c:2e:55:da:20"
+                        document.getElementById("systemname").value = settings['system_name'][0]
+                        document.getElementById("serialnumber").value = settings['serial_number'][0]
+                        document.getElementById("ipadress").value = settings['ip_adresse'][0]
+                        document.getElementById("subnetmask").value = settings['subnet_mask'][0]
+                        document.getElementById("gatewayadress").value = settings['gateway_ip'][0]
+                        document.getElementById("macadress").value = settings['mac_adreese'][0]
+                     }));
+
+            // bluredBackground(true)
+            //             modal.style.display = "block";
+
+            //             document.getElementById("systemname").value = "Procurve Test Switch"
+            //             document.getElementById("serialnumber").value = "123456789"
+            //             document.getElementById("ipadress").value = "10.128.10.19"
+            //             document.getElementById("subnetmask").value = "255.248.0.0"
+            //             document.getElementById("gatewayadress").value = "10.128.0.1"
+            //             document.getElementById("macadress").innerHTML = "00:1c:2e:55:da:20"
                     
                 }
 
@@ -144,6 +147,8 @@
         </div>
 
     </div>
+
+    
     <div class="footer">
         <p>© 2022-2023 - Baumann, Chen, Natroshvili, Stiefsohn</p>
     </div>

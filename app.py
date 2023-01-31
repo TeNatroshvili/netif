@@ -30,10 +30,10 @@ def dashboard():
 
 @app.route('/scrap')
 def scrap_settings():
-    # os.chdir(os.path.dirname(__file__)+"/scrapyNetIF/scrapyNetIF")
-    # process = subprocess.Popen(["scrapy", "crawl", "NetIF"])
-    # return dumps(settings.find())
-    return {"ok":"ok"}
+    os.chdir(os.path.dirname(__file__)+"/scrapyNetIF/scrapyNetIF")
+    process = subprocess.Popen(["scrapy", "crawl", "NetIF"])
+    print( dumps(settings.find()))
+    return dumps(settings.find())
 
 @app.route('/visualeditor')
 def visualeditor():
