@@ -6,10 +6,14 @@ import requests
 import subprocess 
 import os
 
-
 from mongodb import switches, settings
+from samba import get_sharedfiles
+
 app = Flask(__name__)
 
+@app.route('/')
+def dashboard():
+    return render_template('dashboard.html', switches = switches.find(), reports = get_sharedfiles())
 
 
 @app.route('/conf/save_system_snmp',methods=['POST'])
@@ -31,12 +35,6 @@ def save_name():
 
     response = requests.post("http://10.128.10.19/system/system_snmp.html", data=data, auth=("username", "Syp2223"))
     return redirect('/')
-    
-
-
-@app.route('/')
-def dashboard():
-    return render_template('dashboard.html', switches = switches.find())
 
 @app.route('/scrap')
 def scrap_settings():
