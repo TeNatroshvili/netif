@@ -34,54 +34,47 @@
         // })
 
         function openSettings(ip) {
+            modal.style.display = "block";
+            fetch(window.location.href + "scrap")
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Network response was not ok');
+                    }
+                })
+                .then((settings => {
+                    modal.children[0].style.display = "none";
+                    modal.children[1].style.display = "block";
+                    bluredBackground(true)
 
-            console.log(window.location.href)
+                    document.getElementById("systemname").value = settings['system_name'][0]
+                    document.getElementById("serialnumber").value = settings['serial_number'][0]
+                    document.getElementById("ipadress").value = settings['ip_adresse'][0]
+                    document.getElementById("subnetmask").value = settings['subnet_mask'][0]
+                    document.getElementById("gatewayadress").value = settings['gateway_ip'][0]
+                    document.getElementById("macadress").value = settings['mac_adreese'][0]
+                }));
+        }
 
-            // fetch(window.location.href + "scrap")
-            // .then((response) => JSON.parse(response))
-            //     .then((settings => {
-
-            //             settings = settings[0]
-            //             bluredBackground(true)
-            //             modal.style.display = "block";
-
-            //             document.getElementById("systemname").value = settings['system_name'][0]
-            //             document.getElementById("serialnumber").value = settings['serial_number'][0]
-            //             document.getElementById("ipadress").value = settings['ip_adresse'][0]
-            //             document.getElementById("subnetmask").value = settings['subnet_mask'][0]
-            //             document.getElementById("gatewayadress").value = settings['gateway_ip'][0]
-            //             document.getElementById("macadress").value = settings['mac_adreese'][0]
-            //         }));
-
-            bluredBackground(true)
-                        modal.style.display = "block";
-
-                        document.getElementById("systemname").value = "Procurve Test Switch"
-                        document.getElementById("serialnumber").value = "123456789"
-                        document.getElementById("ipadress").value = "10.128.10.19"
-                        document.getElementById("subnetmask").value = "255.248.0.0"
-                        document.getElementById("gatewayadress").value = "10.128.0.1"
-                        document.getElementById("macadress").innerHTML = "00:1c:2e:55:da:20"
-                    
-                }
-
-
-            function bluredBackground(yes) {
-                if (yes) {
-                    header.classList.add('blur')
-                    content.classList.add('blur')
-                    footer.classList.add('blur')
-                } else {
-                    header.classList.remove('blur')
-                    content.classList.remove('blur')
-                    footer.classList.remove('blur')
-                }
+        function bluredBackground(yes) {
+            if (yes) {
+                header.classList.add('blur')
+                content.classList.add('blur')
+                footer.classList.add('blur')
+            } else {
+                header.classList.remove('blur')
+                content.classList.remove('blur')
+                footer.classList.remove('blur')
             }
+        }
 
-            function closeSettings() {
-                bluredBackground(false)
-                modal.style.display = "none";
-            }
+        function closeSettings() {
+            bluredBackground(false)
+            modal.children[0].style.display = "block";
+            modal.children[1].style.display = "none";
+            modal.style.display = "none";
+        }
     </script>
 </head>
 
@@ -131,19 +124,25 @@
         </div>
     </div>
     <div id="myModal" class="modal">
+        <div class="modal-load"></div>
         <!-- Modal content -->
         <div class="modal-content">
             <span class="close" onclick="closeSettings()">&times;</span>
-            Systemname: <input type="text" id="systemname"><br>
-            Serial Number: <input type="text" id="serialnumber"><br>
-            IPv4 Adress: <input type="text" id="ipadress"><br>
-            Subnetmask: <input type="text" id="subnetmask"><br>
-            Gatewayadress: <input type="text" id="gatewayadress"><br>
-            MAC Adress: <span id="macadress"></span><br>
-            <button>Save</button>
+            <form action="/conf/save_system_settings" method="post" name="testMum">
+                Systemname: <input type="text" id="systemname" name="systemname"><br>
+                Serial Number: <input type="text" id="serialnumber" name="serialnumber"><br>
+                IPv4 Adress: <input type="text" id="ipadress" name="ipadress"><br>
+                Subnetmask: <input type="text" id="subnetmask" name="subnetmask"><br>
+                Gatewayadress: <input type="text" id="gatewayadress" name="gatewayadress"><br>
+                MAC Adress: <span id="macadress"></span><br>
+                <input type="submit" value="Save">
+            </form>
+
         </div>
 
     </div>
+
+
     <div class="footer">
         <p>© 2022-2023 - Baumann, Chen, Natroshvili, Stiefsohn</p>
     </div>

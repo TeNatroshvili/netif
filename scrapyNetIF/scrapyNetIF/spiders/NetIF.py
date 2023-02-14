@@ -1,14 +1,6 @@
 import scrapy
-from selenium.webdriver.common.by import By
-from time import sleep
-from selenium.webdriver.chrome.service import Service
-from selenium import webdriver
-import time
 import requests
-import json
 from pymongo import MongoClient
-import re
-import subprocess
 
 def getDatasFromSNMPConfPage(response,switch_json_object):
    # print("SNMPConf-script----------------")
@@ -89,14 +81,14 @@ def getDatasFromPortConfigurationPage(response,switch_json_object):
     switch_json_object["jumbo_enabled"]=jumbo_enabled
 
 def getDatasFromPortsMirrorPage(response,switch_json_object):
-    print("port_mirror-script----------------")
+    #print("port_mirror-script----------------")
     script=response.xpath('//script/text()')[0].extract()
     scriptText= script.split("var")
     port_to_mirror_to=scriptText[1].split('"')[1].split('"')[0]
     ports_to_mirrorList=scriptText[2].split("(")[1].split(")")[0].split(",")
     port_to_mirror_to_list=[myL.replace('"', 'c') for myL in ports_to_mirrorList]
     switch_json_object["port_to_mirror_to"]=port_to_mirror_to
-    print(port_to_mirror_to_list)
+    #print(port_to_mirror_to_list)
     switch_json_object["ports_to_mirrorList"]=port_to_mirror_to_list
 
     
@@ -164,20 +156,14 @@ def login():
         login_url='http://10.128.10.19/login.html'
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         requests.post(login_url, data=login_data, headers=headers)
-        print("gelogged")
         
 def postsomeThing(url,form_data):
     # url='http://10.128.10.19/ports/ports_bsc.html'
         login()
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         response = requests.post(url, data=form_data, headers=headers)
-        print(response)
-
-
-
 
 def postsomeThing(form_data):
-    print("ido post") 
     login_data={"password":"Syp2223"}
     url='http://10.128.10.19/ports/ports_bsc.html'
     login_url='http://10.128.10.19/login.html'
@@ -187,10 +173,6 @@ def postsomeThing(form_data):
     response = requests.post(url, data=form_data, headers=headers)
 #    print(response)
     
-
-
-
-
 class DemoySpider(scrapy.Spider):
     name = 'NetIF'
     start_urls = [
@@ -205,45 +187,11 @@ class DemoySpider(scrapy.Spider):
                 'http://10.128.10.19/system/system_snmp.html',
     ]
 
-    # def start_requests(self):
-    #     urls = ['http://10.128.10.19/status/status_ov.html',
-    #             'http://10.128.10.19/ports/ports_bsc.html',
-    #             'http://10.128.10.19/ports/ports_config.html',
-    #             'http://10.128.10.19/ports/ports_mir.html',
-    #             'http://10.128.10.19/trunks/lacp.html',
-    #             'http://10.128.10.19/vlans/vlan_pconf.html',
-    #             'http://10.128.10.19/vlans/vlan_mconf.html',
-    #             'http://10.128.10.19/lldp/lldpconf.html',
-    #             'http://10.128.10.19/system/system_snmp.html'
-    #             ]
-    #     for url in urls:
-    #         yield scrapy.Request(url=url, callback=self.parse)
-
-    # def __init__(self):
-    #     login() 
-        # option = webdriver.ChromeOptions()
-        # option.add_experimental_option('excludeSwitches', ['enable-authmation'])
-        # ser = Service("./chromedriver.exe")
-        # self.bro = webdriver.Chrome(options=option,service=ser)
-
-    # def login_ok(login_data,arg3):
-    #     print("hereeeeeeee")
-    #     print("gelogged")
-    #     print(login_data)
-    #     print(arg3)
-    #     yield scrapy.FormRequest(url='http://10.128.10.19/login.html',formdata=login_data) 
-    #     form_data={"_submit":"Apply","R11":"2","R52":"on","R12":"2","R51":"1"}
-    #     yield scrapy.FormRequest(url='http://10.128.10.19/ports/ports_bsc.html',formdata=form_data,callback=login_data.help)
-
-    def help(self,response):
-        print(response)
-
     def parse(self, response):
     
         switch_json_object=self.settings["SWTICH_JSON_OBJECT"]
 
         page_title=response.xpath('//td[@class="page_title"]/text()')[0].extract()
-        print(page_title)
         match page_title:
             case "System Information":
 
@@ -263,12 +211,8 @@ class DemoySpider(scrapy.Spider):
             case "SNMP Configuration":
                 getDatasFromSNMPConfPage(response,switch_json_object)
 
-                
-
-
     def closed(self, reason):
         switch_json_object=self.settings.get("SWTICH_JSON_OBJECT")
-        print(switch_json_object)
         CONNECTION_STRING = "mongodb://admin:admin@10.128.10.7/netif"
 
         dbname =  MongoClient(CONNECTION_STRING)
@@ -279,84 +223,3 @@ class DemoySpider(scrapy.Spider):
      #   switches.update_one({'_id': switch_id}, {"$set": {"ip": switch_ip, "name": switch_name, "model": switch_model}}, upsert=True)
 
         switches.update_one({'ip_adresse':switch_json_object["ip_adresse"]},{"$set": switch_json_object}, upsert=True)
-        print("json object done insert")
-        for x in switches.find():
-          print("Switch -----",x)
-          print(x)
-
-
-
-
-        
-
-
-
-
-
-        
-        # #print(response.xpath('//td'))
-        # print("parse")
-        # print("menuFrame")
-        # print(response.xpath('//html/frameset/frame[@name="menuFrame"]')[0])
-        # print("mainFrame")
-        # frame_url=response.xpath('//html/frameset/frame[@name="mainFrame"]')
-        # print(frame_url)
-        # print(frame_url.xpath('//tr'))
-        # print(self)
-        # yield scrapy.Request(frame_url,callback=self.parse_frame)
-    
-    # def parse_frame(self,response):
-
-    #     print(response.xpath("//"))
-    #     print("ok")
-    #     print(response.xpath("//div"))
-
-
-
-# Test Version-----------------------------
-# import scrapy
-# from selenium import webdriver
-# from selenium.webdriver.common.by import By
-# from time import sleep
-
-# from selenium.webdriver.chrome.service import Service
-
-
-# class DemoySpider(scrapy.Spider):
-#     name = 'NetIF'
-#     allowed_domains = ['www.youtube.com']
-#     start_urls = ['https://www.youtube.com/']
-
-#     def __init__(self):  # Initialisieren eines Browsers
-
-#         option = webdriver.ChromeOptions()
-#         option.add_experimental_option('excludeSwitches', ['enable-authmation'])
-#         ser = Service("./chromedriver.exe")
-
-#         self.bro = webdriver.Chrome(options=option,service=ser)
-
-#     def parse(self, response):
-#         sleep(1)
-#        # print(response.xpath('./'))
-#         print("jjojo")
-#         found_videos = response.xpath('//div[@class="text-wrapper style-scope ytd-video-renderer"]')
-#         for found_vid in found_videos:
-#             title = found_vid.xpath('./div[@id="meta"]//h3/a/@title')[0].extract()
-#             watched_times = found_vid.xpath('./div[@id="meta"]//div[@id="metadata-line"]//span[1]/text()')[0].extract()
-#             upload_time = found_vid.xpath('./div[@id="meta"]//div[@id="metadata-line"]//span[2]/text()')[0].extract()
-#             producer = found_vid.xpath('./div[@id="channel-info"]//div[@id="text-container"]//a/text()')[0].extract()
-
-#             print("Found a vid -------------------------------------")
-#             print("Title: ", title, " -", watched_times, " Views", upload_time, " ")
-#             print("producer: ", producer,"\n")
-
-
-    # old version -----
-        # recommend_list = response.xpath('//div[@id="contents"]//div[@id="content"]//div[@class="style-scope ytd-rich-grid-media"]//div[@id="details"]')
-
-        # for div in recommend_list:
-        # print(div)
-        # print("ok - content")
-        # print()
-        # author = div.xpath('./div[@id="meta"]/h3/a/@title')[0].extract()
-        # print(author)
