@@ -39,13 +39,16 @@
             modal.style.display = "block";
 
             fetch(window.location.href + "scrap")
-            .then((response) => JSON.parse(response))
+            .then(response => {
+                        if (response.ok) {
+                        return response.json();
+                        } else {
+                        throw new Error('Network response was not ok');
+                        }
+                    })
                 .then((settings => {
-                        print("------------------------gggg")
-                        print(settings)
-
-                        settings = settings[0]
-                        // bluredBackground(true)
+                        console.log("------------------------gggg")
+                        console.log(settings)
                         modal.style.display = "block";
 
                         document.getElementById("systemname").value = settings['system_name'][0]
@@ -67,6 +70,11 @@
             //             document.getElementById("macadress").innerHTML = "00:1c:2e:55:da:20"
                     
                 }
+
+            function save(){
+                console.log("ja vvv")
+                fetch(window.location.href + "save_system_settings");
+            }
 
 
             function bluredBackground(yes) {
@@ -137,13 +145,16 @@
         <!-- Modal content -->
         <div class="modal-content">
             <span class="close" onclick="closeSettings()">&times;</span>
-            Systemname: <input type="text" id="systemname"><br>
-            Serial Number: <input type="text" id="serialnumber"><br>
-            IPv4 Adress: <input type="text" id="ipadress"><br>
-            Subnetmask: <input type="text" id="subnetmask"><br>
-            Gatewayadress: <input type="text" id="gatewayadress"><br>
-            MAC Adress: <span id="macadress"></span><br>
-            <button>Save</button>
+            <form action="/save_system_settings" method="post" name="testMum">
+                Systemname: <input type="text" id="systemname" name="systemname"><br>
+                Serial Number: <input type="text" id="serialnumber"  name="serialnumber"><br>
+                IPv4 Adress: <input type="text" id="ipadress" name="ipadress"><br>
+                Subnetmask: <input type="text" id="subnetmask" name="subnetmask"><br>
+                Gatewayadress: <input type="text" id="gatewayadress" name="gatewayadress"><br>
+                MAC Adress: <span id="macadress"></span><br>
+                <input type="submit" value="Save">
+            </form>
+            
         </div>
 
     </div>

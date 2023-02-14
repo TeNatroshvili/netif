@@ -89,14 +89,14 @@ def getDatasFromPortConfigurationPage(response,switch_json_object):
     switch_json_object["jumbo_enabled"]=jumbo_enabled
 
 def getDatasFromPortsMirrorPage(response,switch_json_object):
-    print("port_mirror-script----------------")
+    #print("port_mirror-script----------------")
     script=response.xpath('//script/text()')[0].extract()
     scriptText= script.split("var")
     port_to_mirror_to=scriptText[1].split('"')[1].split('"')[0]
     ports_to_mirrorList=scriptText[2].split("(")[1].split(")")[0].split(",")
     port_to_mirror_to_list=[myL.replace('"', 'c') for myL in ports_to_mirrorList]
     switch_json_object["port_to_mirror_to"]=port_to_mirror_to
-    print(port_to_mirror_to_list)
+    #print(port_to_mirror_to_list)
     switch_json_object["ports_to_mirrorList"]=port_to_mirror_to_list
 
     
@@ -171,13 +171,11 @@ def postsomeThing(url,form_data):
         login()
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         response = requests.post(url, data=form_data, headers=headers)
-        print(response)
 
 
 
 
 def postsomeThing(form_data):
-    print("ido post") 
     login_data={"password":"Syp2223"}
     url='http://10.128.10.19/ports/ports_bsc.html'
     login_url='http://10.128.10.19/login.html'
@@ -235,15 +233,12 @@ class DemoySpider(scrapy.Spider):
     #     form_data={"_submit":"Apply","R11":"2","R52":"on","R12":"2","R51":"1"}
     #     yield scrapy.FormRequest(url='http://10.128.10.19/ports/ports_bsc.html',formdata=form_data,callback=login_data.help)
 
-    def help(self,response):
-        print(response)
 
     def parse(self, response):
     
         switch_json_object=self.settings["SWTICH_JSON_OBJECT"]
 
         page_title=response.xpath('//td[@class="page_title"]/text()')[0].extract()
-        print(page_title)
         match page_title:
             case "System Information":
 
@@ -268,7 +263,6 @@ class DemoySpider(scrapy.Spider):
 
     def closed(self, reason):
         switch_json_object=self.settings.get("SWTICH_JSON_OBJECT")
-        print(switch_json_object)
         CONNECTION_STRING = "mongodb://admin:admin@10.128.10.7/netif"
 
         dbname =  MongoClient(CONNECTION_STRING)
@@ -279,10 +273,10 @@ class DemoySpider(scrapy.Spider):
      #   switches.update_one({'_id': switch_id}, {"$set": {"ip": switch_ip, "name": switch_name, "model": switch_model}}, upsert=True)
 
         switches.update_one({'ip_adresse':switch_json_object["ip_adresse"]},{"$set": switch_json_object}, upsert=True)
-        print("json object done insert")
-        for x in switches.find():
-          print("Switch -----",x)
-          print(x)
+        print("json object done insert & scrapy DONE")
+        # for x in switches.find():
+        #   print("Switch -----",x)
+        #   print(x)
 
 
 
