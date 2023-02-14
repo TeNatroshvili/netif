@@ -91,5 +91,23 @@ def download_last_daily_report():
     gen_report()
     return send_file("./reports/daily_report.pdf", as_attachment=True)
 
+@app.route('/conf/save_trunk_membership')
+def save_trunk_membership():
+    data = {"_submit": "Apply", "ptc_01": "2", "ptc_02": "2","ptc_03": "0","ptc_04": "1","ptc_05": "1","ptc_06": "0","ptc_07": "0","ptc_08": "1"}
+    response = requests.post("http://10.128.10.19/trunks/trunks_mem.html", data=data, auth=("username", "Syp2223"))
+    return redirect('/')
+
+@app.route('/conf/save_trunk_config')
+def save_trunk_config():
+    data = {"_submit": "Apply", "S01": "3","F01":"on","S02":"0","S03":"0","F01":"","S04":"0"}
+    response = requests.post("http://10.128.10.19/trunks/trunks_config.html", data=data, auth=("username", "Syp2223"))
+    return redirect('/')
+
+# @app.route('/conf/save_lacp')
+# def save_lacp():
+#     data = {"_submit": "Apply","M01":"ON", "K01": "33","M02":"ON", "K02": "133", "K03": "0", "M06":"ON","K06": "0","K07": "","K08": "0"}
+#     response = requests.post("http://10.128.10.19/trunks/lacp.html", data=data, auth=("username", "Syp2223"))
+#     return redirect('/')
+
 if __name__ == '__main__':
     app.run(debug=1)

@@ -71,9 +71,9 @@
                     
                 }
 
-            function save(){
-                console.log("ja vvv")
-                fetch(window.location.href + "save_system_settings");
+            function test(){
+                console.log("ja test")
+                fetch(window.location.href + "/conf/save_trunk_config");
             }
 
 
@@ -112,6 +112,8 @@
         </div>
     </div>
     <div class="content">
+    <button value="herrrre" onclick="test()">SSSSSSSSSSSSSSSs</button>
+
         <div class="switch-list">
             <div class="switch-list-item">
                 <img class="gear-icon modal-toggle" onclick="openSettings('10.128.10.19')"
@@ -140,6 +142,7 @@
         <div class="performance-diagram">
             netzauslastung
         </div>
+
     </div>
     <div id="myModal" class="modal">
         <!-- Modal content -->
@@ -159,7 +162,6 @@
 
     </div>
 
-    
     <div class="footer">
         <p>© 2022-2023 - Baumann, Chen, Natroshvili, Stiefsohn</p>
     </div>
