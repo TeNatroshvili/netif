@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 
 
-@app.route('/save_system_snmp',methods=['POST'])
+@app.route('/conf/save_system_snmp',methods=['POST'])
 def save_system_snmp():
     snmp = request.form["snmp_on"]
     data = {"_submit": "Apply", "btnSaveSettings": "APPLY"}
@@ -24,7 +24,7 @@ def save_system_snmp():
     return redirect('/')
     
 
-@app.route('/save_name',methods=['POST'])
+@app.route('/conf/save_name',methods=['POST'])
 def save_name():
     data = {"_submit": "Apply", "nm": "name1", "location":"", "contact":"", "btnSaveSettings":"APPLY"}
     #check with data need to be saved when checkboxes or set text automatically
@@ -36,20 +36,20 @@ def save_name():
 
 @app.route('/')
 def dashboard():
-    print(settings)
     return render_template('dashboard.html', switches = switches.find())
 
 @app.route('/scrap')
 def scrap_settings():
     os.chdir(os.path.dirname(__file__)+"/scrapyNetIF/scrapyNetIF")
     process = subprocess.Popen(["scrapy", "crawl", "NetIF"])
+    process.wait()
     set = list(settings.find())
     for mydict in set:
         del mydict["_id"]
     return json.dumps(set[0])
 
 
-@app.route('/save_system_settings',methods=['POST'])
+@app.route('/conf/save_system_settings',methods=['POST'])
 def save_system_settings():
     print(request)
     ipaddress = request.form["ipadress"]

@@ -34,19 +34,16 @@
         // })
 
         function openSettings(ip) {
-
-            console.log(window.location.href)
-            modal.style.display = "block";
-
             fetch(window.location.href + "scrap")
-            .then(response => {
-                        if (response.ok) {
+                .then(response => {
+                    if (response.ok) {
                         return response.json();
-                        } else {
+                    } else {
                         throw new Error('Network response was not ok');
-                        }
-                    })
+                    }
+                })
                 .then((settings => {
+<<<<<<< HEAD
                         console.log("------------------------gggg")
                         console.log(settings)
                         modal.style.display = "block";
@@ -76,23 +73,38 @@
                 fetch(window.location.href + "/conf/save_trunk_config");
             }
 
+=======
+                    console.log("------------------------gggg")
+                    console.log(settings)
+                    modal.style.display = "block";
+                    bluredBackground(true)
 
-            function bluredBackground(yes) {
-                if (yes) {
-                    header.classList.add('blur')
-                    content.classList.add('blur')
-                    footer.classList.add('blur')
-                } else {
-                    header.classList.remove('blur')
-                    content.classList.remove('blur')
-                    footer.classList.remove('blur')
-                }
-            }
+                    document.getElementById("systemname").value = settings['system_name'][0]
+                    document.getElementById("serialnumber").value = settings['serial_number'][0]
+                    document.getElementById("ipadress").value = settings['ip_adresse'][0]
+                    document.getElementById("subnetmask").value = settings['subnet_mask'][0]
+                    document.getElementById("gatewayadress").value = settings['gateway_ip'][0]
+                    document.getElementById("macadress").value = settings['mac_adreese'][0]
+                }));
+        }
+>>>>>>> 9bfa2381810402708a3dae51e0ad8c0e19a59f41
 
-            function closeSettings() {
-                bluredBackground(false)
-                modal.style.display = "none";
+        function bluredBackground(yes) {
+            if (yes) {
+                header.classList.add('blur')
+                content.classList.add('blur')
+                footer.classList.add('blur')
+            } else {
+                header.classList.remove('blur')
+                content.classList.remove('blur')
+                footer.classList.remove('blur')
             }
+        }
+
+        function closeSettings() {
+            bluredBackground(false)
+            modal.style.display = "none";
+        }
     </script>
 </head>
 
@@ -148,20 +160,24 @@
         <!-- Modal content -->
         <div class="modal-content">
             <span class="close" onclick="closeSettings()">&times;</span>
-            <form action="/save_system_settings" method="post" name="testMum">
+            <form action="/conf/save_system_settings" method="post" name="testMum">
                 Systemname: <input type="text" id="systemname" name="systemname"><br>
-                Serial Number: <input type="text" id="serialnumber"  name="serialnumber"><br>
+                Serial Number: <input type="text" id="serialnumber" name="serialnumber"><br>
                 IPv4 Adress: <input type="text" id="ipadress" name="ipadress"><br>
                 Subnetmask: <input type="text" id="subnetmask" name="subnetmask"><br>
                 Gatewayadress: <input type="text" id="gatewayadress" name="gatewayadress"><br>
                 MAC Adress: <span id="macadress"></span><br>
                 <input type="submit" value="Save">
             </form>
-            
+
         </div>
 
     </div>
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9bfa2381810402708a3dae51e0ad8c0e19a59f41
     <div class="footer">
         <p>© 2022-2023 - Baumann, Chen, Natroshvili, Stiefsohn</p>
     </div>
