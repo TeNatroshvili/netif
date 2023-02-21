@@ -18,15 +18,8 @@
             header = document.getElementsByClassName("header")[0]
             content = document.getElementsByClassName("content")[0]
             footer = document.getElementsByClassName("footer")[0]
+            refreshbutton = document.getElementById("refreshbutton")
         }
-
-        // // When the user clicks anywhere outside of the modal, close it
-        // window.addEventListener('click', function (event) {
-        //     console.log("jojo")
-        //     if (event.target == modal) {
-        //         modal.style.display = "none";
-        //     }
-        // })
 
         function openSettings(ip) {
             modal.style.display = "block";
@@ -70,6 +63,22 @@
             modal.children[1].style.display = "none";
             modal.style.display = "none";
         }
+
+        function loadSwitches() {
+            refreshbutton.classList.add("refreshing")
+            refreshbutton.onclick = null
+            fetch(window.location.href + "load_switches")
+                .then(response => console.log(response))
+                .then(nothing => {
+                    refreshbutton.classList.remove("refreshing")
+                    refreshbutton.onclick = loadSwitches
+                    location.reload()
+                })
+        }
+
+        function download_report(filename){
+            alert(filename)
+        }
     </script>
 </head>
 
@@ -89,10 +98,15 @@
         </div>
     </div>
     <div class="content">
+        <div>
+            Reload Switches
+            <img id="refreshbutton" class="refresh" src="{{url_for('static', filename='images/arrows-rotate.svg')}}"
+                alt="refresh" onclick="loadSwitches()">
+        </div>
         <div class="switch-list">
             <div class="switch-list-item">
                 <img class="gear-icon modal-toggle" onclick="openSettings('10.128.10.19')"
-                    src="{{url_for('static', filename='images/gear.svg')}}">
+                    src="{{url_for('static', filename='images/gear.svg')}}" alt="settings">
                 <div class="name-text">
                     <p style="font-weight: bold; font-size: 1.2em;">Test Switch</p>
                     <p style="font-size: 1em;">Test Switch</p>
@@ -113,13 +127,20 @@
         </div>
         <div class="report-list">
             {% for report in reports %}
-            <div style="width:50px; height:50px; background-color:red;">{{ report }}</div>
+            {% if report.filename == '.' or report.filename == '..' %}
+                
+            {% else %}
+                <div class="report-list-item">
+                    {{ report.filename }}
+                    <img class="download" style="width:1.2em"
+                            src="{{url_for('static', filename='images/download.svg')}}" alt="download" onclick="download_report('{{report.filename}}')">
+                        </div>
+            {% endif %}
             {% endfor %}
         </div>
         <div class="performance-diagram">
             netzauslastung
         </div>
-
     </div>
     <div id="myModal" class="modal">
         <div class="modal-load"></div>
@@ -135,15 +156,8 @@
                 MAC Adress: <span id="macadress"></span><br>
                 <input type="submit" value="Save">
             </form>
-
         </div>
-
     </div>
-
-<<<<<<< HEAD
-=======
-
->>>>>>> 9bfa2381810402708a3dae51e0ad8c0e19a59f41
     <div class="footer">
         <p>© 2022-2023 - Baumann, Chen, Natroshvili, Stiefsohn</p>
     </div>

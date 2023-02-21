@@ -8,6 +8,7 @@ import os
 
 from mongodb import switches, settings
 from samba import get_sharedfiles
+from switch_detection import search_switches
 
 app = Flask(__name__)
 
@@ -46,6 +47,9 @@ def scrap_settings():
         del mydict["_id"]
     return json.dumps(set[0])
 
+@app.route('/load_switches')
+def load_switches():
+    return search_switches()
 
 @app.route('/conf/save_system_settings',methods=['POST'])
 def save_system_settings():
