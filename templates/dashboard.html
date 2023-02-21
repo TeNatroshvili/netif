@@ -12,13 +12,8 @@
     <script>
         var modal, btn, span, header, content, footer, settings
         window.onload = function () {
-            // Get the modal
             modal = document.getElementById("myModal");
-
-            // Get the button that opens the modal
             btn = document.getElementById("myBtn");
-
-            // Get the <span> element that closes the modal
             span = document.getElementsByClassName("close")[0];
             header = document.getElementsByClassName("header")[0]
             content = document.getElementsByClassName("content")[0]
@@ -56,7 +51,6 @@
                     document.getElementById("macadress").value = settings['mac_adreese'][0]
                 }));
         }
->>>>>>> 9bfa2381810402708a3dae51e0ad8c0e19a59f41
 
         function bluredBackground(yes) {
             if (yes) {
@@ -95,8 +89,6 @@
         </div>
     </div>
     <div class="content">
-    <button value="herrrre" onclick="test()">SSSSSSSSSSSSSSSs</button>
-
         <div class="switch-list">
             <div class="switch-list-item">
                 <img class="gear-icon modal-toggle" onclick="openSettings('10.128.10.19')"
@@ -120,7 +112,9 @@
             {% endfor %}
         </div>
         <div class="report-list">
-            latest reports
+            {% for report in reports %}
+            <div style="width:50px; height:50px; background-color:red;">{{ report }}</div>
+            {% endfor %}
         </div>
         <div class="performance-diagram">
             netzauslastung
