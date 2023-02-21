@@ -14,7 +14,7 @@ settings = collection["settings"]
 # for name in collection.list_collection_names():
 #     print(name)
 
-for switch in switches.find():
-    print(switch)
+# for switch in switches.find():
+#     print(switch)
 # collection.create_collection("switches")
 # collection.drop_collection("switches")

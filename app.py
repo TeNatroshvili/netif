@@ -7,15 +7,16 @@ import subprocess
 import os
 
 from mongodb import switches, settings
-from samba import get_sharedfiles
+from samba import get_sharedfiles, download, upload
 from switch_detection import search_switches
 
 app = Flask(__name__)
 
+
+
 @app.route('/')
 def dashboard():
     return render_template('dashboard.html', switches = switches.find(), reports = get_sharedfiles())
-
 
 @app.route('/conf/save_system_snmp',methods=['POST'])
 def save_system_snmp():
@@ -27,7 +28,6 @@ def save_system_snmp():
 
     response = requests.post("http://10.128.10.19/system/system_snmp.html", data=data, auth=("username", "Syp2223"))
     return redirect('/')
-    
 
 @app.route('/conf/save_name',methods=['POST'])
 def save_name():
@@ -50,6 +50,10 @@ def scrap_settings():
 @app.route('/load_switches')
 def load_switches():
     return search_switches()
+
+@app.route('/download/<filename>')
+def download_file(filename):
+    return send_file(download(filename), as_attachment=True)
 
 @app.route('/conf/save_system_settings',methods=['POST'])
 def save_system_settings():
@@ -90,8 +94,8 @@ def reports():
 
 @app.route('/reports/current')
 def download_last_daily_report():
-    gen_report()
-    return send_file("./reports/daily_report.pdf", as_attachment=True)
+    # gen_report()
+    return send_file("./download/daily_report_21022023.pdf", as_attachment=True)
 
 @app.route('/conf/save_trunk_membership')
 def save_trunk_membership():
@@ -111,5 +115,10 @@ def save_trunk_config():
 #     response = requests.post("http://10.128.10.19/trunks/lacp.html", data=data, auth=("username", "Syp2223"))
 #     return redirect('/')
 
+
 if __name__ == '__main__':
     app.run(debug=1)
+
+def clear_download_dict():
+    for file in os.listdir('./download'):
+        os.remove(os.path.join('./download', file))

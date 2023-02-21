@@ -75,10 +75,6 @@
                     location.reload()
                 })
         }
-
-        function download_report(filename){
-            alert(filename)
-        }
     </script>
 </head>
 
@@ -104,15 +100,6 @@
                 alt="refresh" onclick="loadSwitches()">
         </div>
         <div class="switch-list">
-            <div class="switch-list-item">
-                <img class="gear-icon modal-toggle" onclick="openSettings('10.128.10.19')"
-                    src="{{url_for('static', filename='images/gear.svg')}}" alt="settings">
-                <div class="name-text">
-                    <p style="font-weight: bold; font-size: 1.2em;">Test Switch</p>
-                    <p style="font-size: 1em;">Test Switch</p>
-                    <p style="font-size: 1em;">10.128.10.19</p>
-                </div>
-            </div>
             {% for item in switches %}
             <div class="switch-list-item">
                 <img class="gear-icon modal-toggle" onclick="openSettings('{{item.ip}}')"
@@ -132,8 +119,8 @@
             {% else %}
                 <div class="report-list-item">
                     {{ report.filename }}
-                    <img class="download" style="width:1.2em"
-                            src="{{url_for('static', filename='images/download.svg')}}" alt="download" onclick="download_report('{{report.filename}}')">
+                    <a href="/download/{{report.filename}}"><img class="download" style="width:1.2em"
+                            src="{{url_for('static', filename='images/download.svg')}}" alt="download" onclick="download_report('{{report.filename}}')"></a>
                         </div>
             {% endif %}
             {% endfor %}
