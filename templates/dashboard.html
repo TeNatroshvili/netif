@@ -94,15 +94,15 @@
         </div>
     </div>
     <div class="content">
-        <div>
-            Reload Switches
-            <img id="refreshbutton" class="refresh" src="{{url_for('static', filename='images/arrows-rotate.svg')}}"
+        <div class="reload-switch">
+            <span>Reload Switches</span>
+            <img id="refreshbutton" class="refresh icon-button" src="{{url_for('static', filename='images/arrows-rotate.svg')}}"
                 alt="refresh" onclick="loadSwitches()">
         </div>
         <div class="switch-list">
             {% for item in switches %}
             <div class="switch-list-item">
-                <img class="gear-icon modal-toggle" onclick="openSettings('{{item.ip}}')"
+                <img class="gear-icon modal-toggle icon-button" onclick="openSettings('{{item.ip}}')"
                     src="{{url_for('static', filename='images/gear.svg')}}">
                 <div class="name-text">
                     <p style="font-weight: bold; font-size: 1.2em;">{{ item.name }}</p>
@@ -112,21 +112,22 @@
             </div>
             {% endfor %}
         </div>
+        <div class="latest-reports">Latest Reports</div>
         <div class="report-list">
-            {% for report in reports %}
-            {% if report.filename == '.' or report.filename == '..' %}
-                
-            {% else %}
+            {% for n in range(5) %}
+                {% set report = reports[n] %}
+
                 <div class="report-list-item">
-                    {{ report.filename }}
-                    <a href="/download/{{report.filename}}"><img class="download" style="width:1.2em"
-                            src="{{url_for('static', filename='images/download.svg')}}" alt="download" onclick="download_report('{{report.filename}}')"></a>
-                        </div>
-            {% endif %}
+                    {{ report }}
+                    <a href="/download/{{report}}"><img class="download icon-button" style="width:1.2em"
+                            src="{{url_for('static', filename='images/download.svg')}}" alt="download"
+                            onclick="download_report('{{report}}')"></a>
+                </div>
             {% endfor %}
+            <div class="more-reports"><a href="/reports"><span>All Reports</span></a></div>
         </div>
         <div class="performance-diagram">
-            netzauslastung
+            <img src="{{url_for('static', filename='images/gauge.svg')}}" style="width:60%" alt="gauge.svg">
         </div>
     </div>
     <div id="myModal" class="modal">

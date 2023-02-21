@@ -15,7 +15,15 @@ def get_sharedfiles():
             sharedfiles = conn.listPath(share.name, '/')
 
     conn.close()
-    return sharedfiles
+
+    files = []
+
+    for file in sharedfiles:
+        if(file.filename not in ['.','..']):
+            files.append(file.filename)
+    files.sort(reverse=True)
+    
+    return files
 
 def download(filename):
     conn = SMBConnection(userID, password, "", "", "", use_ntlm_v2=True,is_direct_tcp=True)
