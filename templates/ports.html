@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Ports</title>
     <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='images/favicon.ico')}}">
     <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
     <link rel="stylesheet" href="{{url_for('static', filename='css/dashboard.css')}}">
@@ -23,7 +23,7 @@
 
         function openSettings(ip) {
             modal.style.display = "block";
-            fetch(window.location.href + "scrap")
+            fetch(window.location.href + "/scrap")
                 .then(response => {
                     if (response.ok) {
                         return response.json();
@@ -111,23 +111,6 @@
                 </div>
             </div>
             {% endfor %}
-        </div>
-        <div class="latest-reports">Latest Reports</div>
-        <div class="report-list">
-            {% for n in range(5) %}
-                {% set report = reports[n] %}
-
-                <div class="report-list-item">
-                    {{ report }}
-                    <a href="/download/{{report}}"><img class="download icon-button" style="width:1.2em"
-                            src="{{url_for('static', filename='images/download.svg')}}" alt="download"
-                            onclick="download_report('{{report}}')"></a>
-                </div>
-            {% endfor %}
-            <div class="more-reports"><a href="/reports"><span>All Reports</span></a></div>
-        </div>
-        <div class="performance-diagram">
-            <img src="{{url_for('static', filename='images/gauge.svg')}}" style="width:60%" alt="gauge.svg">
         </div>
     </div>
     <div id="myModal" class="modal">

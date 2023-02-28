@@ -12,36 +12,30 @@ from switch_detection import search_switches
 
 app = Flask(__name__)
 
-
-
 @app.route('/')
 def dashboard():
     return render_template('dashboard.html', switches = switches.find(), reports = get_sharedfiles())
 
-@app.route('/conf/save_system_snmp',methods=['POST'])
-def save_system_snmp():
-    snmp = request.form["snmp_on"]
-    data = {"_submit": "Apply", "btnSaveSettings": "APPLY"}
-    #check with data need to be saved when checkboxes or set text automatically
-    if('1'==snmp):
-        data["SNMP"] = "1"
 
-    response = requests.post("http://10.128.10.19/system/system_snmp.html", data=data, auth=("username", "Syp2223"))
-    return redirect('/')
-
-@app.route('/conf/save_name',methods=['POST'])
-def save_name():
-    data = {"_submit": "Apply", "nm": "name1", "location":"", "contact":"", "btnSaveSettings":"APPLY"}
-    #check with data need to be saved when checkboxes or set text automatically
-
-    response = requests.post("http://10.128.10.19/system/system_snmp.html", data=data, auth=("username", "Syp2223"))
-    return redirect('/')
+@app.route('/ports')
+def ports():
+    return render_template('ports.html', switches = switches.find())
 
 @app.route('/scrap')
 def scrap_settings():
-    os.chdir(os.path.dirname(__file__)+"/scrapyNetIF/scrapyNetIF")
-    process = subprocess.Popen(["scrapy", "crawl", "NetIF"])
-    process.wait()
+    # os.chdir(os.path.dirname(__file__)+"/scrapyNetIF/scrapyNetIF")
+    # process = subprocess.Popen(["scrapy", "crawl", "NetIF"])
+    # process.wait()
+    set = list(settings.find())
+    for mydict in set:
+        del mydict["_id"]
+    return json.dumps(set[0])
+
+@app.route('/ports/scrap')
+def scrap_port_settings():
+    # os.chdir(os.path.dirname(__file__)+"/scrapyNetIF/scrapyNetIF")
+    # process = subprocess.Popen(["scrapy", "crawl", "NetIF"])
+    # process.wait()
     set = list(settings.find())
     for mydict in set:
         del mydict["_id"]
@@ -57,31 +51,37 @@ def download_file(filename):
 
 @app.route('/conf/save_system_settings',methods=['POST'])
 def save_system_settings():
-    print(request)
     ipaddress = request.form["ipadress"]
     subnetmask = request.form["subnetmask"]
     gatewayaddress = request.form["gatewayadress"]
     name = request.form["systemname"]
+    snmp = request.form["snmp"]
 
-    data = {"_submit": "Apply"}
+    session = requests.Session()
+    session.post('http://10.137.4.41/htdocs/login/login.lua', data={"username":"admin","password":"Syp2023hurra"})
 
-    data["nm"] = name
+    data = {"sys_name": "SW-N313",
+            "sys_location":"N313",
+            "sys_contact" : "",
+            "b_form1_submit" : "Apply",
+            "b_form1_clicked" : "b_form1_submit"}
 
-    data["btnSaveSettings"] = "APPLY"
-    print(data)
+    response = requests.post("http://10.137.4.41/htdocs/pages/base/dashboard.lsp", data=data, cookies=session.cookies.get_dict())
+    
+    data = {"protocol_type_sel[]": "static",
+        "ip_addr": "10.137.4.41",
+        "subnet_mask": "255.255.0.0",
+        "gateway_address": "10.137.255.254",
+        "session_timeout": "5",
+        "mgmt_vlan_id_sel[]": "1",
+        "mgmt_port_sel[]": "none",
+        "snmp_sel[]": "enabled",
+        "community_name": "public",
+        "b_form1_submit": "Apply",
+        "b_form1_clicked": "b_form1_submit"}
 
-    response = requests.post("http://10.128.10.19/system/system_name.html", data=data, auth=("username", "Syp2223"))
-
-    data = {"_submit": "Apply"}
-
-    #data["ip"] = ipaddress
-    data["sm"] = subnetmask
-    data["gw"] = gatewayaddress
-
-    data["btnSaveSettings"] = "APPLY"
-
-    # response = requests.post("http://10.128.10.19/system/system_ls.html", data=data, auth=("username", "Syp2223"))
-
+    response = requests.post("http://10.137.4.41/htdocs/pages/base/network_ipv4_cfg.lsp", data=data, cookies=session.cookies.get_dict())
+    session.close()
     return redirect('/')
 
 @app.route('/visualeditor')
@@ -108,12 +108,6 @@ def save_trunk_config():
     data = {"_submit": "Apply", "S01": "3","F01":"on","S02":"0","S03":"0","F01":"","S04":"0"}
     response = requests.post("http://10.128.10.19/trunks/trunks_config.html", data=data, auth=("username", "Syp2223"))
     return redirect('/')
-
-# @app.route('/conf/save_lacp')
-# def save_lacp():
-#     data = {"_submit": "Apply","M01":"ON", "K01": "33","M02":"ON", "K02": "133", "K03": "0", "M06":"ON","K06": "0","K07": "","K08": "0"}
-#     response = requests.post("http://10.128.10.19/trunks/lacp.html", data=data, auth=("username", "Syp2223"))
-#     return redirect('/')
 
 
 if __name__ == '__main__':
