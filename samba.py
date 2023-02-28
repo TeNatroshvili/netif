@@ -22,7 +22,6 @@ def get_sharedfiles():
         if(file.filename not in ['.','..']):
             files.append(file.filename)
     files.sort(reverse=True)
-    
     return files
 
 def download(filename):
