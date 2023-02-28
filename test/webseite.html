@@ -1,0 +1,171 @@
+<script type="text/javascript">
+    var help_page = "/help/help_dyn_mac_table.htm";
+    var requestUpdate;
+    var macconfig = Array();
+    var LastMacAddr;
+    var LastVid;
+    var KeepStartMacAddr = true;
+    var currentEntryNum = 0;
+    function addClonedNode(tr, val, proto) {
+        if (parseInt(val, 10)) {
+            var td = CreateTd("c");
+            addCell(tr, td, proto.cloneNode(1));
+        } else {
+            addTextCell(tr, "", "c");
+        }
+    }
+    function portIsFilter(portNo) {
+        if (configPortType >= 3 && (configPortName(portNo, 0) == "WAN" || configPortName(portNo, 0) == "WAN2" || configPortName(portNo, 0) == "EPON")) {
+            return true;
+        }
+        return false;
+    }
+    var cpuMgmtMac = 0;
+    function addRow(index, frag, values) {
+        var is_cpu = parseInt(values[3], 10);
+        var is_mgmt = parseInt(values[2], 10);
+        if (cpuMgmtMac && is_cpu && is_mgmt) {
+            return;
+        }
+        currentEntryNum++;
+        var tr = CreateStyledElement("tr", index % 2 ? "display_odd" : "display_even");
+        var mac_addr = values[0].replace(/-/g, ":");
+        addTextCell(tr, mac_addr, "c");
+        addTextCell(tr, is_cpu ? "CPU" : values[4], "c");
+        addTextCell(tr, is_mgmt ? "Management" : "Learned", "c");
+        frag.appendChild(tr);
+        if (is_cpu && is_mgmt) {
+            cpuMgmtMac = 1;
+        }
+    }
+    function UpdateTable(ref, frag) {
+        var pval;
+        FirstMacAddr = document.getElementById("StartMacAddr").value;
+        FirstVid = document.getElementById("StartVid").value;
+        macconfig.sort();
+        for (var i = 0; i < macconfig.length; i++) {
+            pval = macconfig[i].split("/");
+            addRow(i, frag, pval);
+            if (i === 0 && pval[0] != "NoEntries") {
+                FirstMacAddr = pval[0];
+                FirstVid = pval[1];
+            }
+        }
+        UpdateId("totalEntires", currentEntryNum);
+        if (pval[0] != "NoEntries") {
+            LastMacAddr = toMacAddress(pval[0]);
+            LastVid = pval[1];
+        }
+        if (KeepStartMacAddr) {
+            document.getElementById("StartMacAddr").value = toMacAddress(document.getElementById("StartMacAddr").value);
+        } else {
+            document.getElementById("StartMacAddr").value = toMacAddress(FirstMacAddr);
+            document.getElementById("StartVid").value = FirstVid;
+        }
+        var tbody = document.getElementById(ref);
+        clearChildNodes(tbody);
+        if (!tbody.appendChild(frag)) {
+            alert("This browser doesn't support dynamic tables.");
+        }
+    }
+    function CreateTableHeader(frag) {
+        var tr = CreateStyledElement("tr", "display_header");
+        addTextHeaderCell(tr, "MAC Address", "hdrc");
+        addTextHeaderCell(tr, "Source Port", "hdrc");
+        addTextHeaderCell(tr, "MAC Type", "hdrc");
+        frag.appendChild(tr);
+    }
+    function processUpdate(req, ref) {
+        if (redirectOnError(req)) {
+            return;
+        }
+        if (req.responseText) {
+            macconfig = req.responseText.split("|");
+            var pval = macconfig[0].split("/");
+            document.getElementById("NumberOfEntries").value = pval[0];
+            document.getElementById("StartMacAddr").value = toMacAddress(pval[1]);
+            var frag = document.createDocumentFragment();
+            CreateTableHeader(frag);
+            macconfig.shift();
+            macconfig.pop();      // remove the last array element(empty string)
+            UpdateTable(ref, frag);
+        }
+    }
+    function checkForm(auto_refresh_string) {
+        if (!IsMacAddress(document.getElementById("StartMacAddr").value, 0)) {
+            alert("Start MAC address is not valid" + auto_refresh_string);
+            return false;
+        }
+        document.getElementById("StartMacAddr").value =
+            toMacAddress(document.getElementById("StartMacAddr").value);
+        if (!isWithinRange("NumberOfEntries", 2, 8192, "'entries per page'", auto_refresh_string)) {
+            return false;
+        }
+        if (!isWithinRange("StartVid", 1, 4095, "'VLAN'", auto_refresh_string)) {
+            return false;
+        }
+        return true;
+    }
+    function GetFirstEntry() {
+        LastMacAddr = "00-00-00-00-00-00";
+        LastVid = 1;
+        document.getElementById("StartVid").value = LastVid;
+        document.getElementById("StartMacAddr").value = toMacAddress(LastMacAddr);
+        requestUpdate('Refresh');
+    }
+
+    requestUpdate = function (type) {
+        if (SpomNavigationLoading()) {
+            return;                 // Bail out, navigation will trigger update
+        }
+        if (!checkForm('')) {
+            return;
+        }
+        KeepStartMacAddr = true;
+        if (type == "NextEntries") {
+            KeepStartMacAddr = false;
+            loadXMLDoc(SpomAddSidArg("/update/config/dynamic_mac_table?DynGetNextAddr=" + LastMacAddr +
+                "&DynNumberOfEntries=" + document.getElementById("NumberOfEntries").value +
+                "&DynStartVid=" + LastVid +
+                "&GetNextEntry=1"),
+                processUpdate, 'MacData');
+        } else if (type == "Flush") {
+            loadXMLDoc(SpomAddSidArg("/update/config/dynamic_mac_table?Flush=1"), processUpdate, 'MacData');
+        } else if (type == "Refresh") {
+            loadXMLDoc(SpomAddSidArg("/update/config/dynamic_mac_table?DynGetNextAddr=" + document.getElementById("StartMacAddr").value +
+                "&DynNumberOfEntries=" + document.getElementById("NumberOfEntries").value +
+                "&DynStartVid=" + document.getElementById("StartVid").value +
+                "&GetNextEntry=0"),
+                processUpdate, 'MacData');
+        } else {
+            loadXMLDoc(SpomAddSidArg("/update/config/dynamic_mac_table"), processUpdate, 'MacData');
+        }
+        SpomUpdateDisplaySid("display_sid");
+        SpomUpdateFormSid("submit_sid");
+    };
+    function SpomSidSelectorUpdate(sid) {
+        SpomSetCurrentSid(sid);
+        GetFirstEntry();
+    }
+    function SpomAddSidArg(url) {
+        if (!current_sid) {
+            SpomGetCurrentSid();
+        }
+        if (current_sid) {
+            var delim = (url.indexOf("?") == -1) ? "?" : "&";
+            url += delim + "sid=" + current_sid;
+        }
+        return url;
+    }
+    function SpomGetCurrentSid() {
+        var sel = SpomGetSelector();
+        if (sel) {
+            current_sid = sel.options[sel.selectedIndex].value;
+        } else {
+            while (isNaN(current_sid) || current_sid == 0) {
+                current_sid = 1;
+            }
+        }
+        return current_sid;         // Also stored as variable - above
+    }
+</script>
