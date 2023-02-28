@@ -84,6 +84,30 @@ def save_system_settings():
     session.close()
     return redirect('/')
 
+@app.route('/conf/save_port_configuration', methods=['POST'])
+def save_port_configuration():
+    session = requests.Session()
+    response = session.post('http://10.137.4.41/htdocs/login/login.lua', data={"username":"admin","password":"Syp2023hurra"})
+
+    #admin_mode_sel%5B%5D=enabled&phys_mode_sel%5B%5D=4&port_descr=&intf=4&b_modal1_clicked=b_modal1_submit
+    admin_mode = request.form["admin_mode_sel[]"]
+    phys_mode = request.form["phys_mode_sel[]"]
+    port_descr = request.form["port_descr"]
+    intf = request.form["intf"]
+
+    data = {"admin_mode_sel[]": admin_mode,
+            "phys_mode_sel[]": phys_mode,
+            "port_descr": port_descr,
+            "intf": intf,
+            "b_modal1_clicked": "b_modal1_submit"}
+    
+    response = session.post("http://10.137.4.41/htdocs/pages/base/port_summary_modal.lsp", data=data, cookies=session.cookies.get_dict())
+    session.post("http://10.137.4.41/htdocs/lua/ajax/save_cfg.lua?save=1", cookies=session.cookies.get_dict())
+    session.get("http://10.137.4.41/htdocs/pages/main/logout.lsp", cookies=session.cookies.get_dict())
+    
+    return redirect('/ports')
+
+
 @app.route('/visualeditor')
 def visualeditor():
     return render_template('visualeditor.html', switches = switches.find())
