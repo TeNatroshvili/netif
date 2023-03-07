@@ -119,7 +119,7 @@ version: 2.0
     transition: all 50ms ease-in;
 }
 
-.performance-diagram {
+.htl-logo {
     grid-column: 3;
     grid-row: 3;
     display: flex;
