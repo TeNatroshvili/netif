@@ -13,6 +13,7 @@
         var modal, btn, span, header, content, footer, settings
         window.onload = function () {
             modal = document.getElementById("myModal");
+            modal2 = document.getElementById("myModal2");
             btn = document.getElementById("myBtn");
             span = document.getElementsByClassName("close")[0];
             header = document.getElementsByClassName("header")[0]
@@ -21,8 +22,8 @@
             refreshbutton = document.getElementById("refreshbutton")
         }
 
-        function openSettings(ip) {
-            modal.style.display = "block";
+        function openSettings(ip, modalID) {
+            document.getElementById(modalID).style.display = "block";
             fetch(window.location.href + "/scrap")
                 .then(response => {
                     if (response.ok) {
@@ -32,8 +33,8 @@
                     }
                 })
                 .then((settings => {
-                    modal.children[0].style.display = "none";
-                    modal.children[1].style.display = "block";
+                    document.getElementById(modalID).children[0].style.display = "none";
+                    document.getElementById(modalID).children[1].style.display = "block";
                     bluredBackground(true)
 
                     document.getElementById("systemname").value = settings['system_name'][0]
@@ -45,8 +46,8 @@
                 }));
         }
 
-        function configureAllIntf(ip) {
-            modal.style.display = "block";
+        function configureAllIntf(modalID) {
+            document.getElementById(modalID).style.display = "block";
             fetch(window.location.href + "/scrap")
                 .then(response => {
                     if (response.ok) {
@@ -56,8 +57,8 @@
                     }
                 })
                 .then((settings => {
-                    modal.children[0].style.display = "none";
-                    modal.children[1].style.display = "block";
+                    document.getElementById(modalID).children[0].style.display = "none";
+                    document.getElementById(modalID).children[1].style.display = "block";
                     bluredBackground(true)
 
                     document.getElementById("systemname").value = settings['system_name'][0]
@@ -81,11 +82,11 @@
             }
         }
 
-        function closeSettings() {
+        function closeSettings(modalID) {
             bluredBackground(false)
-            modal.children[0].style.display = "block";
-            modal.children[1].style.display = "none";
-            modal.style.display = "none";
+            document.getElementById(modalID).children[0].style.display = "block";
+            document.getElementById(modalID).children[1].style.display = "none";
+            document.getElementById(modalID).style.display = "none";
         }
 
         function loadSwitches() {
@@ -126,7 +127,7 @@
         <div class="switch-list">
             {% for item in switches %}
             <div class="switch-list-item">
-                <img class="gear-icon modal-toggle icon-button" onclick="openSettings('{{item.ip}}')"
+                <img class="gear-icon modal-toggle icon-button" onclick="openSettings('{{item.ip}}','myModal')"
                     src="{{url_for('static', filename='images/gear.svg')}}">
                 <div class="name-text">
                     <p style="font-weight: bold; font-size: 1.2em;">{{ item.name }}</p>
@@ -142,7 +143,7 @@
         <!-- Modal content -->
         <div class="modal-content">
         
-            <span class="close" onclick="closeSettings()">&times;</span>
+            <span class="close" onclick="closeSettings('myModal')">&times;</span>
             <form action="/conf/save_port_configuration" method="post">
                 Interface: <select id="intf" name="intf">
                     <option value=1>1</option>
@@ -184,6 +185,18 @@
                     <option value=3>100 Mbps Full Duplex</option>
                 </select><br>
                 Port description: <input type="text" id="port_descr" name="port_descr"><br>
+                <input type="submit" value="Save"> <button type="button" onclick="configureAllIntf()">Edit All</button>
+            </form>
+            
+        </div>
+    </div>
+    <div id="myModal2" class="modal">
+        <div class="modal-load"></div>
+        <!-- Modal content -->
+        <div class="modal-content">
+        
+            <span class="close" onclick="closeSettings('myModal2')">&times;</span>
+            <form action="/conf/save_port_configuration" method="post">
                 <input type="submit" value="Save"> <button type="button" onclick="configureAllIntf()">Edit All</button>
             </form>
             

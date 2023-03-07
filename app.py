@@ -50,7 +50,7 @@ def load_switches():
     return search_switches()
 
 
-@app.route('/download/<filename>')
+@app.route('/downloads/<filename>')
 def download_file(filename):
     return send_file(download(filename), as_attachment=True)
 
