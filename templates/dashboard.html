@@ -96,8 +96,8 @@
     <div class="content">
         <div class="reload-switch">
             <span>Reload Switches</span>
-            <img id="refreshbutton" class="refresh icon-button" src="{{url_for('static', filename='images/arrows-rotate.svg')}}"
-                alt="refresh" onclick="loadSwitches()">
+            <img id="refreshbutton" class="refresh icon-button"
+                src="{{url_for('static', filename='images/arrows-rotate.svg')}}" alt="refresh" onclick="loadSwitches()">
         </div>
         <div class="switch-list">
             {% for item in switches %}
@@ -115,14 +115,14 @@
         <div class="latest-reports">Latest Reports</div>
         <div class="report-list">
             {% for n in range(5) %}
-                {% set report = reports[n] %}
+            {% set report = reports[n] %}
 
-                <div class="report-list-item">
-                    {{ report }}
-                    <a href="/download/{{report}}"><img class="download icon-button" style="width:1.2em"
-                            src="{{url_for('static', filename='images/download.svg')}}" alt="download"
-                            onclick="download_report('{{report}}')"></a>
-                </div>
+            <div class="report-list-item">
+                {{ report }}
+                <a href="/download/{{report}}"><img class="download icon-button" style="width:1.2em"
+                        src="{{url_for('static', filename='images/download.svg')}}" alt="download"
+                        onclick="download_report('{{report}}')"></a>
+            </div>
             {% endfor %}
             <div class="more-reports"><a href="/reports"><span>All Reports</span></a></div>
         </div>
@@ -135,15 +135,23 @@
         <!-- Modal content -->
         <div class="modal-content">
             <span class="close" onclick="closeSettings()">&times;</span>
-            <form action="/conf/save_system_settings" method="post" name="testMum">
+            <form action="/conf/save_system_settings" method="post">
                 Systemname: <input type="text" id="systemname" name="systemname"><br>
                 IPv4 Adress: <input type="text" id="ipadress" name="ipadress"><br>
                 Subnetmask: <input type="text" id="subnetmask" name="subnetmask"><br>
                 Gatewayadress: <input type="text" id="gatewayadress" name="gatewayadress"><br>
                 MAC Adress: <span id="macadress"></span><br>
                 SNMP: <input type="radio" name="snmp" id="snmpOn" value="enabled" selected> enabled
-                <input type="radio" name="snmp" id="snmpOff" value="disabled"> disabled
+                <input type="radio" name="snmp" id="snmpOff" value="disabled"> disabled<br>
                 <input type="submit" value="Save">
+            </form>
+
+            <form action="/conf/save_user_pass" method="post">
+                Username: <input type="text" id="username" name="username"><br>
+                Current Password: <input type="password" id="current_password" name="current_password"><br>
+                New Password: <input type="password" id="new_password" name="new_password"><br>
+                Confirm Password: <input type="password" id="confirm_password" name="confirm_password"><br>
+                <input type="submit" value="Save Username/Password">
             </form>
         </div>
     </div>
