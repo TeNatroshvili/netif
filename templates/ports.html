@@ -45,6 +45,30 @@
                 }));
         }
 
+        function configureAllIntf(ip) {
+            modal.style.display = "block";
+            fetch(window.location.href + "/scrap")
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Network response was not ok');
+                    }
+                })
+                .then((settings => {
+                    modal.children[0].style.display = "none";
+                    modal.children[1].style.display = "block";
+                    bluredBackground(true)
+
+                    document.getElementById("systemname").value = settings['system_name'][0]
+                    document.getElementById("serialnumber").value = settings['serial_number'][0]
+                    document.getElementById("ipadress").value = settings['ip_adresse'][0]
+                    document.getElementById("subnetmask").value = settings['subnet_mask'][0]
+                    document.getElementById("gatewayadress").value = settings['gateway_ip'][0]
+                    document.getElementById("macadress").value = settings['mac_adreese'][0]
+                }));
+        }
+
         function bluredBackground(yes) {
             if (yes) {
                 header.classList.add('blur')
@@ -117,20 +141,9 @@
         <div class="modal-load"></div>
         <!-- Modal content -->
         <div class="modal-content">
+        
             <span class="close" onclick="closeSettings()">&times;</span>
             <form action="/conf/save_port_configuration" method="post">
-                Admin mode: <select id="admin_mode_sel[]" name="admin_mode_sel[]">
-                    <option value="enabled">enabled</option>
-                    <option value="disabled">disabled</option>
-                </select><br>
-                Physical Mode: <select id="phys_mode_sel[]" name="phys_mode_sel[]">
-                    <option value=1>Auto Negotiate</option>
-                    <option value=4>10 Mbps Half Duplex</option>
-                    <option value=5>10 Mbps Full Duplex</option>
-                    <option value=2>100 Mbps Half Duplex</option>
-                    <option value=3>100 Mbps Full Duplex</option>
-                </select><br>
-                Port description: <input type="text" id="port_descr" name="port_descr"><br>
                 Interface: <select id="intf" name="intf">
                     <option value=1>1</option>
                     <option value=2>2</option>
@@ -159,8 +172,21 @@
                     <option value=25>25</option>
                     <option value=26>26</option>
                 </select><br>
-                <input type="submit" value="Save">
+                Admin mode: <select id="admin_mode_sel[]" name="admin_mode_sel[]">
+                    <option value="enabled">enabled</option>
+                    <option value="disabled">disabled</option>
+                </select><br>
+                Physical Mode: <select id="phys_mode_sel[]" name="phys_mode_sel[]">
+                    <option value=1>Auto Negotiate</option>
+                    <option value=4>10 Mbps Half Duplex</option>
+                    <option value=5>10 Mbps Full Duplex</option>
+                    <option value=2>100 Mbps Half Duplex</option>
+                    <option value=3>100 Mbps Full Duplex</option>
+                </select><br>
+                Port description: <input type="text" id="port_descr" name="port_descr"><br>
+                <input type="submit" value="Save"> <button type="button" onclick="configureAllIntf()">Edit All</button>
             </form>
+            
         </div>
     </div>
     <div class="footer">
