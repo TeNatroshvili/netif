@@ -129,7 +129,7 @@ def save_port_configuration():
     phys_mode = request.form["phys_mode_sel[]"]
     port_descr = request.form["port_descr"]
     intf = request.form["intf"]
-
+              
     data = {"admin_mode_sel[]": admin_mode,
             "phys_mode_sel[]": phys_mode,
             "port_descr": port_descr,
