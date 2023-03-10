@@ -12,11 +12,6 @@
 {% endblock scripts %}
 
 {% block content %}
-<div class="reload-switch">
-    <span>Reload Switches</span>
-    <img id="refreshbutton" class="refresh icon-button" src="{{url_for('static', filename='images/arrows-rotate.svg')}}"
-        alt="refresh" onclick="loadSwitches()">
-</div>
 <div class="switch-list">
     {% for item in switches %}
     <div class="switch-list-item">

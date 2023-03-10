@@ -235,3 +235,8 @@ version: 2.0
 .changepw{
     width: 1.4em;
 }
+
+.performance-diagram{
+    grid-column: 3;
+    grid-row: 3;
+}
