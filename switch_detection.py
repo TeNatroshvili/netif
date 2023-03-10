@@ -5,11 +5,11 @@ from mongodb import switches
 
 def search_switches():
 
-    switch_id = 30
+    switch_id = 0
     ip_range = "10.137.4."
     devices = []
 
-    for j in range(130):
+    for j in range(255):
         ip = ip_range + str(j)
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.settimeout(0.01)
@@ -53,6 +53,8 @@ def search_switches():
                 switch_ip = ip_range + str(i)
                 switch_model = str(switch_data[1])
                 print(ip_range + str(i) + " --> " + switch_name +  " --> " + switch_model)
-                switches.update_one({'_id': switch_id}, {"$set": {"ip": switch_ip, "name": switch_name, "model": switch_model}}, upsert=True)
+                switches.update_one({'_id': switch_id}, 
+                                {"$set": {"ip": switch_ip, "name": switch_name, "model": switch_model}},
+                                 upsert=True)
                 switch_id = switch_id + 1
     return "switches loaded"

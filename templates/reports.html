@@ -1,37 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reports</title>
-    <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='images/favicon.ico')}}">
-    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
-    <link rel="stylesheet" href="{{url_for('static', filename='css/reports.css')}}">
-</head>
+{% block title %}Reports{% endblock title %}
 
-<body>
-    <div class="header">
-        <div class="logo">
-            <img src="{{url_for('static', filename='images/logo_only.svg')}}" alt="Logo">
-        </div>
-        <div class="menue-items">
-            <div class="item"><a href="/">Dashboard</a></div>
-            <div class="item"><a href="/reports">Reports</a></div>
-            <div class="item"><a href="/visualeditor">Visual Editor</a></div>
-            <div class="logo-text"><img src="{{url_for('static', filename='images/logo_font.svg')}}" alt="NETIF"></div>
-            <div class="item"><a>Ports</a></div>
-            <div class="item"><a>Trunks</a></div>
-            <div class="item"><a>Vlans</a></div>
-        </div>
-    </div>
-    <div class="content">
-        <button><a href="/reports/current">Download latest Daily Report</a></button>
-    </div>
-    <div class="footer">
-        <p>© 2022-2023 - Baumann, Chen, Natroshvili, Stiefsohn</p>
-    </div>
-</body>
+{% block links %}
+<link rel="stylesheet" href="{{url_for('static', filename='css/reports.css')}}">
+{% endblock links %}
 
-</html>
+{% block scripts %}
+
+{% endblock scripts %}
+
+{% block content %}
+<button><a href="/reports/current">Download latest Daily Report</a></button>
+{% endblock content %}

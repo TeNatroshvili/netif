@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Ports{% endblock title %}
+
+{% block links %}
+<link rel="stylesheet" href="{{url_for('static', filename='css/ports.css')}}">
+{% endblock links %}
+
+
+{% block scripts %}
+<script src="{{url_for('static', filename='js/ports.js')}}"></script>
+{% endblock scripts %}
+
+{% block content %}
+<div class="switch-list">
+    {% for item in switches %}
+    <div class="switch-list-item">
+        <img class="gear-icon modal-toggle icon-button" onclick="openSettings('{{item.ip}}','myModal')"
+            src="{{url_for('static', filename='images/gear.svg')}}">
+        <div class="name-text">
+            <p style="font-weight: bold; font-size: 1.2em;">{{ item.name }}</p>
+            <p style="font-size: 1em;">{{ item.model }}</p>
+            <p style="font-size: 1em;">{{ item.ip }}</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock content %}
+
+{% block modal %}
+<div id="myModal" class="modal">
+    <div class="modal-load"></div>
+    <!-- Modal content -->
+    <div class="modal-content">
+
+        <span class="close" onclick="closeSettings('myModal')">&times;</span>
+        <form action="/conf/save_port_configuration" method="post">
+            Interface: <select id="intf" name="intf">
+                <option value=1>1</option>
+                <option value=2>2</option>
+                <option value=3>3</option>
+                <option value=4>4</option>
+                <option value=5>5</option>
+                <option value=6>6</option>
+                <option value=7>7</option>
+                <option value=8>8</option>
+                <option value=9>9</option>
+                <option value=10>10</option>
+                <option value=11>11</option>
+                <option value=12>12</option>
+                <option value=13>13</option>
+                <option value=14>14</option>
+                <option value=15>15</option>
+                <option value=16>16</option>
+                <option value=17>17</option>
+                <option value=18>18</option>
+                <option value=19>19</option>
+                <option value=20>20</option>
+                <option value=21>21</option>
+                <option value=22>22</option>
+                <option value=23>23</option>
+                <option value=24>24</option>
+                <option value=25>25</option>
+                <option value=26>26</option>
+            </select><br>
+            Admin mode: <select id="admin_mode_sel[]" name="admin_mode_sel[]">
+                <option value="enabled">enabled</option>
+                <option value="disabled">disabled</option>
+            </select><br>
+            Physical Mode: <select id="phys_mode_sel[]" name="phys_mode_sel[]">
+                <option value=1>Auto Negotiate</option>
+                <option value=4>10 Mbps Half Duplex</option>
+                <option value=5>10 Mbps Full Duplex</option>
+                <option value=2>100 Mbps Half Duplex</option>
+                <option value=3>100 Mbps Full Duplex</option>
+            </select><br>
+            Port description: <input type="text" id="port_descr" name="port_descr"><br>
+            <input type="submit" value="Save"> <button type="button" onclick="configureAllIntf('myModal2')">Edit
+                All</button>
+        </form>
+    </div>
+</div>
+<div id="myModal2" class="modal">
+    <div class="modal-load"></div>
+    <!-- Modal content -->
+    <div class="modal-content">
+    
+        <span class="close" onclick="closeSettings('myModal2')">&times;</span>
+        <form action="/conf/save_all_port_configuration" method="post">
+            Interface: All<br>
+            Physical Mode: <select id="phys_mode_sel[]" name="phys_mode_sel[]">
+                <option value=1>Auto Negotiate</option>
+                <option value=4>10 Mbps Half Duplex</option>
+                <option value=5>10 Mbps Full Duplex</option>
+                <option value=2>100 Mbps Half Duplex</option>
+                <option value=3>100 Mbps Full Duplex</option>
+            </select><br>
+            Port description: <input type="text" id="port_descr" name="port_descr"><br>
+            <input type="submit" value="Save">
+        </form>
+        
+    </div>
+</div>
+{% endblock modal %}
