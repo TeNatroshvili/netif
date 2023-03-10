@@ -2,8 +2,8 @@
 file: style.css
 author: Baumann Danièl
 created: 2022-11-22
-changed: 2022-12-13
-version: 1.2
+changed: 2023-13-10
+version: 1.5
 ***********************/
 
 /* General */
@@ -39,6 +39,15 @@ body {
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
+}
+
+.logout{
+    grid-column: 3;
+}
+
+.logout img{
+    width: 1.2em;
+    pointer-events: all;
 }
 
 .header .menue-items {
@@ -141,7 +150,7 @@ body {
 
 /* General */
 
-.icon-button:hover{
+.icon-button:hover {
     transform: scale(1.1);
     transition: all 25ms ease-in;
 }
