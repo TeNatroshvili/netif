@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Login System{% endblock %}
+
+{% block links %}
+<link rel="stylesheet" href="{{url_for('static', filename='css/login.css')}}">
+{% endblock links %}
+
+{% block content %}
+
+{% if message %}
+<div class="alert alert-secondary" role="alert">
+    <p>{{ message }}</p>
+</div>
+{% endif %}
+
+<form action="" method="post">
+    <div class="form-section">
+        <input name="username" id="InputUsername" autofocus required>
+        <label for="InputUsername" class="label-name">
+        <span class="content-name">
+            Username
+          </span>
+        </label>
+    </div>
+    <div class="form-section">
+        <input type="password" name="password" id="InputPassword" required>
+        <label for="InputPassword" class="label-name">
+        <span class="content-name">
+            Password
+          </span>
+        </label>
+    </div>
+    <button type="submit" class="btn">Submit</button>
+</form>
+{% endblock %}
