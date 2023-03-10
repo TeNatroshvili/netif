@@ -213,7 +213,7 @@ def save_port_configuration():
     phys_mode = request.form["phys_mode_sel[]"]
     port_descr = request.form["port_descr"]
     intf = request.form["intf"]
-
+              
     data = {"admin_mode_sel[]": admin_mode,
             "phys_mode_sel[]": phys_mode,
             "port_descr": port_descr,
@@ -242,6 +242,27 @@ def save_all_port_configuration():
             "b_modal1_clicked": "b_modal1_submit"}
     
     response = session.post("http://10.137.4.41/htdocs/pages/base/port_summary_modal.lsp", data=data, cookies=session.cookies.get_dict())
+    session.post("http://10.137.4.41/htdocs/lua/ajax/save_cfg.lua?save=1", cookies=session.cookies.get_dict())
+    session.get("http://10.137.4.41/htdocs/pages/main/logout.lsp", cookies=session.cookies.get_dict())
+    
+    return redirect('/ports')
+
+@app.route('/conf/save_port_mirroring', methods=['POST'])
+def save_port_mirroring():
+    session = requests.Session()
+    response = session.post('http://10.137.4.41/htdocs/login/login.lua', data={"username":"admin","password":"Syp2023hurra"})
+
+    #port_mirroring_sel%5B%5D=enabled&destination_port_sel%5B%5D=1&sorttable1_length=-1&b_form1_submit=Apply&b_form1_clicked=b_form1_submit
+    port_mirroring = request.form["port_mirroring_sel[]"]
+    destination_port = request.form["destination_port_sel[]"]
+
+    data = {"port_mirroring_sel[]": port_mirroring,
+            "destination_port_sel[]": destination_port,
+            "sorttable1_length": "-1",
+            "b_form1_submit": "Apply",
+            "b_form1_clicked": "b_form1_submit"}
+    
+    response = session.post("http://10.137.4.41/htdocs/pages/base/port_mirror.lsp", data=data, cookies=session.cookies.get_dict())
     session.post("http://10.137.4.41/htdocs/lua/ajax/save_cfg.lua?save=1", cookies=session.cookies.get_dict())
     session.get("http://10.137.4.41/htdocs/pages/main/logout.lsp", cookies=session.cookies.get_dict())
     

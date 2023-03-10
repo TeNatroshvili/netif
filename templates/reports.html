@@ -2,9 +2,34 @@
 
 {% block title %}Reports{% endblock title %}
 
+<<<<<<< HEAD
 {% block links %}
 <link rel="stylesheet" href="{{url_for('static', filename='css/reports.css')}}">
 {% endblock links %}
+=======
+<body>
+    <div class="header">
+        <div class="logo">
+            <a href="/"><img src="{{url_for('static', filename='images/logo_only.svg')}}" alt="Logo"></a>
+        </div>
+        <div class="menue-items">
+            <div class="item"><a href="/">Dashboard</a></div>
+            <div class="item"><a href="/reports">Reports</a></div>
+            <div class="logo-text"><a href="/"><img src="{{url_for('static', filename='images/logo_font.svg')}}" alt="NETIF"></a></div>
+            <div class="item"><a href="/visualeditor">Visual Editor</a></div>
+            <div class="item"><a href="/ports">Ports</a></div>
+            <!-- <div class="item"><a>Trunks</a></div> -->
+            <!-- <div class="item"><a>Vlans</a></div> -->
+        </div>
+    </div>
+    <div class="content">
+        <button><a href="/reports/current">Download latest Daily Report</a></button>
+    </div>
+    <div class="footer">
+        <p>© 2022-2023 - Baumann, Chen, Natroshvili, Stiefsohn</p>
+    </div>
+</body>
+>>>>>>> 8d07e0fbbfed921344f8fcbe1cf08a32e2596f88
 
 {% block scripts %}
 
