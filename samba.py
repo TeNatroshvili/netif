@@ -1,11 +1,13 @@
 from smb.SMBConnection import SMBConnection
 
-userID = 'sambauser'
-password = 'Syp2022'
-server_ip = '10.128.10.7'
+from login_credentials import samba_login_credentials
+
+username = samba_login_credentials["username"]
+password = samba_login_credentials["password"]
+server_ip = samba_login_credentials["server_ip"]
 
 def get_sharedfiles():
-    conn = SMBConnection(userID, password, "", "", "",
+    conn = SMBConnection(username, password, "", "", "",
                          use_ntlm_v2=True, is_direct_tcp=True)
     conn.connect(server_ip, 445)
     shares = conn.listShares()
@@ -27,7 +29,7 @@ def get_sharedfiles():
 
 
 def download(filename):
-    conn = SMBConnection(userID, password, "", "", "",
+    conn = SMBConnection(username, password, "", "", "",
                          use_ntlm_v2=True, is_direct_tcp=True)
     conn.connect(server_ip, 445)
     if conn:
@@ -38,7 +40,7 @@ def download(filename):
 
 
 def upload(filename):
-    conn = SMBConnection(userID, password, "", "", "",
+    conn = SMBConnection(username, password, "", "", "",
                          use_ntlm_v2=True, is_direct_tcp=True)
     conn.connect(server_ip, 445)
     if conn:
