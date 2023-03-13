@@ -25,12 +25,12 @@ function openSettings(ip, modalID) {
             document.getElementById(modalID).children[1].style.display = "block";
             bluredBackground(true)
 
-            document.getElementById("systemname").value = settings['system_name'][0]
-            document.getElementById("serialnumber").value = settings['serial_number'][0]
-            document.getElementById("ipadress").value = settings['ip_adresse'][0]
-            document.getElementById("subnetmask").value = settings['subnet_mask'][0]
-            document.getElementById("gatewayadress").value = settings['gateway_ip'][0]
-            document.getElementById("macadress").value = settings['mac_adreese'][0]
+            // document.getElementById("systemname").value = settings['system_name'][0]
+            // document.getElementById("serialnumber").value = settings['serial_number'][0]
+            // document.getElementById("ipadress").value = settings['ip_adresse'][0]
+            // document.getElementById("subnetmask").value = settings['subnet_mask'][0]
+            // document.getElementById("gatewayadress").value = settings['gateway_ip'][0]
+            // document.getElementById("macadress").value = settings['mac_adreese'][0]
         }));
 }
 
@@ -49,12 +49,12 @@ function configureAllIntf(modalID) {
             document.getElementById(modalID).children[1].style.display = "block";
             bluredBackground(true)
 
-            document.getElementById("systemname").value = settings['system_name'][0]
-            document.getElementById("serialnumber").value = settings['serial_number'][0]
-            document.getElementById("ipadress").value = settings['ip_adresse'][0]
-            document.getElementById("subnetmask").value = settings['subnet_mask'][0]
-            document.getElementById("gatewayadress").value = settings['gateway_ip'][0]
-            document.getElementById("macadress").value = settings['mac_adreese'][0]
+            // document.getElementById("systemname").value = settings['system_name'][0]
+            // document.getElementById("serialnumber").value = settings['serial_number'][0]
+            // document.getElementById("ipadress").value = settings['ip_adresse'][0]
+            // document.getElementById("subnetmask").value = settings['subnet_mask'][0]
+            // document.getElementById("gatewayadress").value = settings['gateway_ip'][0]
+            // document.getElementById("macadress").value = settings['mac_adreese'][0]
         }));
 }
 

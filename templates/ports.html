@@ -32,9 +32,10 @@
     <div class="modal-load"></div>
     <!-- Modal content -->
     <div class="modal-content">
-
+    
         <span class="close" onclick="closeSettings('myModal')">&times;</span>
         <form action="/conf/save_port_configuration" method="post">
+            <h2>Port Configuration:</h2>
             Interface: <select id="intf" name="intf">
                 <option value=1>1</option>
                 <option value=2>2</option>
@@ -63,11 +64,11 @@
                 <option value=25>25</option>
                 <option value=26>26</option>
             </select><br>
-            Admin mode: <select id="admin_mode_sel[]" name="admin_mode_sel[]">
-                <option value="enabled">enabled</option>
-                <option value="disabled">disabled</option>
-            </select><br>
-            Physical Mode: <select id="phys_mode_sel[]" name="phys_mode_sel[]">
+            Admin mode: 
+            <input type="radio" name="admin_mode_sel[]" id="enabled" value="enabled" checked> enabled
+            <input type="radio" name="admin_mode_sel[]" id="disabled" value="disabled"> disabled<br>
+            Physical Mode: 
+            <select id="phys_mode_sel[]" name="phys_mode_sel[]">
                 <option value=1>Auto Negotiate</option>
                 <option value=4>10 Mbps Half Duplex</option>
                 <option value=5>10 Mbps Full Duplex</option>
@@ -75,9 +76,45 @@
                 <option value=3>100 Mbps Full Duplex</option>
             </select><br>
             Port description: <input type="text" id="port_descr" name="port_descr"><br>
-            <input type="submit" value="Save"> <button type="button" onclick="configureAllIntf('myModal2')">Edit
-                All</button>
+            <input type="submit" value="Save"> <input type="button" onclick="configureAllIntf('myModal2')" value="Edit All"></input><br><br>
         </form>
+        <form action="/conf/save_port_mirroring" method="post">
+            <h2>Port Mirroring</h2>
+            Port Mirroring: 
+            <input type="radio" name="port_mirroring_sel[]" id="enabled" value="enabled"> enabled
+            <input type="radio" name="port_mirroring_sel[]" id="disabled" value="disabled" checked> disabled<br>
+            Destination Port: <select id="destination_port_sel[]" name="destination_port_sel[]">
+                <option value=0>None</option>
+                <option value=1>1</option>
+                <option value=2>2</option>
+                <option value=3>3</option>
+                <option value=4>4</option>
+                <option value=5>5</option>
+                <option value=6>6</option>
+                <option value=7>7</option>
+                <option value=8>8</option>
+                <option value=9>9</option>
+                <option value=10>10</option>
+                <option value=11>11</option>
+                <option value=12>12</option>
+                <option value=13>13</option>
+                <option value=14>14</option>
+                <option value=15>15</option>
+                <option value=16>16</option>
+                <option value=17>17</option>
+                <option value=18>18</option>
+                <option value=19>19</option>
+                <option value=20>20</option>
+                <option value=21>21</option>
+                <option value=22>22</option>
+                <option value=23>23</option>
+                <option value=24>24</option>
+                <option value=25>25</option>
+                <option value=26>26</option>
+            </select><br>
+            <input type="submit" value="Save">
+        </form>
+        
     </div>
 </div>
 <div id="myModal2" class="modal">
@@ -101,4 +138,5 @@
         
     </div>
 </div>
+
 {% endblock modal %}

@@ -1,29 +1,41 @@
-from flask import Flask, render_template, request, redirect, send_file, session, flash, url_for, g
-import json
-from scrapyNetIF.scrapyNetIF.spiders.NetIF import postsomeThing
-from report_generation import gen_report
-import requests
-import subprocess
-import os
-from datetime import timedelta
-from model import User
-import time
-
+from flask import (
+    Flask, 
+    render_template, 
+    redirect, 
+    send_file, 
+    flash, 
+    url_for,
+    request, 
+    g,
+    session
+)
 from flask_login import (
-    UserMixin,
-    login_user,
     LoginManager,
-    current_user,
+    login_user,
     logout_user,
     login_required,
+    current_user
 )
+from datetime import timedelta
+import json
+import os
+import requests
+import subprocess
 
-from mongodb import switches, settings, users
-from samba import get_sharedfiles, download, upload
+from model import User
+from mongodb import (
+    switches, 
+    settings, 
+    users
+)
+from samba import (
+    get_sharedfiles, 
+    download, 
+    upload
+)
 from switch_detection import search_switches
 
 login_manager = LoginManager()
-
 login_manager.session_protection = "strong"
 login_manager.login_view = "login"
 login_manager.login_message_category = "info"
@@ -51,11 +63,7 @@ def before_request():
     session.modified = True
     g.user = current_user
 
-@app.route("/dashboard/userdata", methods=["GET"])
-@login_required
-def userdata():
-    user = users.find_one({"_id": session["_user_id"]})
-    return {"username":user["username"]}
+
 
 @app.post("/login")
 def login():
@@ -72,13 +80,19 @@ def login():
         flash('Login Unsuccessful. Please check username and password', 'danger')
     return render_template("login.html")
 
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    flash("succesfully loged out", "success")
+    return redirect(url_for("login"))
+
 @app.route("/changePassword", methods=["POST"])
 @login_required
 def changePassword():
     username = request.form["username"]
     password = request.form["password"]
     newpass = request.form["newpass"]
-    print(password +"      " + newpass)
     if User.change_password(username, password, newpass):
         flash("succesfully changed admin password", "success")
         session.clear()
@@ -87,13 +101,7 @@ def changePassword():
         flash('password change for admin was unsuccessful.', 'danger')
         return redirect(url_for("dashboard"))
 
-@app.route("/logout")
-@login_required
-def logout():
-    logout_user()
-    flash("succesfully loged out", "success")
-    return redirect(url_for("login"))
-
+# dashboard
 @app.route("/")
 @login_required
 def default():
@@ -104,12 +112,13 @@ def default():
 def dashboard():
     return render_template('dashboard.html', switches=switches.find(), reports=get_sharedfiles())
 
-@app.route('/ports')
+@app.route("/dashboard/userdata", methods=["GET"])
 @login_required
-def ports():
-    return render_template('ports.html', switches=switches.find())
+def userdata():
+    user = users.find_one({"_id": session["_user_id"]})
+    return {"username":user["username"]}
 
-@app.route('/scrap')
+@app.route('/dashboard/scrap')
 @login_required
 def scrap_settings():
     # os.chdir(os.path.dirname(__file__)+"/scrapyNetIF/scrapyNetIF")
@@ -119,6 +128,18 @@ def scrap_settings():
     for mydict in set:
         del mydict["_id"]
     return json.dumps(set[0])
+
+@app.route('/dashboard/load_switches')
+@login_required
+def load_switches():
+    return search_switches()
+
+# ports
+
+@app.route('/ports')
+@login_required
+def ports():
+    return render_template('ports.html', switches=switches.find())
 
 @app.route('/ports/scrap')
 @login_required
@@ -131,40 +152,14 @@ def scrap_port_settings():
         del mydict["_id"]
     return json.dumps(set[0])
 
-@app.route('/load_switches')
-@login_required
-def load_switches():
-    return search_switches()
+# download
 
 @app.route('/download/<filename>')
 @login_required
 def download_file(filename):
     return send_file(download(filename), as_attachment=True)
 
-@app.route('/conf/save_user_pass', methods=['POST'])
-@login_required
-def save_user_pass():
-    username = request.form["username"]
-    cur_pass = request.form["current_password"]
-    new_pass = request.form["new_password"]
-    confirm_pass = request.form["confirm_password"]
-
-    session = requests.Session()
-    session.post('http://10.137.4.41/htdocs/login/login.lua',
-                 data={"username": "admin", "password": "Syp2023hurra"})
-
-    data = {"user_name": username,
-            "current_password": cur_pass,
-            "new_password": new_pass,
-            "confirm_new_passwd": confirm_pass,
-            "b_form1_submit": "Apply",
-            "b_form1_clicked": "b_form1_submit"}
-
-    response = session.post("http://10.137.4.41/htdocs/pages/base/user_accounts.lsp",
-                             data=data, cookies=session.cookies.get_dict())
-    
-    session.close()
-    return redirect('/')
+# configuration
 
 @app.route('/conf/save_system_settings', methods=['POST'])
 @login_required
@@ -273,48 +268,27 @@ def save_port_mirroring():
     
     return redirect('/ports')
 
+# visualeditor
 
 @app.route('/visualeditor')
 @login_required
 def visualeditor():
     return render_template('visualeditor.html', switches=switches.find())
 
+# reports
 
 @app.route('/reports')
 @login_required
 def reports():
     return render_template('reports.html')
 
-
-@app.route('/reports/current')
-@login_required
-def download_last_daily_report():
-    # gen_report()
-    return send_file("./download/daily_report_21022023.pdf", as_attachment=True)
-
-
-@app.route('/conf/save_trunk_membership')
-@login_required
-def save_trunk_membership():
-    data = {"_submit": "Apply", "ptc_01": "2", "ptc_02": "2", "ptc_03": "0",
-            "ptc_04": "1", "ptc_05": "1", "ptc_06": "0", "ptc_07": "0", "ptc_08": "1"}
-    response = requests.post(
-        "http://10.128.10.19/trunks/trunks_mem.html", data=data, auth=("username", "Syp2223"))
-    return redirect('/')
-
-
-@app.route('/conf/save_trunk_config')
-@login_required
-def save_trunk_config():
-    data = {"_submit": "Apply", "S01": "3", "F01": "on",
-            "S02": "0", "S03": "0", "F01": "", "S04": "0"}
-    response = requests.post(
-        "http://10.128.10.19/trunks/trunks_config.html", data=data, auth=("username", "Syp2223"))
-    return redirect('/')
-
+# clear download folder
+@app.before_request
 def clear_download_dict():
     for file in os.listdir('./download'):
         os.remove(os.path.join('./download', file))
+
+# flask app
 
 if __name__ == '__main__':
     app.run()

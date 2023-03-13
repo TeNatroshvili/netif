@@ -86,7 +86,7 @@ version: 2.0
 
 }
 
-.reload-switch span{
+.reload-switch span {
     padding-right: 1em;
 }
 
@@ -98,7 +98,7 @@ version: 2.0
     height: max-content;
 }
 
-.more-reports{
+.more-reports {
     background-color: var(--white);
     width: max-content;
     height: 2em;
@@ -107,14 +107,14 @@ version: 2.0
     float: right;
 }
 
-.more-reports a{
+.more-reports a {
     display: inline-block;
     padding: .5em 2em;
     text-decoration: none;
     color: inherit;
 }
 
-.more-reports:hover{
+.more-reports:hover {
     transform: scale(.96);
     transition: all 50ms ease-in;
 }
@@ -232,11 +232,15 @@ version: 2.0
     cursor: pointer;
 }
 
-.changepw{
+.changepw {
     width: 1.4em;
 }
 
-.performance-diagram{
+.htl-logo {
     grid-column: 3;
     grid-row: 3;
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
 }

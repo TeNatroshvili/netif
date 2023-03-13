@@ -1,14 +1,12 @@
-from mongodb import users
-import uuid
-from flask import session, flash
 from flask_login import UserMixin
 from flask_bcrypt import bcrypt
+import uuid
 
+from mongodb import users
 
 class User(UserMixin):
 
     def __init__(self, username, password, _id=None):
-
         self.username = username
         self.password = password
         self._id = uuid.uuid4().hex if _id is None else _id
@@ -21,7 +19,6 @@ class User(UserMixin):
         return False
     def get_id(self):
         return self._id
-
 
     @classmethod
     def get_by_username(cls, username):
@@ -52,12 +49,10 @@ class User(UserMixin):
             return True
         else:
             return False
+
     def json(self):
         return {
             "username": self.username,
             "_id": self._id,
             "password": bcrypt.hashpw((self.password).encode('utf-8'), bcrypt.gensalt())
         }
-
-# user = User("admin","admin")
-# users.insert_one(user.json())

@@ -1,9 +1,9 @@
 from reportlab.lib.pagesizes import A4
-from mongodb import switches
-
-from pysnmp.hlapi import *
 from reportlab.pdfgen import canvas
+from pysnmp.hlapi import *
 from datetime import datetime
+
+from mongodb import switches
 
 def gen_report():
   errorIndication, errorStatus, errorIndex, varBinds = next(

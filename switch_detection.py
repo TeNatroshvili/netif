@@ -1,6 +1,7 @@
 from pysnmp.hlapi import *
 import socket
 import re
+
 from mongodb import switches
 
 def search_switches():
@@ -17,7 +18,7 @@ def search_switches():
             devices.append(ip)
         s.close()
 
-    for i in range(130):
+    for i in range(255):
         switch_ip = devices[i]
         community = "public"
         name_oid = "1.3.6.1.2.1.1.5.0"
