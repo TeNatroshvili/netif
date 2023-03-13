@@ -95,6 +95,10 @@ def logout():
     return redirect(url_for("login"))
 
 @app.route("/")
+@login_required
+def default():
+    return redirect(url_for("dashboard"))
+
 @app.route('/dashboard')
 @login_required
 def dashboard():
@@ -132,7 +136,7 @@ def scrap_port_settings():
 def load_switches():
     return search_switches()
 
-@app.route('/downloads/<filename>')
+@app.route('/download/<filename>')
 @login_required
 def download_file(filename):
     return send_file(download(filename), as_attachment=True)
@@ -248,6 +252,7 @@ def save_all_port_configuration():
     return redirect('/ports')
 
 @app.route('/conf/save_port_mirroring', methods=['POST'])
+@login_required
 def save_port_mirroring():
     session = requests.Session()
     response = session.post('http://10.137.4.41/htdocs/login/login.lua', data={"username":"admin","password":"Syp2023hurra"})
