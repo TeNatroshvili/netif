@@ -1,29 +1,112 @@
-from flask import Flask, render_template, request, redirect, send_file
+from flask import Flask, render_template, request, redirect, send_file, session, flash, url_for, g
 import json
 from scrapyNetIF.scrapyNetIF.spiders.NetIF import postsomeThing
 from report_generation import gen_report
 import requests
 import subprocess
 import os
+from datetime import timedelta
+from model import User
+import time
 
-from mongodb import switches, settings
+from flask_login import (
+    UserMixin,
+    login_user,
+    LoginManager,
+    current_user,
+    logout_user,
+    login_required,
+)
+
+from mongodb import switches, settings, users
 from samba import get_sharedfiles, download, upload
 from switch_detection import search_switches
 
+login_manager = LoginManager()
+
+login_manager.session_protection = "strong"
+login_manager.login_view = "login"
+login_manager.login_message_category = "info"
+
 app = Flask(__name__)
+login_manager.init_app(app)
+app.secret_key = os.urandom(43)
 
+@login_manager.user_loader
+def load_user(user_id):
+    user = User.get_by_id(user_id)
+    if user is not None:
+        return user
+    else:
+        return None
 
-@app.route('/')
+@app.get("/login")
+def login_page():
+    return render_template("login.html")
+
+@app.before_request
+def before_request():
+    session.permanent = True
+    app.permanent_session_lifetime = timedelta(minutes=15)
+    session.modified = True
+    g.user = current_user
+
+@app.route("/dashboard/userdata", methods=["GET"])
+@login_required
+def userdata():
+    user = users.find_one({"_id": session["_user_id"]})
+    return {"username":user["username"]}
+
+@app.post("/login")
+def login():
+    username = request.form["username"]
+    password = request.form["password"]
+    find_user = users.find_one({"username": username})
+    if User.login_valid(username, password):
+        loguser = User(find_user["username"], find_user["password"], find_user["_id"])
+        login_user(loguser)
+        flash('You have been logged in!', 'success')
+        next = request.args.get('next')
+        return redirect(next or url_for('dashboard'))
+    else:
+        flash('Login Unsuccessful. Please check username and password', 'danger')
+    return render_template("login.html")
+
+@app.route("/changePassword", methods=["POST"])
+@login_required
+def changePassword():
+    username = request.form["username"]
+    password = request.form["password"]
+    newpass = request.form["newpass"]
+    print(password +"      " + newpass)
+    if User.change_password(username, password, newpass):
+        flash("succesfully changed admin password", "success")
+        session.clear()
+        return redirect(url_for("login"))
+    else:
+        flash('password change for admin was unsuccessful.', 'danger')
+        return redirect(url_for("dashboard"))
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    flash("succesfully loged out", "success")
+    return redirect(url_for("login"))
+
+@app.route("/")
+@app.route('/dashboard')
+@login_required
 def dashboard():
     return render_template('dashboard.html', switches=switches.find(), reports=get_sharedfiles())
 
-
 @app.route('/ports')
+@login_required
 def ports():
     return render_template('ports.html', switches=switches.find())
 
-
 @app.route('/scrap')
+@login_required
 def scrap_settings():
     # os.chdir(os.path.dirname(__file__)+"/scrapyNetIF/scrapyNetIF")
     # process = subprocess.Popen(["scrapy", "crawl", "NetIF"])
@@ -33,8 +116,8 @@ def scrap_settings():
         del mydict["_id"]
     return json.dumps(set[0])
 
-
 @app.route('/ports/scrap')
+@login_required
 def scrap_port_settings():
     # os.chdir(os.path.dirname(__file__)+"/scrapyNetIF/scrapyNetIF")
     # process = subprocess.Popen(["scrapy", "crawl", "NetIF"])
@@ -44,18 +127,18 @@ def scrap_port_settings():
         del mydict["_id"]
     return json.dumps(set[0])
 
-
 @app.route('/load_switches')
+@login_required
 def load_switches():
     return search_switches()
 
-
-@app.route('/download/<filename>')
+@app.route('/downloads/<filename>')
+@login_required
 def download_file(filename):
     return send_file(download(filename), as_attachment=True)
 
-
 @app.route('/conf/save_user_pass', methods=['POST'])
+@login_required
 def save_user_pass():
     username = request.form["username"]
     cur_pass = request.form["current_password"]
@@ -79,8 +162,8 @@ def save_user_pass():
     session.close()
     return redirect('/')
 
-
 @app.route('/conf/save_system_settings', methods=['POST'])
+@login_required
 def save_system_settings():
     ipaddress = request.form["ipadress"]
     subnetmask = request.form["subnetmask"]
@@ -120,6 +203,7 @@ def save_system_settings():
     return redirect('/')
 
 @app.route('/conf/save_port_configuration', methods=['POST'])
+@login_required
 def save_port_configuration():
     session = requests.Session()
     response = session.post('http://10.137.4.41/htdocs/login/login.lua', data={"username":"admin","password":"Syp2023hurra"})
@@ -129,7 +213,7 @@ def save_port_configuration():
     phys_mode = request.form["phys_mode_sel[]"]
     port_descr = request.form["port_descr"]
     intf = request.form["intf"]
-
+              
     data = {"admin_mode_sel[]": admin_mode,
             "phys_mode_sel[]": phys_mode,
             "port_descr": port_descr,
@@ -143,6 +227,7 @@ def save_port_configuration():
     return redirect('/ports')
 
 @app.route('/conf/save_all_port_configuration', methods=['POST'])
+@login_required
 def save_all_port_configuration():
     session = requests.Session()
     response = session.post('http://10.137.4.41/htdocs/login/login.lua', data={"username":"admin","password":"Syp2023hurra"})
@@ -162,24 +247,49 @@ def save_all_port_configuration():
     
     return redirect('/ports')
 
+@app.route('/conf/save_port_mirroring', methods=['POST'])
+def save_port_mirroring():
+    session = requests.Session()
+    response = session.post('http://10.137.4.41/htdocs/login/login.lua', data={"username":"admin","password":"Syp2023hurra"})
+
+    #port_mirroring_sel%5B%5D=enabled&destination_port_sel%5B%5D=1&sorttable1_length=-1&b_form1_submit=Apply&b_form1_clicked=b_form1_submit
+    port_mirroring = request.form["port_mirroring_sel[]"]
+    destination_port = request.form["destination_port_sel[]"]
+
+    data = {"port_mirroring_sel[]": port_mirroring,
+            "destination_port_sel[]": destination_port,
+            "sorttable1_length": "-1",
+            "b_form1_submit": "Apply",
+            "b_form1_clicked": "b_form1_submit"}
+    
+    response = session.post("http://10.137.4.41/htdocs/pages/base/port_mirror.lsp", data=data, cookies=session.cookies.get_dict())
+    session.post("http://10.137.4.41/htdocs/lua/ajax/save_cfg.lua?save=1", cookies=session.cookies.get_dict())
+    session.get("http://10.137.4.41/htdocs/pages/main/logout.lsp", cookies=session.cookies.get_dict())
+    
+    return redirect('/ports')
+
 
 @app.route('/visualeditor')
+@login_required
 def visualeditor():
     return render_template('visualeditor.html', switches=switches.find())
 
 
 @app.route('/reports')
+@login_required
 def reports():
     return render_template('reports.html')
 
 
 @app.route('/reports/current')
+@login_required
 def download_last_daily_report():
     # gen_report()
     return send_file("./download/daily_report_21022023.pdf", as_attachment=True)
 
 
 @app.route('/conf/save_trunk_membership')
+@login_required
 def save_trunk_membership():
     data = {"_submit": "Apply", "ptc_01": "2", "ptc_02": "2", "ptc_03": "0",
             "ptc_04": "1", "ptc_05": "1", "ptc_06": "0", "ptc_07": "0", "ptc_08": "1"}
@@ -189,6 +299,7 @@ def save_trunk_membership():
 
 
 @app.route('/conf/save_trunk_config')
+@login_required
 def save_trunk_config():
     data = {"_submit": "Apply", "S01": "3", "F01": "on",
             "S02": "0", "S03": "0", "F01": "", "S04": "0"}
@@ -196,9 +307,9 @@ def save_trunk_config():
         "http://10.128.10.19/trunks/trunks_config.html", data=data, auth=("username", "Syp2223"))
     return redirect('/')
 
-if __name__ == '__main__':
-    app.run(debug=1)
-
 def clear_download_dict():
     for file in os.listdir('./download'):
         os.remove(os.path.join('./download', file))
+
+if __name__ == '__main__':
+    app.run()

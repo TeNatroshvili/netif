@@ -1,210 +1,104 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ports</title>
-    <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='images/favicon.ico')}}">
-    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
-    <link rel="stylesheet" href="{{url_for('static', filename='css/dashboard.css')}}">
-    <script>
-        var modal, btn, span, header, content, footer, settings
-        window.onload = function () {
-            modal = document.getElementById("myModal");
-            modal2 = document.getElementById("myModal2");
-            btn = document.getElementById("myBtn");
-            span = document.getElementsByClassName("close")[0];
-            header = document.getElementsByClassName("header")[0]
-            content = document.getElementsByClassName("content")[0]
-            footer = document.getElementsByClassName("footer")[0]
-            refreshbutton = document.getElementById("refreshbutton")
-        }
+{% block title %}Ports{% endblock title %}
 
-        function openSettings(ip, modalID) {
-            document.getElementById(modalID).style.display = "block";
-            fetch(window.location.href + "/scrap")
-                .then(response => {
-                    if (response.ok) {
-                        return response.json();
-                    } else {
-                        throw new Error('Network response was not ok');
-                    }
-                })
-                .then((settings => {
-                    document.getElementById(modalID).children[0].style.display = "none";
-                    document.getElementById(modalID).children[1].style.display = "block";
-                    bluredBackground(true)
+{% block links %}
+<link rel="stylesheet" href="{{url_for('static', filename='css/ports.css')}}">
+{% endblock links %}
 
-                    document.getElementById("systemname").value = settings['system_name'][0]
-                    document.getElementById("serialnumber").value = settings['serial_number'][0]
-                    document.getElementById("ipadress").value = settings['ip_adresse'][0]
-                    document.getElementById("subnetmask").value = settings['subnet_mask'][0]
-                    document.getElementById("gatewayadress").value = settings['gateway_ip'][0]
-                    document.getElementById("macadress").value = settings['mac_adreese'][0]
-                }));
-        }
 
-        function configureAllIntf(modalID) {
-            document.getElementById(modalID).style.display = "block";
-            fetch(window.location.href + "/scrap")
-                .then(response => {
-                    if (response.ok) {
-                        return response.json();
-                    } else {
-                        throw new Error('Network response was not ok');
-                    }
-                })
-                .then((settings => {
-                    document.getElementById(modalID).children[0].style.display = "none";
-                    document.getElementById(modalID).children[1].style.display = "block";
-                    bluredBackground(true)
+{% block scripts %}
+<script src="{{url_for('static', filename='js/ports.js')}}"></script>
+{% endblock scripts %}
 
-                    document.getElementById("systemname").value = settings['system_name'][0]
-                    document.getElementById("serialnumber").value = settings['serial_number'][0]
-                    document.getElementById("ipadress").value = settings['ip_adresse'][0]
-                    document.getElementById("subnetmask").value = settings['subnet_mask'][0]
-                    document.getElementById("gatewayadress").value = settings['gateway_ip'][0]
-                    document.getElementById("macadress").value = settings['mac_adreese'][0]
-                }));
-        }
-
-        function bluredBackground(yes) {
-            if (yes) {
-                header.classList.add('blur')
-                content.classList.add('blur')
-                footer.classList.add('blur')
-            } else {
-                header.classList.remove('blur')
-                content.classList.remove('blur')
-                footer.classList.remove('blur')
-            }
-        }
-
-        function closeSettings(modalID) {
-            bluredBackground(false)
-            document.getElementById(modalID).children[0].style.display = "block";
-            document.getElementById(modalID).children[1].style.display = "none";
-            document.getElementById(modalID).style.display = "none";
-        }
-
-        function loadSwitches() {
-            refreshbutton.classList.add("refreshing")
-            refreshbutton.onclick = null
-            fetch(window.location.href + "load_switches")
-                .then(response => console.log(response))
-                .then(nothing => {
-                    refreshbutton.classList.remove("refreshing")
-                    refreshbutton.onclick = loadSwitches
-                    location.reload()
-                })
-        }
-    </script>
-</head>
-
-<body>
-    <div class="header">
-        <div class="logo">
-            <img src="{{url_for('static', filename='images/logo_only.svg')}}" alt="Logo">
-        </div>
-        <div class="menue-items">
-            <div class="item"><a href="/">Dashboard</a></div>
-            <div class="item"><a href="/reports">Reports</a></div>
-            <div class="item"><a href="/visualeditor">Visual Editor</a></div>
-            <div class="logo-text"><img src="{{url_for('static', filename='images/logo_font.svg')}}" alt="NETIF"></div>
-            <div class="item"><a href="/ports">Ports</a></div>
-            <div class="item"><a>Trunks</a></div>
-            <div class="item"><a>Vlans</a></div>
+{% block content %}
+<div class="switch-list">
+    {% for item in switches %}
+    <div class="switch-list-item">
+        <img class="gear-icon modal-toggle icon-button" onclick="openSettings('{{item.ip}}','myModal')"
+            src="{{url_for('static', filename='images/gear.svg')}}">
+        <div class="name-text">
+            <p style="font-weight: bold; font-size: 1.2em;">{{ item.name }}</p>
+            <p style="font-size: 1em;">{{ item.model }}</p>
+            <p style="font-size: 1em;">{{ item.ip }}</p>
         </div>
     </div>
-    <div class="content">
-        <div class="reload-switch">
-            <span>Reload Switches</span>
-            <img id="refreshbutton" class="refresh icon-button" src="{{url_for('static', filename='images/arrows-rotate.svg')}}"
-                alt="refresh" onclick="loadSwitches()">
-        </div>
-        <div class="switch-list">
-            {% for item in switches %}
-            <div class="switch-list-item">
-                <img class="gear-icon modal-toggle icon-button" onclick="openSettings('{{item.ip}}','myModal')"
-                    src="{{url_for('static', filename='images/gear.svg')}}">
-                <div class="name-text">
-                    <p style="font-weight: bold; font-size: 1.2em;">{{ item.name }}</p>
-                    <p style="font-size: 1em;">{{ item.model }}</p>
-                    <p style="font-size: 1em;">{{ item.ip }}</p>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
+    {% endfor %}
+</div>
+{% endblock content %}
+
+{% block modal %}
+<div id="myModal" class="modal">
+    <div class="modal-load"></div>
+    <!-- Modal content -->
+    <div class="modal-content">
+
+        <span class="close" onclick="closeSettings('myModal')">&times;</span>
+        <form action="/conf/save_port_configuration" method="post">
+            Interface: <select id="intf" name="intf">
+                <option value=1>1</option>
+                <option value=2>2</option>
+                <option value=3>3</option>
+                <option value=4>4</option>
+                <option value=5>5</option>
+                <option value=6>6</option>
+                <option value=7>7</option>
+                <option value=8>8</option>
+                <option value=9>9</option>
+                <option value=10>10</option>
+                <option value=11>11</option>
+                <option value=12>12</option>
+                <option value=13>13</option>
+                <option value=14>14</option>
+                <option value=15>15</option>
+                <option value=16>16</option>
+                <option value=17>17</option>
+                <option value=18>18</option>
+                <option value=19>19</option>
+                <option value=20>20</option>
+                <option value=21>21</option>
+                <option value=22>22</option>
+                <option value=23>23</option>
+                <option value=24>24</option>
+                <option value=25>25</option>
+                <option value=26>26</option>
+            </select><br>
+            Admin mode: <select id="admin_mode_sel[]" name="admin_mode_sel[]">
+                <option value="enabled">enabled</option>
+                <option value="disabled">disabled</option>
+            </select><br>
+            Physical Mode: <select id="phys_mode_sel[]" name="phys_mode_sel[]">
+                <option value=1>Auto Negotiate</option>
+                <option value=4>10 Mbps Half Duplex</option>
+                <option value=5>10 Mbps Full Duplex</option>
+                <option value=2>100 Mbps Half Duplex</option>
+                <option value=3>100 Mbps Full Duplex</option>
+            </select><br>
+            Port description: <input type="text" id="port_descr" name="port_descr"><br>
+            <input type="submit" value="Save"> <button type="button" onclick="configureAllIntf('myModal2')">Edit
+                All</button>
+        </form>
     </div>
-    <div id="myModal" class="modal">
-        <div class="modal-load"></div>
-        <!-- Modal content -->
-        <div class="modal-content">
+</div>
+<div id="myModal2" class="modal">
+    <div class="modal-load"></div>
+    <!-- Modal content -->
+    <div class="modal-content">
+    
+        <span class="close" onclick="closeSettings('myModal2')">&times;</span>
+        <form action="/conf/save_all_port_configuration" method="post">
+            Interface: All<br>
+            Physical Mode: <select id="phys_mode_sel[]" name="phys_mode_sel[]">
+                <option value=1>Auto Negotiate</option>
+                <option value=4>10 Mbps Half Duplex</option>
+                <option value=5>10 Mbps Full Duplex</option>
+                <option value=2>100 Mbps Half Duplex</option>
+                <option value=3>100 Mbps Full Duplex</option>
+            </select><br>
+            Port description: <input type="text" id="port_descr" name="port_descr"><br>
+            <input type="submit" value="Save">
+        </form>
         
-            <span class="close" onclick="closeSettings('myModal')">&times;</span>
-            <form action="/conf/save_port_configuration" method="post">
-                Interface: <select id="intf" name="intf">
-                    <option value=1>1</option>
-                    <option value=2>2</option>
-                    <option value=3>3</option>
-                    <option value=4>4</option>
-                    <option value=5>5</option>
-                    <option value=6>6</option>
-                    <option value=7>7</option>
-                    <option value=8>8</option>
-                    <option value=9>9</option>
-                    <option value=10>10</option>
-                    <option value=11>11</option>
-                    <option value=12>12</option>
-                    <option value=13>13</option>
-                    <option value=14>14</option>
-                    <option value=15>15</option>
-                    <option value=16>16</option>
-                    <option value=17>17</option>
-                    <option value=18>18</option>
-                    <option value=19>19</option>
-                    <option value=20>20</option>
-                    <option value=21>21</option>
-                    <option value=22>22</option>
-                    <option value=23>23</option>
-                    <option value=24>24</option>
-                    <option value=25>25</option>
-                    <option value=26>26</option>
-                </select><br>
-                Admin mode: <select id="admin_mode_sel[]" name="admin_mode_sel[]">
-                    <option value="enabled">enabled</option>
-                    <option value="disabled">disabled</option>
-                </select><br>
-                Physical Mode: <select id="phys_mode_sel[]" name="phys_mode_sel[]">
-                    <option value=1>Auto Negotiate</option>
-                    <option value=4>10 Mbps Half Duplex</option>
-                    <option value=5>10 Mbps Full Duplex</option>
-                    <option value=2>100 Mbps Half Duplex</option>
-                    <option value=3>100 Mbps Full Duplex</option>
-                </select><br>
-                Port description: <input type="text" id="port_descr" name="port_descr"><br>
-                <input type="submit" value="Save"> <button type="button" onclick="configureAllIntf()">Edit All</button>
-            </form>
-            
-        </div>
     </div>
-    <div id="myModal2" class="modal">
-        <div class="modal-load"></div>
-        <!-- Modal content -->
-        <div class="modal-content">
-        
-            <span class="close" onclick="closeSettings('myModal2')">&times;</span>
-            <form action="/conf/save_port_configuration" method="post">
-                <input type="submit" value="Save"> <button type="button" onclick="configureAllIntf()">Edit All</button>
-            </form>
-            
-        </div>
-    </div>
-    <div class="footer">
-        <p>© 2022-2023 - Baumann, Chen, Natroshvili, Stiefsohn</p>
-    </div>
-</body>
-
-</html>
+</div>
+{% endblock modal %}

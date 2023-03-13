@@ -1,163 +1,90 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='images/favicon.ico')}}">
-    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
-    <link rel="stylesheet" href="{{url_for('static', filename='css/dashboard.css')}}">
-    <script>
-        var modal, btn, span, header, content, footer, settings
-        window.onload = function () {
-            modal = document.getElementById("myModal");
-            btn = document.getElementById("myBtn");
-            span = document.getElementsByClassName("close")[0];
-            header = document.getElementsByClassName("header")[0]
-            content = document.getElementsByClassName("content")[0]
-            footer = document.getElementsByClassName("footer")[0]
-            refreshbutton = document.getElementById("refreshbutton")
-        }
+{% block title %}Dashboard{% endblock title %}
 
-        function openSettings(ip) {
-            modal.style.display = "block";
-            fetch(window.location.href + "scrap")
-                .then(response => {
-                    if (response.ok) {
-                        return response.json();
-                    } else {
-                        throw new Error('Network response was not ok');
-                    }
-                })
-                .then((settings => {
-                    modal.children[0].style.display = "none";
-                    modal.children[1].style.display = "block";
-                    bluredBackground(true)
+{% block links %}
+<link rel="stylesheet" href="{{url_for('static', filename='css/dashboard.css')}}">
+{% endblock links %}
 
-                    document.getElementById("systemname").value = settings['system_name'][0]
-                    document.getElementById("serialnumber").value = settings['serial_number'][0]
-                    document.getElementById("ipadress").value = settings['ip_adresse'][0]
-                    document.getElementById("subnetmask").value = settings['subnet_mask'][0]
-                    document.getElementById("gatewayadress").value = settings['gateway_ip'][0]
-                    document.getElementById("macadress").value = settings['mac_adreese'][0]
-                }));
-        }
+{% block scripts %}
+<script src="{{url_for('static', filename='js/dashboard.js')}}"></script>
+<script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
+{% endblock scripts %}
 
-        function bluredBackground(yes) {
-            if (yes) {
-                header.classList.add('blur')
-                content.classList.add('blur')
-                footer.classList.add('blur')
-            } else {
-                header.classList.remove('blur')
-                content.classList.remove('blur')
-                footer.classList.remove('blur')
-            }
-        }
-
-        function closeSettings() {
-            bluredBackground(false)
-            modal.children[0].style.display = "block";
-            modal.children[1].style.display = "none";
-            modal.style.display = "none";
-        }
-
-        function loadSwitches() {
-            refreshbutton.classList.add("refreshing")
-            refreshbutton.onclick = null
-            fetch(window.location.href + "load_switches")
-                .then(response => console.log(response))
-                .then(nothing => {
-                    refreshbutton.classList.remove("refreshing")
-                    refreshbutton.onclick = loadSwitches
-                    location.reload()
-                })
-        }
-    </script>
-</head>
-
-<body>
-    <div class="header">
-        <div class="logo">
-            <img src="{{url_for('static', filename='images/logo_only.svg')}}" alt="Logo">
-        </div>
-        <div class="menue-items">
-            <div class="item"><a href="/">Dashboard</a></div>
-            <div class="item"><a href="/reports">Reports</a></div>
-            <div class="item"><a href="/visualeditor">Visual Editor</a></div>
-            <div class="logo-text"><img src="{{url_for('static', filename='images/logo_font.svg')}}" alt="NETIF"></div>
-            <div class="item"><a href="/ports">Ports</a></div>
-            <div class="item"><a>Trunks</a></div>
-            <div class="item"><a>Vlans</a></div>
+{% block content %}
+<div class="reload-switch">
+    <span>Reload Switches</span>
+    <img id="refreshbutton" class="refresh icon-button" src="{{url_for('static', filename='images/arrows-rotate.svg')}}"
+        alt="refresh" onclick="loadSwitches()">
+</div>
+<div class="change-pw">
+    <span>Change Management Password</span>
+    <img id="changepw" class="changepw icon-button" src="{{url_for('static', filename='images/gear.svg')}}"
+        alt="changepw" onclick="changePassword()">
+</div>
+<div class="switch-list">
+    {% for item in switches %}
+    <div class="switch-list-item">
+        <img class="gear-icon modal-toggle icon-button" onclick="openSettings('{{item.ip}}')"
+            src="{{url_for('static', filename='images/gear.svg')}}">
+        <div class="name-text">
+            <p style="font-weight: bold; font-size: 1.2em;">{{ item.name }}</p>
+            <p style="font-size: 1em;">{{ item.model }}</p>
+            <p style="font-size: 1em;">{{ item.ip }}</p>
         </div>
     </div>
-    <div class="content">
-        <div class="reload-switch">
-            <span>Reload Switches</span>
-            <img id="refreshbutton" class="refresh icon-button"
-                src="{{url_for('static', filename='images/arrows-rotate.svg')}}" alt="refresh" onclick="loadSwitches()">
-        </div>
-        <div class="switch-list">
-            {% for item in switches %}
-            <div class="switch-list-item">
-                <img class="gear-icon modal-toggle icon-button" onclick="openSettings('{{item.ip}}')"
-                    src="{{url_for('static', filename='images/gear.svg')}}">
-                <div class="name-text">
-                    <p style="font-weight: bold; font-size: 1.2em;">{{ item.name }}</p>
-                    <p style="font-size: 1em;">{{ item.model }}</p>
-                    <p style="font-size: 1em;">{{ item.ip }}</p>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        <div class="latest-reports">Latest Reports</div>
-        <div class="report-list">
-            {% for n in range(5) %}
-            {% set report = reports[n] %}
+    {% endfor %}
+</div>
+<div class="latest-reports">Latest Reports</div>
+<div class="report-list">
+    {% for n in range(5) %}
+    {% set report = reports[n] %}
 
-            <div class="report-list-item">
-                {{ report }}
-                <a href="/download/{{report}}"><img class="download icon-button" style="width:1.2em"
-                        src="{{url_for('static', filename='images/download.svg')}}" alt="download"
-                        onclick="download_report('{{report}}')"></a>
-            </div>
-            {% endfor %}
-            <div class="more-reports"><a href="/reports"><span>All Reports</span></a></div>
-        </div>
-        <div class="performance-diagram">
-            <img src="{{url_for('static', filename='images/gauge.svg')}}" style="width:60%" alt="gauge.svg">
-        </div>
+    <div class="report-list-item">
+        {{ report }}
+        <a href="/download/{{report}}"><img class="download icon-button" style="width:1.2em"
+                src="{{url_for('static', filename='images/download.svg')}}" alt="download"
+                onclick="download_report('{{report}}')"></a>
     </div>
-    <div id="myModal" class="modal">
-        <div class="modal-load"></div>
-        <!-- Modal content -->
-        <div class="modal-content">
-            <span class="close" onclick="closeSettings()">&times;</span>
-            <form action="/conf/save_system_settings" method="post">
-                Systemname: <input type="text" id="systemname" name="systemname"><br>
-                IPv4 Adress: <input type="text" id="ipadress" name="ipadress"><br>
-                Subnetmask: <input type="text" id="subnetmask" name="subnetmask"><br>
-                Gatewayadress: <input type="text" id="gatewayadress" name="gatewayadress"><br>
-                MAC Adress: <span id="macadress"></span><br>
-                SNMP: <input type="radio" name="snmp" id="snmpOn" value="enabled" selected> enabled
-                <input type="radio" name="snmp" id="snmpOff" value="disabled"> disabled<br>
-                <input type="submit" value="Save">
-            </form>
+    {% endfor %}
+    <div class="more-reports"><a href="/reports"><span>All Reports</span></a></div>
+</div>
+<div class="performance-diagram">
+    <img src="{{url_for('static', filename='images/gauge.svg')}}" style="width:60%" alt="gauge.svg">
+</div>
+{% endblock content %}
 
-            <form action="/conf/save_user_pass" method="post">
-                Username: <input type="text" id="username" name="username"><br>
-                Current Password: <input type="password" id="current_password" name="current_password"><br>
-                New Password: <input type="password" id="new_password" name="new_password"><br>
-                Confirm Password: <input type="password" id="confirm_password" name="confirm_password"><br>
-                <input type="submit" value="Save Username/Password">
-            </form>
-        </div>
-    </div>
-    <div class="footer">
-        <p>© 2022-2023 - Baumann, Chen, Natroshvili, Stiefsohn</p>
-    </div>
-</body>
+{% block modal %}
+<div id="myModal" class="modal">
+    <div class="modal-load"></div>
+    <!-- Modal content -->
+    <div class="modal-content">
+        <span class="close" onclick="closeSettings('myModal')">&times;</span>
+        <form action="/conf/save_system_settings" method="post">
+            Systemname: <input type="text" id="systemname" name="systemname"><br>
+            IPv4 Adress: <input type="text" id="ipadress" name="ipadress"><br>
+            Subnetmask: <input type="text" id="subnetmask" name="subnetmask"><br>
+            Gatewayadress: <input type="text" id="gatewayadress" name="gatewayadress"><br>
+            MAC Adress: <span id="macadress"></span><br>
+            SNMP: <input type="radio" name="snmp" id="snmpOn" value="enabled" selected> enabled
+            <input type="radio" name="snmp" id="snmpOff" value="disabled"> disabled<br>
+            <input type="submit" value="Save">
+        </form>
 
-</html>
+    </div>
+</div>
+<div id="myModal2" class="modal">
+    <div class="modal-load"></div>
+    <!-- Modal content -->
+    <div class="modal-content">
+        <span class="close" onclick="closeSettings('myModal2')">&times;</span>
+        <form action="/changePassword" method="post">
+            username: <input type="text" id="username" name="username" readonly><br>
+            password: <input type="password" id="password" name="password" required><br>
+            new password: <input type="password" id="newpass" name="newpass" required><br>
+            <input type="submit" value="Save">
+        </form>
+
+    </div>
+</div>
+{% endblock modal %}
