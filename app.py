@@ -301,7 +301,7 @@ def visualeditor():
 @app.route('/reports')
 @login_required
 def reports():
-    return render_template('reports.html')
+    return render_template('reports.html', reports=get_sharedfiles())
 
 
 # clear download folder
@@ -314,4 +314,4 @@ def clear_download_dict():
 # flask app
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=1)

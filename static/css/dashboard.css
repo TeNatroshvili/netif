@@ -70,23 +70,28 @@ version: 2.0
     font-size: 2em;
 }
 
-.reload-switch {
-    position: relative;
+.top-buttons{
+    display: flex;
+    justify-content: space-between;
     grid-column: 2;
     grid-row: 1;
+}
+
+.reload-switch, 
+.change-pw{
+    position: relative;
     height: 1.5em;
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    right: 4em;
     background-color: var(--green);
-    border-radius: 1em;
+    border-radius: .8em;
     width: max-content;
     padding: .5em 1em;
-
 }
 
-.reload-switch span {
+.reload-switch span,
+.change-pw span{
     padding-right: 1em;
 }
 
@@ -148,12 +153,22 @@ version: 2.0
 
 .modal-content {
     display: none;
-    background-color: #fefefe;
+    background-color: var(--white);
     margin: 10% auto;
     padding: 20px;
-    border: 1px solid #888;
+    border-radius: 1em;
     width: 60vw;
     height: 50vh;
+}
+
+.password-modal{
+    padding: 1em 3em;
+    width: max-content;
+    height: max-content;
+}
+
+.password-modal .btn{
+    margin: 1em 0;
 }
 
 .modal-load {
@@ -202,17 +217,19 @@ version: 2.0
     -ms-filter: blur(4px);
 }
 
-.modal input {
+.modal input[type!=submit] {
     padding: .5em;
     margin: .3em
 }
 
-.refresh {
+.refresh,
+.changepw {
     height: 1.4em;
     pointer-events: all;
 }
 
-.refresh:hover {
+.refresh:hover,
+.changepw:hover {
     cursor: pointer;
 }
 
@@ -232,10 +249,6 @@ version: 2.0
     cursor: pointer;
 }
 
-.changepw {
-    width: 1.4em;
-}
-
 .htl-logo {
     grid-column: 3;
     grid-row: 3;
@@ -243,4 +256,75 @@ version: 2.0
     width: 100%;
     justify-content: center;
     align-items: center;
+}
+
+form{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.form-section {
+    position: relative;
+    width: 20em;
+    height: 4em;
+    overflow: hidden;
+}
+
+.form-section input {
+    width: 100%;
+    height: 50%;
+    bottom: 0;
+    position: absolute;
+    color: #000;
+    border: none;
+    background-color: var(--white);
+    padding: 0 .6em;
+}
+
+.form-section label {
+    position: absolute;
+    bottom: 0px;
+    left: .4em;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    border-bottom: 1px solid white;
+}
+
+.form-section label::after {
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    left: 0px;
+    width: 120%;
+    height: 100%;
+    border-bottom: 3px solid var(--green);
+    transform: translateX(-100%);
+    transition: all 0.3s ease;
+}
+
+.content-name {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    padding-bottom: 5px;
+    transition: all 0.3s ease;
+}
+
+.form-section input:focus {
+    outline: none;
+}
+
+.form-section input:focus+.label-name .content-name,
+.form-section input:valid+.label-name .content-name {
+    transform: translateY(-150%);
+    font-size: 14px;
+    left: 0px;
+    color: var(--green);
+}
+
+.form-section input:focus+.label-name::after,
+.form-section input:valid+.label-name::after {
+    transform: translateX(0%);
 }

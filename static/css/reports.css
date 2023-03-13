@@ -11,3 +11,31 @@ version: 1.0
     justify-content: center;
     align-items: center;
 }
+
+.report-list {
+    background-color: var(--green);
+    border-radius: .5em;
+    height: max-content;
+    width: 50vw;
+    min-width: max-content;
+}
+
+.report-list-item {
+    padding: .4em;
+    margin: .6em;
+    padding-right: 1em;
+    background-color: var(--white);
+    border-radius: 1em;
+}
+
+.report-list-item:hover{
+    background-color: var(--gray);
+}
+
+.download {
+    float: right;
+}
+
+.download:hover {
+    cursor: pointer;
+}

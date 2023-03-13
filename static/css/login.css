@@ -1,8 +1,8 @@
 /**********************
-file: style.css
+file: login.css
 author: Baumann Danièl
-created: 2023-13-10
-changed: 2023-13-10
+created: 2023-03-10
+changed: 2023-03-13
 version: 1.0
 ***********************/
 
@@ -20,23 +20,6 @@ form{
     flex-direction: column;
 }
 
-.btn{
-    background-color: var(--green);
-    color: var(--white);
-    outline: none;
-    border: none;
-    text-decoration: none;
-    margin-top: 2em;
-    padding: 1em;
-    font-size: 1em;
-    border-radius: .6em;
-    user-select: none;
-}
-
-.btn:hover{
-    transform: scale(0.96);
-}
-
 .form-section {
     position: relative;
     width: 20em;
@@ -51,7 +34,7 @@ form{
     position: absolute;
     color: #000;
     border: none;
-    background-color: var(--white);
+    background-color: #fff;
     padding: 0 .6em;
 }
 

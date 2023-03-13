@@ -8,7 +8,6 @@ CONNECTION_STRING = "mongodb://{username}:{password}@10.128.10.7/netif".format(
     username=mongodb_login_credentials["username"],
     password=mongodb_login_credentials["password"]
 )
-print(CONNECTION_STRING)
 client = MongoClient(CONNECTION_STRING)
 db = client.get_database('netif')
 

@@ -11,5 +11,14 @@
 {% endblock scripts %}
 
 {% block content %}
-<button><a>Download latest Daily Report</a></button>
+<div class="report-list">
+    {% for report in reports %}
+    <div class="report-list-item">
+        {{ report }}
+        <a href="/download/{{report}}"><img class="download icon-button" style="width:1.2em"
+                src="{{url_for('static', filename='images/download.svg')}}" alt="download"
+                onclick="download_report('{{report}}')"></a>
+    </div>
+    {% endfor %}
+</div>
 {% endblock content %}

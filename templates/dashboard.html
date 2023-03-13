@@ -12,16 +12,19 @@
 {% endblock scripts %}
 
 {% block content %}
-<div class="reload-switch">
-    <span>Reload Switches</span>
-    <img id="refreshbutton" class="refresh icon-button" src="{{url_for('static', filename='images/arrows-rotate.svg')}}"
-        alt="refresh" onclick="loadSwitches()">
+<div class="top-buttons">
+    <div class="reload-switch">
+        <span>Reload Switches</span>
+        <img id="refreshbutton" class="refresh icon-button"
+            src="{{url_for('static', filename='images/arrows-rotate.svg')}}" alt="refresh" onclick="loadSwitches()">
+    </div>
+    <div class="change-pw">
+        <span>Change Management Password</span>
+        <img id="changepw" class="changepw icon-button" src="{{url_for('static', filename='images/gear.svg')}}"
+            alt="changepw" onclick="changePassword()">
+    </div>
 </div>
-<div class="change-pw">
-    <span>Change Management Password</span>
-    <img id="changepw" class="changepw icon-button" src="{{url_for('static', filename='images/gear.svg')}}"
-        alt="changepw" onclick="changePassword()">
-</div>
+
 <div class="switch-list">
     {% for item in switches %}
     <div class="switch-list-item">
@@ -76,13 +79,34 @@
 <div id="myModal2" class="modal">
     <div class="modal-load"></div>
     <!-- Modal content -->
-    <div class="modal-content">
+    <div class="modal-content password-modal">
         <span class="close" onclick="closeSettings('myModal2')">&times;</span>
         <form action="/changePassword" method="post">
-            username: <input type="text" id="username" name="username" readonly><br>
-            password: <input type="password" id="password" name="password" required><br>
-            new password: <input type="password" id="newpass" name="newpass" required><br>
-            <input type="submit" value="Save">
+            <div class="form-section">
+                <input type="text" id="username" name="username" onkeydown="return false">
+                <label for="InputPassword" class="label-name">
+                    <span class="content-name">
+                        Username
+                    </span>
+                </label>
+            </div>
+            <div class="form-section">
+                <input type="password" id="password" name="password" autofocus required>
+                <label for="InputPassword" class="label-name">
+                    <span class="content-name">
+                        Password
+                    </span>
+                </label>
+            </div>
+            <div class="form-section">
+                <input type="password" id="newpass" name="newpass" required>
+                <label for="InputPassword" class="label-name">
+                    <span class="content-name">
+                        New Password
+                    </span>
+                </label>
+            </div>
+            <input class="btn" type="submit" value="Save">
         </form>
 
     </div>
