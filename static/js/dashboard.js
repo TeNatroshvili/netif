@@ -43,6 +43,8 @@ function openSettings(ip, modalID) {
             document.getElementById("snmp-on").checked = false;
           }
       }));
+}
+
 
 function bluredBackground(yes) {
   if (yes) {
