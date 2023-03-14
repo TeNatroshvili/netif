@@ -180,7 +180,7 @@ def download_file(filename):
 @app.route('/conf/save_system_settings/<ipaddress>', methods=['POST'])
 @login_required
 def save_system_settings(ipaddress):
-    ipaddress = request.form["ipadress"]
+    ipaddressform = request.form["ipadress"]
     subnetmask = request.form["subnetmask"]
     gatewayaddress = request.form["gatewayadress"]
     name = request.form["systemname"]
@@ -196,7 +196,7 @@ def save_system_settings(ipaddress):
             "b_form1_submit": "Apply",
             "b_form1_clicked": "b_form1_submit"}
 
-    response = session.post("http://10.137.4.41/htdocs/pages/base/dashboard.lsp",
+    response = session.post("http://"+ipaddress+"/htdocs/pages/base/dashboard.lsp",
                              data=data, cookies=session.cookies.get_dict())
 
     data = {"protocol_type_sel[]": "static",
@@ -211,18 +211,18 @@ def save_system_settings(ipaddress):
             "b_form1_submit": "Apply",
             "b_form1_clicked": "b_form1_submit"}
 
-    response = session.post("http://10.137.4.41/htdocs/pages/base/network_ipv4_cfg.lsp",
+    response = session.post("http://"+ipaddress+"/htdocs/pages/base/network_ipv4_cfg.lsp",
                              data=data, cookies=session.cookies.get_dict())
     
     session.close()
     return redirect('/')
 
 
-@app.route('/conf/save_port_configuration', methods=['POST'])
+@app.route('/conf/save_port_configuration/<ipaddress>', methods=['POST'])
 @login_required
-def save_port_configuration():
+def save_port_configuration(ipaddress):
     session = requests.Session()
-    response = session.post('http://10.137.4.41/htdocs/login/login.lua', data=switch_login_credentials)
+    response = session.post('http://'+ipaddress+'/htdocs/login/login.lua', data=switch_login_credentials)
 
     #admin_mode_sel%5B%5D=enabled&phys_mode_sel%5B%5D=4&port_descr=&intf=4&b_modal1_clicked=b_modal1_submit
     admin_mode = request.form["admin_mode_sel[]"]
@@ -236,18 +236,18 @@ def save_port_configuration():
             "intf": intf,
             "b_modal1_clicked": "b_modal1_submit"}
     
-    response = session.post("http://10.137.4.41/htdocs/pages/base/port_summary_modal.lsp", data=data, cookies=session.cookies.get_dict())
-    session.post("http://10.137.4.41/htdocs/lua/ajax/save_cfg.lua?save=1", cookies=session.cookies.get_dict())
-    session.get("http://10.137.4.41/htdocs/pages/main/logout.lsp", cookies=session.cookies.get_dict())
+    response = session.post("http://"+ipaddress+"/htdocs/pages/base/port_summary_modal.lsp", data=data, cookies=session.cookies.get_dict())
+    session.post("http://"+ipaddress+"/htdocs/lua/ajax/save_cfg.lua?save=1", cookies=session.cookies.get_dict())
+    session.get("http://"+ipaddress+"/htdocs/pages/main/logout.lsp", cookies=session.cookies.get_dict())
     
     return redirect('/ports')
 
 
-@app.route('/conf/save_all_port_configuration', methods=['POST'])
+@app.route('/conf/save_all_port_configuration/<ipaddress>', methods=['POST'])
 @login_required
-def save_all_port_configuration():
+def save_all_port_configuration(ipaddress):
     session = requests.Session()
-    response = session.post('http://10.137.4.41/htdocs/login/login.lua', data=switch_login_credentials)
+    response = session.post('http://'+ipaddress+'/htdocs/login/login.lua', data=switch_login_credentials)
 
     #phys_mode_sel%5B%5D=1&port_descr=&intf=all&b_modal1_clicked=b_modal1_submit
     phys_mode = request.form["phys_mode_sel[]"]
@@ -258,18 +258,18 @@ def save_all_port_configuration():
             "intf": "all",
             "b_modal1_clicked": "b_modal1_submit"}
     
-    response = session.post("http://10.137.4.41/htdocs/pages/base/port_summary_modal.lsp", data=data, cookies=session.cookies.get_dict())
-    session.post("http://10.137.4.41/htdocs/lua/ajax/save_cfg.lua?save=1", cookies=session.cookies.get_dict())
-    session.get("http://10.137.4.41/htdocs/pages/main/logout.lsp", cookies=session.cookies.get_dict())
+    response = session.post("http://"+ipaddress+"/htdocs/pages/base/port_summary_modal.lsp", data=data, cookies=session.cookies.get_dict())
+    session.post("http://"+ipaddress+"/htdocs/lua/ajax/save_cfg.lua?save=1", cookies=session.cookies.get_dict())
+    session.get("http://"+ipaddress+"/htdocs/pages/main/logout.lsp", cookies=session.cookies.get_dict())
     
     return redirect('/ports')
 
 
-@app.route('/conf/save_port_mirroring', methods=['POST'])
+@app.route('/conf/save_port_mirroring/<ipaddress>', methods=['POST'])
 @login_required
-def save_port_mirroring():
+def save_port_mirroring(ipaddress):
     session = requests.Session()
-    response = session.post('http://10.137.4.41/htdocs/login/login.lua', data=switch_login_credentials)
+    response = session.post('http://'+ipaddress+'/htdocs/login/login.lua', data=switch_login_credentials)
 
     #port_mirroring_sel%5B%5D=enabled&destination_port_sel%5B%5D=1&sorttable1_length=-1&b_form1_submit=Apply&b_form1_clicked=b_form1_submit
     port_mirroring = request.form["port_mirroring_sel[]"]
@@ -281,9 +281,9 @@ def save_port_mirroring():
             "b_form1_submit": "Apply",
             "b_form1_clicked": "b_form1_submit"}
     
-    response = session.post("http://10.137.4.41/htdocs/pages/base/port_mirror.lsp", data=data, cookies=session.cookies.get_dict())
-    session.post("http://10.137.4.41/htdocs/lua/ajax/save_cfg.lua?save=1", cookies=session.cookies.get_dict())
-    session.get("http://10.137.4.41/htdocs/pages/main/logout.lsp", cookies=session.cookies.get_dict())
+    response = session.post("http://"+ipaddress+"/htdocs/pages/base/port_mirror.lsp", data=data, cookies=session.cookies.get_dict())
+    session.post("http://"+ipaddress+"/htdocs/lua/ajax/save_cfg.lua?save=1", cookies=session.cookies.get_dict())
+    session.get("http://"+ipaddress+"/htdocs/pages/main/logout.lsp", cookies=session.cookies.get_dict())
     
     return redirect('/ports')
 
@@ -305,10 +305,10 @@ def reports():
 
 
 # clear download folder
-@app.before_request
-def clear_download_dict():
-    for file in os.listdir('./download'):
-        os.remove(os.path.join('./download', file))
+# @app.before_request
+# def clear_download_dict():
+#     for file in os.listdir('./download'):
+#         os.remove(os.path.join('./download', file))
 
 
 # flask app
