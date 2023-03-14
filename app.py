@@ -268,22 +268,27 @@ def save_all_port_configuration(ipaddress):
 @app.route('/conf/save_port_mirroring/<ipaddress>', methods=['POST'])
 @login_required
 def save_port_mirroring(ipaddress):
-    session = requests.Session()
-    response = session.post('http://'+ipaddress+'/htdocs/login/login.lua', data=switch_login_credentials)
+    model = get_model_from_ip(ipaddress)
+    if("1820" in model):
+        session = requests.Session()
+        response = session.post('http://'+ipaddress+'/htdocs/login/login.lua', data=switch_login_credentials)
 
-    #port_mirroring_sel%5B%5D=enabled&destination_port_sel%5B%5D=1&sorttable1_length=-1&b_form1_submit=Apply&b_form1_clicked=b_form1_submit
-    port_mirroring = request.form["port_mirroring_sel[]"]
-    destination_port = request.form["destination_port_sel[]"]
+        #port_mirroring_sel%5B%5D=enabled&destination_port_sel%5B%5D=1&sorttable1_length=-1&b_form1_submit=Apply&b_form1_clicked=b_form1_submit
+        port_mirroring = request.form["port_mirroring_sel[]"]
+        destination_port = request.form["destination_port_sel[]"]
 
-    data = {"port_mirroring_sel[]": port_mirroring,
-            "destination_port_sel[]": destination_port,
-            "sorttable1_length": "-1",
-            "b_form1_submit": "Apply",
-            "b_form1_clicked": "b_form1_submit"}
-    
-    response = session.post("http://"+ipaddress+"/htdocs/pages/base/port_mirror.lsp", data=data, cookies=session.cookies.get_dict())
-    session.post("http://"+ipaddress+"/htdocs/lua/ajax/save_cfg.lua?save=1", cookies=session.cookies.get_dict())
-    session.get("http://"+ipaddress+"/htdocs/pages/main/logout.lsp", cookies=session.cookies.get_dict())
+        data = {"port_mirroring_sel[]": port_mirroring,
+                "destination_port_sel[]": destination_port,
+                "sorttable1_length": "-1",
+                "b_form1_submit": "Apply",
+                "b_form1_clicked": "b_form1_submit"}
+        
+        response = session.post("http://"+ipaddress+"/htdocs/pages/base/port_mirror.lsp", data=data, cookies=session.cookies.get_dict())
+        session.post("http://"+ipaddress+"/htdocs/lua/ajax/save_cfg.lua?save=1", cookies=session.cookies.get_dict())
+        session.get("http://"+ipaddress+"/htdocs/pages/main/logout.lsp", cookies=session.cookies.get_dict())
+    elif("1810" in model):
+        session = request.Session()
+        response = session.post()
     
     return redirect('/ports')
 
@@ -305,11 +310,15 @@ def reports():
 
 
 # clear download folder
-# @app.before_request
-# def clear_download_dict():
-#     for file in os.listdir('./download'):
-#         os.remove(os.path.join('./download', file))
+@app.before_request
+def clear_download_dict():
+    for file in os.listdir('./download'):
+        os.remove(os.path.join('./download', file))
 
+# get switch model from ip
+def get_model_from_ip(ip):
+    switch = switches.find({ "ip": ip})
+    return switch["model"] 
 
 # flask app
 
