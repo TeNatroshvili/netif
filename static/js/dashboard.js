@@ -1,4 +1,7 @@
-var modal, btn, span, header, content, footer, settings
+let modal, btn, span, header, content, footer, settings
+
+let currentIP
+
 window.onload = function () {
   modal = document.getElementById("myModal");
   modal2 = document.getElementById("myModal2");
@@ -13,11 +16,14 @@ window.onload = function () {
 
 function openSettings(ip, modalID) {
   document.getElementById(modalID).style.display = "block";
-  fetch(window.location.href + "/scrap")
+  currentIP = ip
+  fetch(window.location.href + "/scrap/"+ip)
       .then(response => {
           if (response.ok) {
               return response.json();
-          } else {
+          } else if(response.status == 501){
+            throw new Error('Switch model not supported');
+          }else {
               throw new Error('Network response was not ok');
           }
       })
@@ -25,16 +31,18 @@ function openSettings(ip, modalID) {
           document.getElementById(modalID).children[0].style.display = "none";
           document.getElementById(modalID).children[1].style.display = "block";
           bluredBackground(true)
-
-          document.getElementById("systemname").value = settings['system_name'][0]
-          document.getElementById("serialnumber").value = settings['serial_number'][0]
-          document.getElementById("ipadress").value = settings['ip_adresse'][0]
-          document.getElementById("subnetmask").value = settings['subnet_mask'][0]
-          document.getElementById("gatewayadress").value = settings['gateway_ip'][0]
-          document.getElementById("macadress").value = settings['mac_adreese'][0]
+          console.log(settings)
+          document.getElementById("systemname").value = settings['system_name']
+          document.getElementById("ipaddress").value = settings['ip_address']
+          document.getElementById("subnetmask").value = settings['subnet_mask']
+          document.getElementById("gatewayaddress").value = settings['gateway_address']
+          document.getElementById("macaddress").value = settings['mac_address']
+          if(settings['snmp_enalbed'] == true){
+            document.getElementById("snmp-on").checked = true;
+          }else{
+            document.getElementById("snmp-on").checked = false;
+          }
       }));
-}
-
 
 function bluredBackground(yes) {
   if (yes) {
@@ -53,6 +61,7 @@ function closeSettings(modalID) {
   document.getElementById(modalID).children[0].style.display = "block";
   document.getElementById(modalID).children[1].style.display = "none";
   document.getElementById(modalID).style.display = "none";
+  currentIP = null;
 }
 
 function loadSwitches() {

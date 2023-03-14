@@ -28,7 +28,7 @@
 <div class="switch-list">
     {% for item in switches %}
     <div class="switch-list-item">
-        <img class="gear-icon modal-toggle icon-button" onclick="openSettings('{{item.ip}}')"
+        <img class="gear-icon modal-toggle icon-button" onclick="openSettings('{{item.ip}}','myModal')"
             src="{{url_for('static', filename='images/gear.svg')}}">
         <div class="name-text">
             <p style="font-weight: bold; font-size: 1.2em;">{{ item.name }}</p>
@@ -64,17 +64,62 @@
     <div class="modal-content">
         <span class="close" onclick="closeSettings('myModal')">&times;</span>
         <form action="/conf/save_system_settings" method="post">
-            Systemname: <input type="text" id="systemname" name="systemname"><br>
-            IPv4 Adress: <input type="text" id="ipadress" name="ipadress"><br>
-            Subnetmask: <input type="text" id="subnetmask" name="subnetmask"><br>
-            Gatewayadress: <input type="text" id="gatewayadress" name="gatewayadress"><br>
-            MAC Adress: <span id="macadress"></span><br>
-            SNMP: <input type="radio" name="snmp" id="snmpOn" value="enabled" selected> enabled
-            <input type="radio" name="snmp" id="snmpOff" value="disabled"> disabled<br>
-            <input type="submit" value="Save">
-        </form>
-
+            <div class="form-setting">
+                <input type="text" id="systemname" name="systemname" required>
+                <label for="systemname" class="label-name">
+                    <span class="content-name">
+                        Systemname
+                    </span>
+                </label>
+            </div>
+            <div class="form-setting">
+                <input type="text" id="ipaddress" name="ipaddress" required>
+                <label for="ipaddress" class="label-name">
+                    <span class="content-name">
+                        IPv4 Address
+                    </span>
+                </label>
+            </div>
+            <div class="form-setting">
+                <input type="text" id="subnetmask" name="subnetmask" required>
+                <label for="subnetmask" class="label-name">
+                    <span class="content-name">
+                        Subnetmask
+                    </span>
+                </label>
+            </div>
+            <div class="form-setting">
+                <input type="text" id="gatewayaddress" name="gatewayaddress" required>
+                <label for="gatewayaddress" class="label-name">
+                    <span class="content-name">
+                        Gatewayadress
+                    </span>
+                </label>
+            </div>
+            <div class="form-setting">
+                <input type="text" id="macaddress" name="macaddress" onkeydown="return false">
+                <label for="macaddress" class="label-name">
+                    <span class="content-name">
+                        MAC Address
+                    </span>
+                </label>
+            </div>
+            <div class="form-setting radio-btns">
+                <label for="snmp" class="label-name">
+                    <span class="content-name">
+                        SNMP
+                    </span>
+                </label>
+                <div class="radio-btn">
+                    <input type="radio" id="snmp-on" name="snmp">enabled
+                </div>
+                <div class="radio-btn">
+                <input type="radio" id="snmp-off" name="snmp">disabled
+            </div>
     </div>
+    <input class="btn" type="submit" value="Save">
+    </form>
+</div>
 </div>
 <div id="myModal2" class="modal">
     <div class="modal-load"></div>
