@@ -1,8 +1,5 @@
 # created by virtualenv automatically
 venv/
 .venv/
-download/
 reports
 __pycache__/
-scrapyNetIF/scrapyNetIF/__pycache__/
-scrapyNetIF/scrapyNetIF/spiders/__pycache__/
