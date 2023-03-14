@@ -2,7 +2,7 @@
 # interface to the Samba File Server
 # ------------------------------------
 # author:   Baumann Danièl
-# created:  2022-11-22
+# created:  2023-02-14
 # version:  1.0
 # ------------------------------------
 from smb.SMBConnection import SMBConnection

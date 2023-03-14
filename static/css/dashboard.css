@@ -157,8 +157,9 @@ version: 2.0
     margin: 10% auto;
     padding: 20px;
     border-radius: 1em;
-    width: 60vw;
-    height: 50vh;
+    padding: 1em 3em;
+    width: max-content;
+    height: max-content;
 }
 
 .password-modal{

@@ -28,7 +28,7 @@
 <div class="switch-list">
     {% for item in switches %}
     <div class="switch-list-item">
-        <img class="gear-icon modal-toggle icon-button" onclick="openSettings('{{item.ip}}')"
+        <img class="gear-icon modal-toggle icon-button" onclick="openSettings('{{item.ip}}','myModal')"
             src="{{url_for('static', filename='images/gear.svg')}}">
         <div class="name-text">
             <p style="font-weight: bold; font-size: 1.2em;">{{ item.name }}</p>
