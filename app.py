@@ -177,9 +177,9 @@ def download_file(filename):
 
 # configuration
 
-@app.route('/conf/save_system_settings', methods=['POST'])
+@app.route('/conf/save_system_settings/<ipaddress>', methods=['POST'])
 @login_required
-def save_system_settings():
+def save_system_settings(ipaddress):
     ipaddress = request.form["ipadress"]
     subnetmask = request.form["subnetmask"]
     gatewayaddress = request.form["gatewayadress"]
@@ -187,7 +187,7 @@ def save_system_settings():
     snmp = request.form["snmp"]
     
     session = requests.Session()
-    session.post('http://10.137.4.41/htdocs/login/login.lua',
+    session.post('http://'+ipaddress+'/htdocs/login/login.lua',
                  data=switch_login_credentials)
 
     data = {"sys_name": "SW-N313",
