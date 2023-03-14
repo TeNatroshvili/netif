@@ -20,7 +20,7 @@ from datetime import timedelta
 import json
 import os
 import requests
-import subprocess
+import threading
 
 # custom imports
 from mongodb import (
@@ -36,6 +36,8 @@ from samba import (
 from switch_detection import search_switches
 from model import User
 from login_credentials import switch_login_credentials
+from scraping_1810 import scrap_switch_1810
+from scraping_1820 import scrap_switch_1820
 
 
 login_manager = LoginManager()
@@ -129,16 +131,23 @@ def userdata():
     return {"username":user["username"]}
 
 
-@app.route('/dashboard/scrap')
+@app.route('/dashboard/scrap/<ip>')
 @login_required
-def scrap_settings():
-    # os.chdir(os.path.dirname(__file__)+"/scrapyNetIF/scrapyNetIF")
-    # process = subprocess.Popen(["scrapy", "crawl", "NetIF"])
-    # process.wait()
-    set = list(settings.find())
-    for mydict in set:
-        del mydict["_id"]
-    return json.dumps(set[0])
+def scrap_settings(ip):
+    model = get_model_from_ip(ip)
+    if("1810" in model):
+        scrap_switch_1810(ip)
+    elif("1820" in model):
+        scrap_switch_1820(ip)
+    else:
+        print("Switch Model not supported")
+        return 'not supported', 501
+
+    setting = settings.find_one({"ip_address":ip})
+    print(setting)
+    print("ip"+ip)
+    del setting["_id"]
+    return json.dumps(setting)
 
 
 @app.route('/dashboard/load_switches')
@@ -177,42 +186,50 @@ def download_file(filename):
 
 # configuration
 
-@app.route('/conf/save_system_settings', methods=['POST'])
+@app.route('/conf/save_system_settings/<ip>', methods=['POST'])
 @login_required
-def save_system_settings():
-    ipaddress = request.form["ipadress"]
+def save_system_settings(ip):
+    ipaddress = request.form["ipaddress"]
     subnetmask = request.form["subnetmask"]
-    gatewayaddress = request.form["gatewayadress"]
+    gatewayaddress = request.form["gatewayaddress"]
     name = request.form["systemname"]
     snmp = request.form["snmp"]
     
-    session = requests.Session()
-    session.post('http://10.137.4.41/htdocs/login/login.lua',
-                 data=switch_login_credentials)
+    model = get_model_from_ip(ip)
+    if("1810" in model):
+        session = requests.Session()
+    elif("1820" in model):
+        
+        
+        session = requests.Session()
+        session.post('http://10.137.4.41/htdocs/login/login.lua',
+                    data=switch_login_credentials)
 
-    data = {"sys_name": "SW-N313",
-            "sys_location": "N313",
-            "sys_contact": "",
-            "b_form1_submit": "Apply",
-            "b_form1_clicked": "b_form1_submit"}
+        data = {"sys_name": "SW-N313",
+                "sys_location": "N313",
+                "sys_contact": "",
+                "b_form1_submit": "Apply",
+                "b_form1_clicked": "b_form1_submit"}
 
-    response = session.post("http://10.137.4.41/htdocs/pages/base/dashboard.lsp",
-                             data=data, cookies=session.cookies.get_dict())
+        response = session.post("http://10.137.4.41/htdocs/pages/base/dashboard.lsp",
+                                data=data, cookies=session.cookies.get_dict())
 
-    data = {"protocol_type_sel[]": "static",
-            "ip_addr": "10.137.4.41",
-            "subnet_mask": "255.255.0.0",
-            "gateway_address": "10.137.255.254",
-            "session_timeout": "5",
-            "mgmt_vlan_id_sel[]": "1",
-            "mgmt_port_sel[]": "none",
-            "snmp_sel[]": "enabled",
-            "community_name": "public",
-            "b_form1_submit": "Apply",
-            "b_form1_clicked": "b_form1_submit"}
+        data = {"protocol_type_sel[]": "static",
+                "ip_addr": "10.137.4.41",
+                "subnet_mask": "255.255.0.0",
+                "gateway_address": "10.137.255.254",
+                "session_timeout": "5",
+                "mgmt_vlan_id_sel[]": "1",
+                "mgmt_port_sel[]": "none",
+                "snmp_sel[]": "enabled",
+                "community_name": "public",
+                "b_form1_submit": "Apply",
+                "b_form1_clicked": "b_form1_submit"}
 
-    response = session.post("http://10.137.4.41/htdocs/pages/base/network_ipv4_cfg.lsp",
-                             data=data, cookies=session.cookies.get_dict())
+        response = session.post("http://10.137.4.41/htdocs/pages/base/network_ipv4_cfg.lsp",
+                                data=data, cookies=session.cookies.get_dict())
+    else:
+        print("Switch Model not supported")
     
     session.close()
     return redirect('/')
@@ -310,6 +327,11 @@ def clear_download_dict():
     for file in os.listdir('./download'):
         os.remove(os.path.join('./download', file))
 
+def get_model_from_ip(ip):
+    switch = switches.find_one({ "ip": ip})
+    for switchdata in switch:
+        print(switchdata)
+    return switch["model"]
 
 # flask app
 

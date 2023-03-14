@@ -21,3 +21,6 @@ users = db.users
 def save_settings_to_db(switch_object):
     settings.update_one({'ip_address': switch_object["ip_address"]}, {
                         "$set": switch_object}, upsert=True)
+    for set in settings.find():
+        print(set)
+
