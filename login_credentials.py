@@ -3,6 +3,11 @@ switch_login_credentials = {
     "password": "Syp2023hurra"
 }
 
+switch1810_login_credentials = {
+    "username": "",
+    "password": "Syp2023hurra"
+}
+
 mongodb_login_credentials = {
     "username": "admin",
     "password": "admin"

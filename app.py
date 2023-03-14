@@ -37,6 +37,10 @@ from switch_detection import search_switches
 from model import User
 from login_credentials import switch_login_credentials
 
+import requests
+from selenium.webdriver.common.by import By
+from selenium import webdriver
+
 
 login_manager = LoginManager()
 login_manager.session_protection = "strong"
@@ -221,24 +225,71 @@ def save_system_settings(ipaddress):
 @app.route('/conf/save_port_configuration/<ipaddress>', methods=['POST'])
 @login_required
 def save_port_configuration(ipaddress):
-    session = requests.Session()
-    response = session.post('http://'+ipaddress+'/htdocs/login/login.lua', data=switch_login_credentials)
+    model = get_model_from_ip(ipaddress)
+    if("1820" in model):
+        session = requests.Session()
+        response = session.post('http://'+ipaddress+'/htdocs/login/login.lua', data=switch_login_credentials)
 
-    #admin_mode_sel%5B%5D=enabled&phys_mode_sel%5B%5D=4&port_descr=&intf=4&b_modal1_clicked=b_modal1_submit
-    admin_mode = request.form["admin_mode_sel[]"]
-    phys_mode = request.form["phys_mode_sel[]"]
-    port_descr = request.form["port_descr"]
-    intf = request.form["intf"]
+        #admin_mode_sel%5B%5D=enabled&phys_mode_sel%5B%5D=4&port_descr=&intf=4&b_modal1_clicked=b_modal1_submit
+        admin_mode = request.form["admin_mode_sel[]"]
+        phys_mode = request.form["phys_mode_sel[]"]
+        port_descr = request.form["port_descr"]
+        intf = request.form["intf"]
               
-    data = {"admin_mode_sel[]": admin_mode,
-            "phys_mode_sel[]": phys_mode,
-            "port_descr": port_descr,
-            "intf": intf,
-            "b_modal1_clicked": "b_modal1_submit"}
+        data = {"admin_mode_sel[]": admin_mode,
+                "phys_mode_sel[]": phys_mode,
+                "port_descr": port_descr,
+                "intf": intf,
+                "b_modal1_clicked": "b_modal1_submit"}
     
-    response = session.post("http://"+ipaddress+"/htdocs/pages/base/port_summary_modal.lsp", data=data, cookies=session.cookies.get_dict())
-    session.post("http://"+ipaddress+"/htdocs/lua/ajax/save_cfg.lua?save=1", cookies=session.cookies.get_dict())
-    session.get("http://"+ipaddress+"/htdocs/pages/main/logout.lsp", cookies=session.cookies.get_dict())
+        response = session.post("http://"+ipaddress+"/htdocs/pages/base/port_summary_modal.lsp", data=data, cookies=session.cookies.get_dict())
+        session.post("http://"+ipaddress+"/htdocs/lua/ajax/save_cfg.lua?save=1", cookies=session.cookies.get_dict())
+        session.get("http://"+ipaddress+"/htdocs/pages/main/logout.lsp", cookies=session.cookies.get_dict())
+    
+    elif("1810" in model):
+        session = requests.Session()
+        driver=webdriver.Chrome()
+        driver.get('http://'+ipaddress+'/login.htm')
+        print(driver)
+        password_input = driver.find_element(By.XPATH,'.//input[@id="passwd"]')
+        password_input.send_keys('Syp2023hurra')
+        login_button = driver.find_element(By.XPATH,'.//input[@id="login"]')
+        login_button.click()
+        seid_cookie = driver.get_cookies()[1]['value']
+        print(seid_cookie)
+        cookies={'seid':seid_cookie, 'deviceid':'YWRtaW46U3lwMjAyM2h1cnJh'}
+
+        # port=1&admin=on&speed=1A0A0&sid=-1
+        speed_id = request.form["phys_mode_sel[]"]
+        port = request.form["intf"]
+
+        #def speed_string(speed_id):
+        match speed_id:
+            case '1':
+                speed = "1A0A0"
+            case '4':
+                speed = "0A1A0"
+            case '5':
+                speed = "0A1A1"
+            case '2':
+                speed = "0A2A0"
+            case '3':
+                speed = "0A2A1"
+
+        if request.form["admin_mode_sel[]"] == "enabled":
+            admin = "on"
+            data = {"port": port,
+                    "admin": admin,
+                    "speed": speed,
+                    "sid": "-1"}
+            response=session.post('http://'+ipaddress+'/update/config/ports', data=data, cookies=cookies)
+        else:
+            data = {"port": port,
+                    "speed": speed,
+                    "sid": "-1"}
+            response=session.post('http://'+ipaddress+'/update/config/ports', data=data, cookies=cookies)
+
+        #session.post("http://"+ipaddress+"/config/logout", cookies=cookies)
     
     return redirect('/ports')
 
@@ -287,8 +338,45 @@ def save_port_mirroring(ipaddress):
         session.post("http://"+ipaddress+"/htdocs/lua/ajax/save_cfg.lua?save=1", cookies=session.cookies.get_dict())
         session.get("http://"+ipaddress+"/htdocs/pages/main/logout.lsp", cookies=session.cookies.get_dict())
     elif("1810" in model):
-        session = request.Session()
-        response = session.post()
+        session = requests.Session()
+        driver=webdriver.Chrome()
+        driver.get('http://'+ipaddress+'/login.htm')
+        print(driver)
+        password_input = driver.find_element(By.XPATH,'.//input[@id="passwd"]')
+        password_input.send_keys('Syp2023hurra')
+        login_button = driver.find_element(By.XPATH,'.//input[@id="login"]')
+        login_button.click()
+        seid_cookie = driver.get_cookies()[1]['value']
+        print(seid_cookie)
+        cookies={'seid':seid_cookie, 'deviceid':'YWRtaW46U3lwMjAyM2h1cnJh'}
+        
+        # portselect=1&mode_1=4&mode_2=4&mode_3=4&mode_4=4&mode_5=4&mode_6=4
+        # &mode_7=4&mode_8=4&mode_9=4&mode_10=4&mode_11=4&mode_12=4&mode_13=4
+        # &dummy=undefined&mode_14=4&mode_15=4&mode_16=4&mode_17=4&mode_18=4
+        # &mode_19=4&mode_20=4&mode_21=4&mode_22=4&mode_23=4&mode_24=4&mode_25=4
+        # &mode_26=4&mode_CPU=4&sid=-1
+
+        # mirroring_ena=on&portselect=1&mode_2=3&mode_3=4&mode_4=4&mode_5=4
+        # &mode_6=4&mode_7=4&mode_8=4&mode_9=4&mode_10=4&mode_11=4&mode_12=4
+        # &mode_13=4&dummy=undefined&mode_14=4&mode_15=4&mode_16=4&mode_17=4
+        # &mode_18=4&mode_19=4&mode_20=4&mode_21=4&mode_22=4&mode_23=4&mode_24=4
+        # &mode_25=4&mode_26=4&mode_CPU=4&sid=-1
+
+        if request.form["port_mirroring_sel[]"] == "enabled":
+            mirroring_ena= "on"
+            portselect = request.form["destination_port_sel[]"]
+            data = {"mirroring_ena": mirroring_ena,
+                "portselect": portselect,
+                "sid": "-1"}
+            response=session.post('http://'+ipaddress+'/update/config/mirroring', data=data, cookies=cookies)
+        else:
+            portselect = request.form["destination_port_sel[]"]
+            data = {"portselect": portselect,
+                "sid": "-1"}
+            response=session.post('http://'+ipaddress+'/update/config/mirroring', data=data, cookies=cookies)
+        session.post("http://"+ipaddress+"/config/logout", cookies=cookies)
+            
+
     
     return redirect('/ports')
 
@@ -317,7 +405,9 @@ def clear_download_dict():
 
 # get switch model from ip
 def get_model_from_ip(ip):
-    switch = switches.find({ "ip": ip})
+    switch = switches.find_one({ "ip": ip})
+    for switchdata in switch:
+        print(switchdata)
     return switch["model"] 
 
 # flask app
