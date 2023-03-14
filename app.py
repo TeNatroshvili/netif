@@ -179,7 +179,6 @@ def scrap_port_settings():
         del mydict["_id"]
     return json.dumps(set[0])
 
-
 # download
 
 @app.route('/download/<filename>')
