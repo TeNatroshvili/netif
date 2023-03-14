@@ -248,16 +248,11 @@ def save_port_configuration(ipaddress):
     
     elif("1810" in model):
         session = requests.Session()
-        driver=webdriver.Chrome()
-        driver.get('http://'+ipaddress+'/login.htm')
-        print(driver)
-        password_input = driver.find_element(By.XPATH,'.//input[@id="passwd"]')
-        password_input.send_keys('Syp2023hurra')
-        login_button = driver.find_element(By.XPATH,'.//input[@id="login"]')
-        login_button.click()
-        seid_cookie = driver.get_cookies()[1]['value']
-        print(seid_cookie)
-        cookies={'seid':seid_cookie, 'deviceid':'YWRtaW46U3lwMjAyM2h1cnJh'}
+        response = session.post('http://'+ipaddress+'/config/login', data=switch_login_credentials["password"])
+        seid_cookie = session.cookies.get_dict()
+
+        seid_cookie_str = '; '.join([f'{key}={value}' for key, value in seid_cookie.items()])
+        cookies = {'seid': seid_cookie_str, 'deviceid': 'YWRtaW46U3lwMjAyM2h1cnJh'}
 
         # port=1&admin=on&speed=1A0A0&sid=-1
         speed_id = request.form["phys_mode_sel[]"]
@@ -339,16 +334,11 @@ def save_port_mirroring(ipaddress):
         session.get("http://"+ipaddress+"/htdocs/pages/main/logout.lsp", cookies=session.cookies.get_dict())
     elif("1810" in model):
         session = requests.Session()
-        driver=webdriver.Chrome()
-        driver.get('http://'+ipaddress+'/login.htm')
-        print(driver)
-        password_input = driver.find_element(By.XPATH,'.//input[@id="passwd"]')
-        password_input.send_keys('Syp2023hurra')
-        login_button = driver.find_element(By.XPATH,'.//input[@id="login"]')
-        login_button.click()
-        seid_cookie = driver.get_cookies()[1]['value']
-        print(seid_cookie)
-        cookies={'seid':seid_cookie, 'deviceid':'YWRtaW46U3lwMjAyM2h1cnJh'}
+        response = session.post('http://'+ipaddress+'/config/login', data=switch_login_credentials["password"])
+        seid_cookie = session.cookies.get_dict()
+
+        seid_cookie_str = '; '.join([f'{key}={value}' for key, value in seid_cookie.items()])
+        cookies = {'seid': seid_cookie_str, 'deviceid': 'YWRtaW46U3lwMjAyM2h1cnJh'}
         
         # portselect=1&mode_1=4&mode_2=4&mode_3=4&mode_4=4&mode_5=4&mode_6=4
         # &mode_7=4&mode_8=4&mode_9=4&mode_10=4&mode_11=4&mode_12=4&mode_13=4
