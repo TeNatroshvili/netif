@@ -258,7 +258,6 @@ def save_port_configuration(ipaddress):
         speed_id = request.form["phys_mode_sel[]"]
         port = request.form["intf"]
 
-        #def speed_string(speed_id):
         match speed_id:
             case '1':
                 speed = "1A0A0"
