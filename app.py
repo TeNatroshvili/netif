@@ -289,7 +289,7 @@ def save_port_configuration(ipaddress):
                     "sid": "-1"}
             response=session.post('http://'+ipaddress+'/update/config/ports', data=data, cookies=cookies)
 
-        #session.post("http://"+ipaddress+"/config/logout", cookies=cookies)
+        session.post("http://"+ipaddress+"/config/logout", cookies=cookies)
     
     return redirect('/ports')
 
