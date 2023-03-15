@@ -12,6 +12,7 @@ def search_switches():
 
     for j in range(255):
         ip = ip_range + str(j)
+        print(ip)
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.settimeout(0.01)
         if s.connect_ex((ip, 161)) == 0:
@@ -20,6 +21,7 @@ def search_switches():
 
     for i in range(255):
         switch_ip = devices[i]
+        print(switch_ip)
         community = "public"
         name_oid = "1.3.6.1.2.1.1.5.0"
         name_oid2 = "1.3.6.1.2.1.1.1.0"
@@ -59,3 +61,4 @@ def search_switches():
                                  upsert=True)
                 switch_id = switch_id + 1
     return "switches loaded"
+search_switches()

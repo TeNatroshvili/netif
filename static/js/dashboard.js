@@ -13,7 +13,6 @@ window.onload = function () {
   refreshbutton = document.getElementById("refreshbutton")
 }
 
-
 function openSettings(ip, modalID) {
   document.getElementById(modalID).style.display = "block";
   currentIP = ip
