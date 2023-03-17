@@ -6,7 +6,7 @@ from mongodb import save_settings_to_db
 from login_credentials import switch_login_credentials
 
 
-def scrap_switch(swtich_ip_adresse):
+def scrap_switch_1820(swtich_ip_adresse):
     urls = ['http://'+swtich_ip_adresse+'/htdocs/pages/base/dashboard.lsp',
             'http://'+swtich_ip_adresse+'/htdocs/pages/base/network_ipv4_cfg.lsp',
             'http://'+swtich_ip_adresse+'/htdocs/lua/deviceviewer/deviceviewer_status.lua?unit=1&ports%5B%5D=1&ports%5B%5D=2&ports%5B%5D=3&ports%5B%5D=4&ports%5B%5D=5&ports%5B%5D=6&ports%5B%5D=7&ports%5B%5D=8&ports%5B%5D=9&ports%5B%5D=10&ports%5B%5D=11&ports%5B%5D=12&ports%5B%5D=13&ports%5B%5D=14&ports%5B%5D=15&ports%5B%5D=16&ports%5B%5D=17&ports%5B%5D=18&ports%5B%5D=19&ports%5B%5D=20&ports%5B%5D=21&ports%5B%5D=22&ports%5B%5D=23&ports%5B%5D=24&ports%5B%5D=25&ports%5B%5D=26&leds%5B%5D=power&leds%5B%5D=locator&leds%5B%5D=fault&_=1677577757505',
@@ -77,6 +77,7 @@ def scrap_switch(swtich_ip_adresse):
                     "/htdocs/pages/main/logout.lsp", cookies=session.cookies.get_dict())
         session.close()
         save_settings_to_db(switch_json_object)
+        print("_____________________________________________________saved")
     else:
         if (response == 401):
             print(
