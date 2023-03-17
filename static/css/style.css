@@ -58,7 +58,6 @@ body {
     grid-template-columns: repeat(5, 1fr);
     align-items: center;
     justify-items: center;
-    max-width: 1300px;
     margin: .5rem;
 }
 
@@ -141,14 +140,19 @@ body {
 .footer {
     position: fixed;
     bottom: 0;
+    flex-direction: column;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    height: 3.4rem;
+    height: 4rem;
     width: 100vw;
     background-color: var(--green);
+}
+
+.bolder{
+    font-weight: 600;
 }
 
 /* General */
