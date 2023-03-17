@@ -31,7 +31,7 @@ def scrap_switch_1820(swtich_ip_adresse):
         print('Login erfolgreich')
         switch_json_object = {}
         for url in urls:
-            #  if (url == urls[0] or url == urls[6]):
+          #if (url == urls[0] or url == urls[2]):
             response = session.get(url, cookies=cookie)
             if (cookie != {} and response.status_code == 200):
                 print('Scraping für:', url)
@@ -93,7 +93,7 @@ def getDatasFromDashboard(response,switch_json_object):
     system_name=response.xpath('//input[@id="sys_name"]/text()')
 
     switch_json_object['system_model']=system_model
-    switch_json_object['system_name']=system_model
+    switch_json_object['system_name']=system_name
 
 
 def getDatasFromGetConnected(response,switch_json_object):
@@ -113,9 +113,24 @@ def getDatasFromGetConnected(response,switch_json_object):
     
 
 def getDatasFromPortsVlan(response,switch_json_object):
-    data = json.loads(response)
-    switch_json_object['ports']=data['ports']
-    switch_json_object['trunks']=data['trunk']
+    response= response.replace('"',"")
+    portsresponse= response.split("Port: ")
+    i = 1
+    formatieret_ports=[]
+    while i<=26:
+        einzelPort = portsresponse[i].split("<br>")
+        port = {
+            "port": einzelPort[0],
+            "status": einzelPort[1],
+            "autoNeg":  einzelPort[2],
+            "link_Speed": einzelPort[3],
+            "MTU": einzelPort[4]
+        }    
+        i += 2     
+        formatieret_ports.append(port)
+
+    
+    switch_json_object['ports']=formatieret_ports
 
 
 def getDatasFromPortMirror(response,switch_json_object):
@@ -146,21 +161,22 @@ def getDatasFromFlowControl(response,switch_json_object):
 def getDatasFromRemoteDevice(response,switch_json_object):
     script= response.xpath('//script/text()')
     dataLines=script[1].split(";")[0].split("aDataSet ")[1].split('\n')
+    # print(dataLines)
     remote_devices=[]
     if len(dataLines)>2:
         i = 1
         while i < len(dataLines):
             values={}
             datas=dataLines[i].split("[")[1].split("]")[0].replace("'","").split(",")
-
             values.update({
-                    "Interface":datas[0],
-                    "RemoteID":datas[1],
-                    "SystemID":datas[2]
+                    "interface":datas[0],
+                    "remoteID":datas[1],
+                    "systemID":datas[2],
+                    "mac_address":datas[3]
                 })
             i+=2
-        remote_devices.append(values)
-        switch_json_object['remote_devices']=remote_devices
+            remote_devices.append(values)
+    switch_json_object['remote_devices']=remote_devices
 
 
 def getDatasFromLocalDevice(response,switch_json_object):
@@ -179,3 +195,5 @@ def getDatasFromLocalDevice(response,switch_json_object):
             i+=2
             local_devices.append(values)
         switch_json_object['local_devices']=local_devices
+
+scrap_switch("10.137.4.41")
