@@ -40,8 +40,6 @@ from scraping_1810 import scrap_switch_1810
 from scraping_1820 import scrap_switch_1820
 
 import requests
-from selenium.webdriver.common.by import By
-from selenium import webdriver
 
 
 login_manager = LoginManager()

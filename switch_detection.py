@@ -61,4 +61,3 @@ def search_switches():
                                  upsert=True)
                 switch_id = switch_id + 1
     return "switches loaded"
-search_switches()

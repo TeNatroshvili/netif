@@ -39,7 +39,7 @@ function openSettings(ip, modalID) {
           if(settings['snmp_enalbed'] == true){
             document.getElementById("snmp-on").checked = true;
           }else{
-            document.getElementById("snmp-on").checked = false;
+            document.getElementById("snmp-off").checked = true;
           }
       }));
 }
@@ -96,4 +96,15 @@ function changePassword(){
           document.getElementById("username").value = userdata['username']
           
       }));
+}
+
+function saveData(){
+  fetch('https://httpbin.org/post', {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({a: 1, b: 'Textual content'})
+  });
 }
