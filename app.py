@@ -199,7 +199,6 @@ def save_system_settings(ip):
     model = get_model_from_ip(ip)
     if("1810" in model):
         session = requests.Session()
-        print("1810")
         session.post('http://'+ipaddress+'/config/login', data=switch_login_credentials["password"])
         seid_cookie = session.cookies.get_dict()
         seid_cookie_str = '; '.join([f'{key}={value}' for key, value in seid_cookie.items()])
@@ -213,34 +212,40 @@ def save_system_settings(ip):
                 "ip_mask": subnetmask,
                 "gateway_addr": gatewayaddress}
 
-        if(snmp == "snmp-on"):
+        if(snmp == "on"):
             data["snmp_mode"]="on"
-
-        print(data)
 
         session.post("http://"+ip+"/update/config/ip_config", data=data, cookies=cookies)
 
         session.post("http://"+ip+"/config/logout", cookies=cookies)
     elif("1820" in model):
         session = requests.Session()
-        print("1820")
         session.post('http://'+ip+'/htdocs/login/login.lua', data=switch_login_credentials)
 
-        data = {"sys_name":name}
+        data = {"sys_name":name,
+                "b_form1_submit" : "Apply",
+                "b_form1_clicked" : "b_form1_submit"}
 
         session.post("http://"+ip+"/htdocs/pages/base/dashboard.lsp", data=data, cookies=session.cookies.get_dict())
         session.post("http://"+ip+"/htdocs/lua/ajax/save_cfg.lua?save=1", cookies=session.cookies.get_dict())
 
-        data = {"ip_addr": ipaddress,
+        data = {"protocol_type_sel[]": "static",
+                "ip_addr": ipaddress,
                 "subnet_mask": subnetmask,
-                "gateway_address": gatewayaddress}
+                "gateway_address": gatewayaddress,
+                "session_timeout": "5",
+                "mgmt_vlan_id_sel[]": "1",
+                "mgmt_port_sel[]": "none",}
 
-        if(snmp == "snmp-on"):
-            data["snmp_sel[]"]="enabled"
-        else:
-            data["snmp_sel[]"]="disabled"
+        if(snmp == "on"):
+            data.update({"snmp_sel[]": "enabled"})
+        elif(snmp =="off"):
+            data.update({"snmp_sel[]": "disabled"})
+        data.update({"b_form1_submit": "Apply",
+	                "b_form1_clicked": "b_form1_submit"})
 
         session.post("http://"+ip+"/htdocs/pages/base/network_ipv4_cfg.lsp", data=data, cookies=session.cookies.get_dict())
+
         session.post("http://"+ip+"/htdocs/lua/ajax/save_cfg.lua?save=1", cookies=session.cookies.get_dict())
         session.get("http://"+ip+"/htdocs/pages/main/logout.lsp", cookies=session.cookies.get_dict())
     else:
