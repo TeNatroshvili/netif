@@ -1,7 +1,5 @@
 let modal, btn, span, header, content, footer, settings
 
-let currentIP
-
 window.onload = function () {
   modal = document.getElementById("myModal");
   modal2 = document.getElementById("myModal2");
@@ -15,7 +13,6 @@ window.onload = function () {
 
 function openSettings(ip, modalID) {
   document.getElementById(modalID).style.display = "block";
-  currentIP = ip
   fetch(window.location.href + "/scrap/"+ip)
       .then(response => {
           if (response.ok) {
@@ -29,6 +26,9 @@ function openSettings(ip, modalID) {
       .then((settings => {
           document.getElementById(modalID).children[0].style.display = "none";
           document.getElementById(modalID).children[1].style.display = "block";
+          var form = document.getElementById(modalID).getElementsByTagName("form");
+          form[0].setAttribute("action","/conf/save_system_settings/"+ip)
+
           bluredBackground(true)
           console.log(settings)
           document.getElementById("systemname").value = settings['system_name']
@@ -62,7 +62,6 @@ function closeSettings(modalID) {
   document.getElementById(modalID).children[0].style.display = "block";
   document.getElementById(modalID).children[1].style.display = "none";
   document.getElementById(modalID).style.display = "none";
-  currentIP = null;
 }
 
 function loadSwitches() {
@@ -96,15 +95,4 @@ function changePassword(){
           document.getElementById("username").value = userdata['username']
           
       }));
-}
-
-function saveData(){
-  fetch('https://httpbin.org/post', {
-    method: 'POST',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({a: 1, b: 'Textual content'})
-  });
 }

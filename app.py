@@ -195,44 +195,57 @@ def save_system_settings(ip):
     gatewayaddress = request.form["gatewayaddress"]
     name = request.form["systemname"]
     snmp = request.form["snmp"]
-    
+
     model = get_model_from_ip(ip)
     if("1810" in model):
         session = requests.Session()
+        print("1810")
+        session.post('http://'+ipaddress+'/config/login', data=switch_login_credentials["password"])
+        seid_cookie = session.cookies.get_dict()
+        seid_cookie_str = '; '.join([f'{key}={value}' for key, value in seid_cookie.items()])
+        cookies = {'seid': seid_cookie_str, 'deviceid': 'YWRtaW46U3lwMjAyM2h1cnJh'}
+        
+        data = {"sys_name": name}
+
+        session.post("http://"+ip+"/update/config/sysinfo", data=data, cookies=cookies)
+
+        data = {"ip_addr": ipaddress,
+                "ip_mask": subnetmask,
+                "gateway_addr": gatewayaddress}
+
+        if(snmp == "snmp-on"):
+            data["snmp_mode"]="on"
+
+        print(data)
+
+        session.post("http://"+ip+"/update/config/ip_config", data=data, cookies=cookies)
+
+        session.post("http://"+ip+"/config/logout", cookies=cookies)
     elif("1820" in model):
-        
-        
         session = requests.Session()
-        session.post('http://10.137.4.41/htdocs/login/login.lua',
-                    data=switch_login_credentials)
+        print("1820")
+        session.post('http://'+ip+'/htdocs/login/login.lua', data=switch_login_credentials)
 
-        data = {"sys_name": "SW-N313",
-                "sys_location": "N313",
-                "sys_contact": "",
-                "b_form1_submit": "Apply",
-                "b_form1_clicked": "b_form1_submit"}
+        data = {"sys_name":name}
 
-        response = session.post("http://10.137.4.41/htdocs/pages/base/dashboard.lsp",
-                                data=data, cookies=session.cookies.get_dict())
+        session.post("http://"+ip+"/htdocs/pages/base/dashboard.lsp", data=data, cookies=session.cookies.get_dict())
+        session.post("http://"+ip+"/htdocs/lua/ajax/save_cfg.lua?save=1", cookies=session.cookies.get_dict())
 
-        data = {"protocol_type_sel[]": "static",
-                "ip_addr": "10.137.4.41",
-                "subnet_mask": "255.255.0.0",
-                "gateway_address": "10.137.255.254",
-                "session_timeout": "5",
-                "mgmt_vlan_id_sel[]": "1",
-                "mgmt_port_sel[]": "none",
-                "snmp_sel[]": "enabled",
-                "community_name": "public",
-                "b_form1_submit": "Apply",
-                "b_form1_clicked": "b_form1_submit"}
+        data = {"ip_addr": ipaddress,
+                "subnet_mask": subnetmask,
+                "gateway_address": gatewayaddress}
 
-        response = session.post("http://10.137.4.41/htdocs/pages/base/network_ipv4_cfg.lsp",
-                                data=data, cookies=session.cookies.get_dict())
+        if(snmp == "snmp-on"):
+            data["snmp_sel[]"]="enabled"
+        else:
+            data["snmp_sel[]"]="disabled"
+
+        session.post("http://"+ip+"/htdocs/pages/base/network_ipv4_cfg.lsp", data=data, cookies=session.cookies.get_dict())
+        session.post("http://"+ip+"/htdocs/lua/ajax/save_cfg.lua?save=1", cookies=session.cookies.get_dict())
+        session.get("http://"+ip+"/htdocs/pages/main/logout.lsp", cookies=session.cookies.get_dict())
     else:
         print("Switch Model not supported")
     
-    session.close()
     return redirect('/')
 
 
@@ -290,12 +303,12 @@ def save_port_configuration(ipaddress):
                     "admin": admin,
                     "speed": speed,
                     "sid": "-1"}
-            response=session.post('http://'+ipaddress+'/update/config/ports', data=data, cookies=cookies)
+            session.post('http://'+ipaddress+'/update/config/ports', data=data, cookies=cookies)
         else:
             data = {"port": port,
                     "speed": speed,
                     "sid": "-1"}
-            response=session.post('http://'+ipaddress+'/update/config/ports', data=data, cookies=cookies)
+            session.post('http://'+ipaddress+'/update/config/ports', data=data, cookies=cookies)
 
         session.post("http://"+ipaddress+"/config/logout", cookies=cookies)
     
