@@ -1,11 +1,11 @@
 from flask import (
-    Flask, 
-    render_template, 
-    redirect, 
-    send_file, 
-    flash, 
+    Flask,
+    render_template,
+    redirect,
+    send_file,
+    flash,
     url_for,
-    request, 
+    request,
     g,
     session
 )
@@ -24,13 +24,14 @@ import threading
 
 # custom imports
 from mongodb import (
-    switches, 
-    settings, 
-    users
+    switches,
+    settings,
+    users,
+    update_switch_ip
 )
 from samba import (
-    get_sharedfiles, 
-    download, 
+    get_sharedfiles,
+    download,
     upload
 )
 from switch_detection import search_switches
@@ -50,6 +51,7 @@ login_manager.login_message_category = "info"
 app = Flask(__name__)
 login_manager.init_app(app)
 app.secret_key = os.urandom(43)
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -79,7 +81,8 @@ def login():
     password = request.form["password"]
     find_user = users.find_one({"username": username})
     if User.login_valid(username, password):
-        loguser = User(find_user["username"], find_user["password"], find_user["_id"])
+        loguser = User(find_user["username"],
+                       find_user["password"], find_user["_id"])
         login_user(loguser)
         flash('You have been logged in!', 'success')
         next = request.args.get('next')
@@ -130,22 +133,22 @@ def dashboard():
 @login_required
 def userdata():
     user = users.find_one({"_id": session["_user_id"]})
-    return {"username":user["username"]}
+    return {"username": user["username"]}
 
 
 @app.route('/dashboard/scrap/<ip>')
 @login_required
 def scrap_settings(ip):
     model = get_model_from_ip(ip)
-    if("1810" in model):
+    if ("1810" in model):
         scrap_switch_1810(ip)
-    elif("1820" in model):
+    elif ("1820" in model):
         scrap_switch_1820(ip)
     else:
         print("Switch Model not supported")
         return 'not supported', 501
 
-    setting = settings.find_one({"ip_address":ip})
+    setting = settings.find_one({"ip_address": ip})
     print(setting)
     print("ip"+ip)
     del setting["_id"]
@@ -179,6 +182,7 @@ def scrap_port_settings():
 
 # download
 
+
 @app.route('/download/<filename>')
 @login_required
 def download_file(filename):
@@ -197,37 +201,45 @@ def save_system_settings(ip):
     snmp = request.form["snmp"]
 
     model = get_model_from_ip(ip)
-    if("1810" in model):
+    if ("1810" in model):
         session = requests.Session()
-        session.post('http://'+ipaddress+'/config/login', data=switch_login_credentials["password"])
+        session.post('http://'+ipaddress+'/config/login',
+                     data=switch_login_credentials["password"])
         seid_cookie = session.cookies.get_dict()
-        seid_cookie_str = '; '.join([f'{key}={value}' for key, value in seid_cookie.items()])
-        cookies = {'seid': seid_cookie_str, 'deviceid': 'YWRtaW46U3lwMjAyM2h1cnJh'}
-        
+        seid_cookie_str = '; '.join(
+            [f'{key}={value}' for key, value in seid_cookie.items()])
+        cookies = {'seid': seid_cookie_str,
+                   'deviceid': 'YWRtaW46U3lwMjAyM2h1cnJh'}
+
         data = {"sys_name": name}
 
-        session.post("http://"+ip+"/update/config/sysinfo", data=data, cookies=cookies)
+        session.post("http://"+ip+"/update/config/sysinfo",
+                     data=data, cookies=cookies)
 
         data = {"ip_addr": ipaddress,
                 "ip_mask": subnetmask,
                 "gateway_addr": gatewayaddress}
 
-        if(snmp == "on"):
-            data["snmp_mode"]="on"
+        if (snmp == "on"):
+            data["snmp_mode"] = "on"
 
-        session.post("http://"+ip+"/update/config/ip_config", data=data, cookies=cookies)
+        session.post("http://"+ip+"/update/config/ip_config",
+                     data=data, cookies=cookies)
 
         session.post("http://"+ip+"/config/logout", cookies=cookies)
-    elif("1820" in model):
+    elif ("1820" in model):
         session = requests.Session()
-        session.post('http://'+ip+'/htdocs/login/login.lua', data=switch_login_credentials)
+        session.post('http://'+ip+'/htdocs/login/login.lua',
+                     data=switch_login_credentials)
 
-        data = {"sys_name":name,
-                "b_form1_submit" : "Apply",
-                "b_form1_clicked" : "b_form1_submit"}
+        data = {"sys_name": name,
+                "b_form1_submit": "Apply",
+                "b_form1_clicked": "b_form1_submit"}
 
-        session.post("http://"+ip+"/htdocs/pages/base/dashboard.lsp", data=data, cookies=session.cookies.get_dict())
-        session.post("http://"+ip+"/htdocs/lua/ajax/save_cfg.lua?save=1", cookies=session.cookies.get_dict())
+        session.post("http://"+ip+"/htdocs/pages/base/dashboard.lsp",
+                     data=data, cookies=session.cookies.get_dict())
+        session.post("http://"+ip+"/htdocs/lua/ajax/save_cfg.lua?save=1",
+                     cookies=session.cookies.get_dict())
 
         data = {"protocol_type_sel[]": "static",
                 "ip_addr": ipaddress,
@@ -235,23 +247,29 @@ def save_system_settings(ip):
                 "gateway_address": gatewayaddress,
                 "session_timeout": "5",
                 "mgmt_vlan_id_sel[]": "1",
-                "mgmt_port_sel[]": "none",}
+                "mgmt_port_sel[]": "none", }
 
-        if(snmp == "on"):
+        if (snmp == "on"):
             data.update({"snmp_sel[]": "enabled",
                          "community_name": "public"})
-        elif(snmp =="off"):
+        elif (snmp == "off"):
             data.update({"snmp_sel[]": "disabled"})
         data.update({"b_form1_submit": "Apply",
-	                "b_form1_clicked": "b_form1_submit"})
+                     "b_form1_clicked": "b_form1_submit"})
 
-        session.post("http://"+ip+"/htdocs/pages/base/network_ipv4_cfg.lsp", data=data, cookies=session.cookies.get_dict())
+        session.post("http://"+ip+"/htdocs/pages/base/network_ipv4_cfg.lsp",
+                     data=data, cookies=session.cookies.get_dict())
 
-        session.post("http://"+ip+"/htdocs/lua/ajax/save_cfg.lua?save=1", cookies=session.cookies.get_dict())
-        session.get("http://"+ip+"/htdocs/pages/main/logout.lsp", cookies=session.cookies.get_dict())
+        session.post("http://"+ip+"/htdocs/lua/ajax/save_cfg.lua?save=1",
+                     cookies=session.cookies.get_dict())
+        session.get("http://"+ip+"/htdocs/pages/main/logout.lsp",
+                    cookies=session.cookies.get_dict())
     else:
         print("Switch Model not supported")
-    
+
+    if (ip != ipaddress):
+        update_switch_ip(ip, ipaddress)
+
     return redirect('/')
 
 
@@ -259,33 +277,40 @@ def save_system_settings(ip):
 @login_required
 def save_port_configuration(ipaddress):
     model = get_model_from_ip(ipaddress)
-    if("1820" in model):
+    if ("1820" in model):
         session = requests.Session()
-        response = session.post('http://'+ipaddress+'/htdocs/login/login.lua', data=switch_login_credentials)
+        response = session.post(
+            'http://'+ipaddress+'/htdocs/login/login.lua', data=switch_login_credentials)
 
-        #admin_mode_sel%5B%5D=enabled&phys_mode_sel%5B%5D=4&port_descr=&intf=4&b_modal1_clicked=b_modal1_submit
+        # admin_mode_sel%5B%5D=enabled&phys_mode_sel%5B%5D=4&port_descr=&intf=4&b_modal1_clicked=b_modal1_submit
         admin_mode = request.form["admin_mode"]
         phys_mode = request.form["phys_mode"]
         port_descr = request.form["port_descr"]
         intf = request.form["intf"]
-              
+
         data = {"admin_mode_sel[]": admin_mode,
                 "phys_mode_sel[]": phys_mode,
                 "port_descr": port_descr,
                 "intf": intf,
                 "b_modal1_clicked": "b_modal1_submit"}
-    
-        response = session.post("http://"+ipaddress+"/htdocs/pages/base/port_summary_modal.lsp", data=data, cookies=session.cookies.get_dict())
-        session.post("http://"+ipaddress+"/htdocs/lua/ajax/save_cfg.lua?save=1", cookies=session.cookies.get_dict())
-        session.get("http://"+ipaddress+"/htdocs/pages/main/logout.lsp", cookies=session.cookies.get_dict())
-    
-    elif("1810" in model):
+
+        response = session.post("http://"+ipaddress+"/htdocs/pages/base/port_summary_modal.lsp",
+                                data=data, cookies=session.cookies.get_dict())
+        session.post("http://"+ipaddress+"/htdocs/lua/ajax/save_cfg.lua?save=1",
+                     cookies=session.cookies.get_dict())
+        session.get("http://"+ipaddress+"/htdocs/pages/main/logout.lsp",
+                    cookies=session.cookies.get_dict())
+
+    elif ("1810" in model):
         session = requests.Session()
-        response = session.post('http://'+ipaddress+'/config/login', data=switch_login_credentials["password"])
+        response = session.post(
+            'http://'+ipaddress+'/config/login', data=switch_login_credentials["password"])
         seid_cookie = session.cookies.get_dict()
 
-        seid_cookie_str = '; '.join([f'{key}={value}' for key, value in seid_cookie.items()])
-        cookies = {'seid': seid_cookie_str, 'deviceid': 'YWRtaW46U3lwMjAyM2h1cnJh'}
+        seid_cookie_str = '; '.join(
+            [f'{key}={value}' for key, value in seid_cookie.items()])
+        cookies = {'seid': seid_cookie_str,
+                   'deviceid': 'YWRtaW46U3lwMjAyM2h1cnJh'}
 
         # port=1&admin=on&speed=1A0A0&sid=-1
         speed_id = request.form["phys_mode"]
@@ -309,15 +334,17 @@ def save_port_configuration(ipaddress):
                     "admin": admin,
                     "speed": speed,
                     "sid": "-1"}
-            session.post('http://'+ipaddress+'/update/config/ports', data=data, cookies=cookies)
+            session.post('http://'+ipaddress+'/update/config/ports',
+                         data=data, cookies=cookies)
         else:
             data = {"port": port,
                     "speed": speed,
                     "sid": "-1"}
-            session.post('http://'+ipaddress+'/update/config/ports', data=data, cookies=cookies)
+            session.post('http://'+ipaddress+'/update/config/ports',
+                         data=data, cookies=cookies)
 
         session.post("http://"+ipaddress+"/config/logout", cookies=cookies)
-    
+
     return redirect('/ports')
 
 
@@ -325,9 +352,10 @@ def save_port_configuration(ipaddress):
 @login_required
 def save_all_port_configuration(ipaddress):
     session = requests.Session()
-    response = session.post('http://'+ipaddress+'/htdocs/login/login.lua', data=switch_login_credentials)
+    response = session.post(
+        'http://'+ipaddress+'/htdocs/login/login.lua', data=switch_login_credentials)
 
-    #phys_mode_sel%5B%5D=1&port_descr=&intf=all&b_modal1_clicked=b_modal1_submit
+    # phys_mode_sel%5B%5D=1&port_descr=&intf=all&b_modal1_clicked=b_modal1_submit
     phys_mode = request.form["phys_mode"]
     port_descr = request.form["port_descr"]
 
@@ -335,11 +363,14 @@ def save_all_port_configuration(ipaddress):
             "port_descr": port_descr,
             "intf": "all",
             "b_modal1_clicked": "b_modal1_submit"}
-    
-    response = session.post("http://"+ipaddress+"/htdocs/pages/base/port_summary_modal.lsp", data=data, cookies=session.cookies.get_dict())
-    session.post("http://"+ipaddress+"/htdocs/lua/ajax/save_cfg.lua?save=1", cookies=session.cookies.get_dict())
-    session.get("http://"+ipaddress+"/htdocs/pages/main/logout.lsp", cookies=session.cookies.get_dict())
-    
+
+    response = session.post("http://"+ipaddress+"/htdocs/pages/base/port_summary_modal.lsp",
+                            data=data, cookies=session.cookies.get_dict())
+    session.post("http://"+ipaddress+"/htdocs/lua/ajax/save_cfg.lua?save=1",
+                 cookies=session.cookies.get_dict())
+    session.get("http://"+ipaddress+"/htdocs/pages/main/logout.lsp",
+                cookies=session.cookies.get_dict())
+
     return redirect('/ports')
 
 
@@ -347,11 +378,12 @@ def save_all_port_configuration(ipaddress):
 @login_required
 def save_port_mirroring(ipaddress):
     model = get_model_from_ip(ipaddress)
-    if("1820" in model):
+    if ("1820" in model):
         session = requests.Session()
-        response = session.post('http://'+ipaddress+'/htdocs/login/login.lua', data=switch_login_credentials)
+        response = session.post(
+            'http://'+ipaddress+'/htdocs/login/login.lua', data=switch_login_credentials)
 
-        #port_mirroring_sel%5B%5D=enabled&destination_port_sel%5B%5D=1&sorttable1_length=-1&b_form1_submit=Apply&b_form1_clicked=b_form1_submit
+        # port_mirroring_sel%5B%5D=enabled&destination_port_sel%5B%5D=1&sorttable1_length=-1&b_form1_submit=Apply&b_form1_clicked=b_form1_submit
         port_mirroring = request.form["port_mirroring"]
         destination_port = request.form["destination_port"]
 
@@ -360,18 +392,24 @@ def save_port_mirroring(ipaddress):
                 "sorttable1_length": "-1",
                 "b_form1_submit": "Apply",
                 "b_form1_clicked": "b_form1_submit"}
-        
-        response = session.post("http://"+ipaddress+"/htdocs/pages/base/port_mirror.lsp", data=data, cookies=session.cookies.get_dict())
-        session.post("http://"+ipaddress+"/htdocs/lua/ajax/save_cfg.lua?save=1", cookies=session.cookies.get_dict())
-        session.get("http://"+ipaddress+"/htdocs/pages/main/logout.lsp", cookies=session.cookies.get_dict())
-    elif("1810" in model):
+
+        response = session.post("http://"+ipaddress+"/htdocs/pages/base/port_mirror.lsp",
+                                data=data, cookies=session.cookies.get_dict())
+        session.post("http://"+ipaddress+"/htdocs/lua/ajax/save_cfg.lua?save=1",
+                     cookies=session.cookies.get_dict())
+        session.get("http://"+ipaddress+"/htdocs/pages/main/logout.lsp",
+                    cookies=session.cookies.get_dict())
+    elif ("1810" in model):
         session = requests.Session()
-        response = session.post('http://'+ipaddress+'/config/login', data=switch_login_credentials["password"])
+        response = session.post(
+            'http://'+ipaddress+'/config/login', data=switch_login_credentials["password"])
         seid_cookie = session.cookies.get_dict()
 
-        seid_cookie_str = '; '.join([f'{key}={value}' for key, value in seid_cookie.items()])
-        cookies = {'seid': seid_cookie_str, 'deviceid': 'YWRtaW46U3lwMjAyM2h1cnJh'}
-        
+        seid_cookie_str = '; '.join(
+            [f'{key}={value}' for key, value in seid_cookie.items()])
+        cookies = {'seid': seid_cookie_str,
+                   'deviceid': 'YWRtaW46U3lwMjAyM2h1cnJh'}
+
         # portselect=1&mode_1=4&mode_2=4&mode_3=4&mode_4=4&mode_5=4&mode_6=4
         # &mode_7=4&mode_8=4&mode_9=4&mode_10=4&mode_11=4&mode_12=4&mode_13=4
         # &dummy=undefined&mode_14=4&mode_15=4&mode_16=4&mode_17=4&mode_18=4
@@ -385,21 +423,21 @@ def save_port_mirroring(ipaddress):
         # &mode_25=4&mode_26=4&mode_CPU=4&sid=-1
 
         if request.form["port_mirroring"] == "enabled":
-            mirroring_ena= "on"
+            mirroring_ena = "on"
             portselect = request.form["destination_port"]
             data = {"mirroring_ena": mirroring_ena,
-                "portselect": portselect,
-                "sid": "-1"}
-            response=session.post('http://'+ipaddress+'/update/config/mirroring', data=data, cookies=cookies)
+                    "portselect": portselect,
+                    "sid": "-1"}
+            response = session.post(
+                'http://'+ipaddress+'/update/config/mirroring', data=data, cookies=cookies)
         else:
             portselect = request.form["destination_port"]
             data = {"portselect": portselect,
-                "sid": "-1"}
-            response=session.post('http://'+ipaddress+'/update/config/mirroring', data=data, cookies=cookies)
+                    "sid": "-1"}
+            response = session.post(
+                'http://'+ipaddress+'/update/config/mirroring', data=data, cookies=cookies)
         session.post("http://"+ipaddress+"/config/logout", cookies=cookies)
-            
 
-    
     return redirect('/ports')
 
 
@@ -426,13 +464,16 @@ def clear_download_dict():
         os.remove(os.path.join('./download', file))
 
 # get switch model from ip
+
+
 def get_model_from_ip(ip):
-    switch = switches.find_one({ "ip": ip})
+    switch = switches.find_one({"ip": ip})
     for switchdata in switch:
         print(switchdata)
-    return switch["model"] 
+    return switch["model"]
 
 # flask app
+
 
 if __name__ == '__main__':
     app.run(debug=1)
