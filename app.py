@@ -273,6 +273,68 @@ def save_system_settings(ip):
     return redirect('/')
 
 
+@app.route('/changeSwitchPasswords', methods=["POST"])
+def update_passwords():
+    old_pw = request.json["old_pw"]
+    new_pw = request.json["new_pw"]
+    conf_pw = request.json["conf_pw"]
+    enc_old_pw = request.json["enc_old_pw"]
+    enc_new_pw = request.json["enc_new_pw"]
+    enc_conf_pw = request.json["enc_conf_pw"]
+
+# for all switches go throught and chekc which model
+    # for switch in switches.find():
+    if 1 == 1:
+        ip = "10.137.4.33"
+       
+        print(ip)
+        model = get_model_from_ip(ip)
+        if ("1820" in model):
+            session = requests.Session()
+            response = session.post(
+                'http://'+ip+'/htdocs/login/login.lua', data=switch_login_credentials)
+
+            data = {"user_name": "admin",
+                    "current_password": old_pw,
+                    "new_password": new_pw,
+                    "confirm_new_passwd": conf_pw,
+                    "b_form1_submit": "Apply",
+                    "b_form1_clicked": "b_form1_submit"}
+
+            response = session.post("http://"+ip+"/htdocs/pages/base/user_accounts.lsp",
+                                    data=data, cookies=session.cookies.get_dict())
+            session.post("http://"+ip+"/htdocs/lua/ajax/save_cfg.lua?save=1",
+                         cookies=session.cookies.get_dict())
+            session.get("http://"+ip+"/htdocs/pages/main/logout.lsp",
+                        cookies=session.cookies.get_dict())
+
+        elif ("1810" in model):
+            session = requests.Session()
+            response = session.post(
+                'http://'+ip+'/config/login', data=switch_login_credentials["password"])
+            seid_cookie = session.cookies.get_dict()
+
+            seid_cookie_str = '; '.join(
+                [f'{key}={value}' for key, value in seid_cookie.items()])
+            cookies = {'seid': seid_cookie_str,
+                       'deviceid': 'YWRtaW46U3lwMjAyM2h1cnJh'}
+
+            data = {"oldpass": enc_old_pw,
+                    "pass1": enc_new_pw,
+                    "pass2": enc_conf_pw}
+
+            session.post('http://'+ip+'/update/config/passwd',
+                         data=data, cookies=cookies)
+
+            session.post("http://"+ip+"/config/logout", cookies=cookies)
+
+        # switch_login_credentials.update({"password": new_pw})
+
+        
+
+    return redirect(url_for("dashboard"))
+
+
 @app.route('/conf/save_port_configuration/<ipaddress>', methods=['POST'])
 @login_required
 def save_port_configuration(ipaddress):
