@@ -5,7 +5,7 @@ from mongodb import save_settings_to_db
 from login_credentials import switch_login_credentials
 
 # ------------------------------------
-# interface to the Samba File Server
+# interface to the Scraping for 1810 Switch
 # ------------------------------------
 # author:   Chen Junbo
 # created:  2023-02-7   

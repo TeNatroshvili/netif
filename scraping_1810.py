@@ -4,7 +4,7 @@ from mongodb import save_settings_to_db
 from login_credentials import switch_login_credentials
 
 # ------------------------------------
-# interface to the Samba File Server
+# interface to the Scraping for 1810 Switch
 # ------------------------------------
 # author:   Chen Junbo
 # created:  2023-02-14
@@ -33,7 +33,7 @@ def scrap_switch_1810(switch_url):
     switch_json_object['subnet_mask']=datas[2]
     switch_json_object['gateway_address']=datas[3]
     switch_json_object['mac_address']=datas[4].split(",")[0]
-    switch_json_object['snmp_enalbed'] = datas[6].split(",")[1] == '1'
+    switch_json_object['snmp_enalbed'] = "enabled" if datas[6].split(",")[1] == '1' else "disabled"
 
     # -------------------------------------------------------
     # Scrape the datas from website config/sysinfo 
@@ -98,6 +98,7 @@ def scrap_switch_1810(switch_url):
     # -------------------------------------------------------
     # Save the Setting into Database
     save_settings_to_db(switch_json_object)
+    print(switch_json_object)
 
 def getDataFromPorts(session ,url, cookies,switch_json_object):
     response = session.get(url,cookies=cookies)
