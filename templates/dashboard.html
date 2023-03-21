@@ -14,12 +14,17 @@
 {% block content %}
 <div class="top-buttons">
     <div class="reload-switch">
-        <span>Reload Switches</span>
+        <span>Portscan Switches</span>
         <img id="refreshbutton" class="refresh icon-button"
             src="{{url_for('static', filename='images/arrows-rotate.svg')}}" alt="refresh" onclick="loadSwitches()">
     </div>
     <div class="change-pw">
-        <span>Change Management Password</span>
+        <span>Change Switch Passwords</span>
+        <img id="changepw" class="changepw icon-button" src="{{url_for('static', filename='images/gear.svg')}}"
+            alt="changepw" onclick="changePassword()">
+    </div>
+    <div class="change-pw">
+        <span>Change NETIF Password</span>
         <img id="changepw" class="changepw icon-button" src="{{url_for('static', filename='images/gear.svg')}}"
             alt="changepw" onclick="changePassword()">
     </div>

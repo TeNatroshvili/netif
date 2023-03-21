@@ -90,7 +90,7 @@ def scrap_switch_1820(swtich_ip_adresse):
 
 def getDatasFromDashboard(response,switch_json_object):
     system_model=response.xpath('//td[@id="sys_descr"]/text()')[0].split(",")[0]
-    system_name=response.xpath('//input[@id="sys_name"]/text()')
+    system_name=response.xpath('//input[@id="sys_name"]/@value')
 
     switch_json_object['system_model']=system_model
     switch_json_object['system_name']=system_name
