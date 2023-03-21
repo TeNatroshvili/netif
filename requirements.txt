@@ -1,0 +1,7 @@
+flask==2.2.3
+pysnmp==4.4.12
+pysmb==1.2.9.1
+Flask-Login==0.6.2
+Flask-Bcrypt==1.0.1
+reportlab==3.6.12
+pymongo==4.3.3

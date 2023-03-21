@@ -3,8 +3,15 @@ import requests
 from mongodb import save_settings_to_db
 from login_credentials import switch_login_credentials
 
-
+# ------------------------------------
+# interface to the Samba File Server
+# ------------------------------------
+# author:   Chen Junbo
+# created:  2023-02-14
+# version:  1.0
+# ------------------------------------
 def scrap_switch_1810(switch_url):
+    #Zuerst 
     session = requests.Session()
     response = session.post('http://'+switch_url+'/config/login', data=switch_login_credentials["password"])
     seid_cookie = session.cookies.get_dict()
@@ -30,9 +37,12 @@ def scrap_switch_1810(switch_url):
    
     response=session.get("http://"+switch_url+"/update/config/mirroring?sid=-1",cookies=cookies)
     datas = response.content.decode("utf-8").split("|")
-    switch_json_object["port_mirroring"]=datas[0].split(",")[3]
+    switch_json_object["port_mirroring"]="enabled" if datas[0].split(",")[3]==1 else "disabled"
     datas=response.content.decode("utf-8").split("|")
     port_mirrors=[]
+    destinationport={
+        "destination_port":datas[0].split(",")[1]
+    }
     for data in datas[1].split(",CPU")[0].split(","):
         data=data.split("/")
         if(data[1] == '1' and data[2] =='1'):
@@ -47,7 +57,11 @@ def scrap_switch_1810(switch_url):
             data[0]:mirror_status
         }
         port_mirrors.append(port_mirror)
-    switch_json_object['port_mirrors']=port_mirrors
+    destinationport={
+        "destination_port":datas[0].split(",")[1],
+        "mirorred_port":port_mirrors
+    }
+    switch_json_object['port_mirrors']=destinationport
 
     response=session.get("http://"+switch_url+"/config/jumbo?sid=-1",cookies=cookies)
 
@@ -81,4 +95,3 @@ def getDataFromPorts(session ,url, cookies,switch_json_object):
         switch_json_object['ports'] = ports
 
     save_settings_to_db(switch_json_object)
-

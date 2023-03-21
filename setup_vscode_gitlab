@@ -28,7 +28,7 @@
 - "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned" ausführen
 - "A" eingeben wenn gefragg wird
 ----------------
-pip install flask selenium scrapy pymongo reportlab flask_bcrypt flask_login pysmb pysnmp
+pip install flask pymongo reportlab flask_bcrypt flask_login pysmb pysnmp
 ------------------
 Installieren eines Google Chrome Drivers hinsichtlich der Verwendung des Seleniums
 1. Zuerst die Version der Chrome herausfinden
