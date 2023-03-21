@@ -238,7 +238,8 @@ def save_system_settings(ip):
                 "mgmt_port_sel[]": "none",}
 
         if(snmp == "on"):
-            data.update({"snmp_sel[]": "enabled"})
+            data.update({"snmp_sel[]": "enabled",
+                         "community_name": "public"})
         elif(snmp =="off"):
             data.update({"snmp_sel[]": "disabled"})
         data.update({"b_form1_submit": "Apply",
