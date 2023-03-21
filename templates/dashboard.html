@@ -166,7 +166,7 @@
     <!-- Modal content -->
     <div class="modal-content password-modal">
         <span class="close" onclick="closeSettings('myModal3')">&times;</span>
-        <form onsubmit="submitPasswordsEncrypted()">
+        <form onsubmit="submitPasswordsEncrypted(event)">
             <div class="form-section">
                 <input type="password" id="old_pw" name="old_pw" minlength="8" maxlength="64" autofocus required>
                 <label for="InputPassword" class="label-name">

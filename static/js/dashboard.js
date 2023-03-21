@@ -106,7 +106,8 @@ function changeSwitchPasswords() {
   bluredBackground(true);
 }
 
-function submitPasswordsEncrypted() {
+function submitPasswordsEncrypted(event) {
+  event.preventDefault();
   old_pw = document.getElementById("old_pw").value;
   new_pw = document.getElementById("new_pw").value;
   conf_pw = document.getElementById("conf_pw").value;
@@ -114,7 +115,9 @@ function submitPasswordsEncrypted() {
   enc_new_pw = calculateDeviceID(document.getElementById("new_pw").value);
   enc_conf_pw = calculateDeviceID(document.getElementById("conf_pw").value);
 
-  fetch('/changeSwitchPasswords', {
+  url = window.location.href.split("?")[0] + '/changeSwitchPasswords';
+  console.log(url);
+  fetch(url, {
     method: 'post',
     headers: {
       'Accept': 'application/json',
@@ -128,7 +131,8 @@ function submitPasswordsEncrypted() {
       "enc_new_pw": enc_new_pw,
       "enc_conf_pw": enc_conf_pw
     })
-  })
+  }).then(response => console.log(response))
+  closeSettings("myModal3")
 }
 
 
