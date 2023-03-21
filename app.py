@@ -343,27 +343,53 @@ def save_all_port_configuration(ipaddress):
     return redirect('/ports')
 
 
-@app.route('/conf/save_port_mirroring/<ipaddress>', methods=['POST'])
+@app.route('/conf/save_port_mirroring', methods=['POST'])
 @login_required
-def save_port_mirroring(ipaddress):
+def save_port_mirroring():
+    ipaddress = "10.137.4.33"
     model = get_model_from_ip(ipaddress)
     if("1820" in model):
         session = requests.Session()
         response = session.post('http://'+ipaddress+'/htdocs/login/login.lua', data=switch_login_credentials)
 
         #port_mirroring_sel%5B%5D=enabled&destination_port_sel%5B%5D=1&sorttable1_length=-1&b_form1_submit=Apply&b_form1_clicked=b_form1_submit
+
+        #srcPort_sel%5B%5D=1&direction_sel%5B%5D=tx_rx&conf_port_hide=0&b_modal1_clicked=b_modal1_submit
         port_mirroring = request.form["port_mirroring"]
         destination_port = request.form["destination_port"]
+        source_port = request.form["source_port"]
+        direction = request.form["direction"]
 
-        data = {"port_mirroring_sel[]": port_mirroring,
+        if direction == "none":
+            # port_mirroring_sel%5B%5D=disabled&destination_port_sel%5B%5D=0
+            # &sorttable1_length=-1&chkall=chkall&chkrow%5B%5D=3&b_form1_clicked=b_form1_dt_remove
+            
+            data = {"port_mirroring_sel[]": port_mirroring,
                 "destination_port_sel[]": destination_port,
                 "sorttable1_length": "-1",
-                "b_form1_submit": "Apply",
-                "b_form1_clicked": "b_form1_submit"}
+                "chkrow[]": source_port,
+                "b_form1_clicked": "b_form1_dt_remove"}
+            
+            response = session.post("http://"+ipaddress+"/htdocs/pages/base/port_mirror.lsp", data=data, cookies=session.cookies.get_dict())
+            session.post("http://"+ipaddress+"/htdocs/lua/ajax/save_cfg.lua?save=1", cookies=session.cookies.get_dict())
+            session.get("http://"+ipaddress+"/htdocs/pages/main/logout.lsp", cookies=session.cookies.get_dict())
         
-        response = session.post("http://"+ipaddress+"/htdocs/pages/base/port_mirror.lsp", data=data, cookies=session.cookies.get_dict())
-        session.post("http://"+ipaddress+"/htdocs/lua/ajax/save_cfg.lua?save=1", cookies=session.cookies.get_dict())
-        session.get("http://"+ipaddress+"/htdocs/pages/main/logout.lsp", cookies=session.cookies.get_dict())
+        else:
+            data = {"port_mirroring_sel[]": port_mirroring,
+                    "destination_port_sel[]": destination_port,
+                    "sorttable1_length": "-1",
+                    "b_form1_submit": "Apply",
+                    "b_form1_clicked": "b_form1_submit"}
+        
+            source_port_data = {"srcPort_sel[]" : source_port,
+                                "direction_sel[]" : direction,
+                                "conf_port_hide" : "0",
+                                "b_modal1_clicked" : "b_modal1_submit"}
+        
+            session.post("http://"+ipaddress+"/htdocs/pages/base/port_mirror_srcport_modal.lsp", data=source_port_data, cookies=session.cookies.get_dict())
+            response = session.post("http://"+ipaddress+"/htdocs/pages/base/port_mirror.lsp", data=data, cookies=session.cookies.get_dict())
+            session.post("http://"+ipaddress+"/htdocs/lua/ajax/save_cfg.lua?save=1", cookies=session.cookies.get_dict())
+            session.get("http://"+ipaddress+"/htdocs/pages/main/logout.lsp", cookies=session.cookies.get_dict())
     elif("1810" in model):
         session = requests.Session()
         response = session.post('http://'+ipaddress+'/config/login', data=switch_login_credentials["password"])
@@ -372,6 +398,8 @@ def save_port_mirroring(ipaddress):
         seid_cookie_str = '; '.join([f'{key}={value}' for key, value in seid_cookie.items()])
         cookies = {'seid': seid_cookie_str, 'deviceid': 'YWRtaW46U3lwMjAyM2h1cnJh'}
         
+        source_port = request.form["source_port"]
+        direction = request.form["direction"]
         # portselect=1&mode_1=4&mode_2=4&mode_3=4&mode_4=4&mode_5=4&mode_6=4
         # &mode_7=4&mode_8=4&mode_9=4&mode_10=4&mode_11=4&mode_12=4&mode_13=4
         # &dummy=undefined&mode_14=4&mode_15=4&mode_16=4&mode_17=4&mode_18=4
@@ -383,18 +411,29 @@ def save_port_mirroring(ipaddress):
         # &mode_13=4&dummy=undefined&mode_14=4&mode_15=4&mode_16=4&mode_17=4
         # &mode_18=4&mode_19=4&mode_20=4&mode_21=4&mode_22=4&mode_23=4&mode_24=4
         # &mode_25=4&mode_26=4&mode_CPU=4&sid=-1
+        mode = "mode_"+str(source_port)
+        if direction == "tx_rx":
+            mode_direction = 3
+        elif direction == "tx":
+            mode_direction = 1
+        elif direction == "rx":
+            mode_direction = 2
+        else:
+            mode_direction = 4
 
         if request.form["port_mirroring"] == "enabled":
             mirroring_ena= "on"
             portselect = request.form["destination_port"]
             data = {"mirroring_ena": mirroring_ena,
-                "portselect": portselect,
-                "sid": "-1"}
+                    "portselect": portselect,
+                    mode: mode_direction,
+                    "sid": "-1"}
             response=session.post('http://'+ipaddress+'/update/config/mirroring', data=data, cookies=cookies)
         else:
             portselect = request.form["destination_port"]
             data = {"portselect": portselect,
-                "sid": "-1"}
+                    mode: mode_direction,
+                    "sid": "-1"}
             response=session.post('http://'+ipaddress+'/update/config/mirroring', data=data, cookies=cookies)
         session.post("http://"+ipaddress+"/config/logout", cookies=cookies)
             
