@@ -22,6 +22,9 @@ settings = db.settings
 users = db.users
 credentials = db.credentials
 
+for user in users.find():
+        print(user)
+
 # Save Settings to MongoDB
 
 def save_settings_to_db(switch_object):
