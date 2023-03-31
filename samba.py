@@ -7,12 +7,13 @@
 # ------------------------------------
 from smb.SMBConnection import SMBConnection
 
-from login_credentials import samba_login_credentials
+from mongodb import get_samba_credentials
 
 # set username, password and the server_ip from the cretendials
-username = samba_login_credentials["username"]
-password = samba_login_credentials["password"]
-server_ip = samba_login_credentials["server_ip"]
+credentials = get_samba_credentials()
+username = credentials["username"]
+password = credentials["password"]
+server_ip = credentials["server_ip"]
 
 # get_sharedfiles()
 #

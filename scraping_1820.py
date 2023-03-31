@@ -2,7 +2,7 @@ from lxml import html
 import requests
 
 from mongodb import save_settings_to_db
-from login_credentials import switch_login_credentials
+from mongodb import get_switch_credentials
 
 
 def scrap_switch_1820(swtich_ip_adresse):
@@ -22,7 +22,7 @@ def scrap_switch_1820(swtich_ip_adresse):
     session = requests.Session()
 
     response = session.post('http://'+swtich_ip_adresse+'/htdocs/login/login.lua',
-                            data=switch_login_credentials)
+                            data=get_switch_credentials())
     cookie = session.cookies.get_dict()
 
     # If login works
