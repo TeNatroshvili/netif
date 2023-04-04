@@ -131,7 +131,13 @@ function submitPasswordsEncrypted(event) {
       "enc_new_pw": enc_new_pw,
       "enc_conf_pw": enc_conf_pw
     })
-  }).then(response => console.log(response))
+  })
+  .then(response => console.log(response))
+  .then(none => {
+    document.getElementById("old_pw").value = "";
+    document.getElementById("new_pw").value = "";
+    document.getElementById("conf_pw").value = "";
+  })
   closeSettings("myModal3")
 }
 

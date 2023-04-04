@@ -10,6 +10,8 @@ def search_switches():
     ip_range = "10.137.4."
     devices = []
 
+    switches.delete_many({})
+
     for j in range(255):
         ip = ip_range + str(j)
         print(ip)

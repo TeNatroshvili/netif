@@ -151,8 +151,7 @@ def scrap_settings(ip):
         return 'not supported', 501
 
     setting = settings.find_one({"ip_address": ip})
-    print(setting)
-    print("ip"+ip)
+  
     del setting["_id"]
     return json.dumps(setting)
 
@@ -285,14 +284,10 @@ def update_passwords():
     enc_new_pw = request.json["enc_new_pw"]
     enc_conf_pw = request.json["enc_conf_pw"]
 
-    print("jo hier")
-# for all switches go throught and chekc which model
-    # for switch in switches.find():
-    if 1 == 1:
-        ip = "10.137.4.33"
-       
-        print(ip)
+    for switch in switches.find():
+        ip = switch["ip"]
         model = get_model_from_ip(ip)
+
         if ("1820" in model):
             session = requests.Session()
             response = session.post(
@@ -311,6 +306,7 @@ def update_passwords():
                          cookies=session.cookies.get_dict())
             session.get("http://"+ip+"/htdocs/pages/main/logout.lsp",
                         cookies=session.cookies.get_dict())
+            print("changed: "+ip)
 
         elif ("1810" in model):
             session = requests.Session()
@@ -331,6 +327,8 @@ def update_passwords():
                          data=data, cookies=cookies)
 
             session.post("http://"+ip+"/config/logout", cookies=cookies)
+
+            print("changed: "+ip)
 
         update_switch_credentials(new_pw)
 
@@ -532,8 +530,6 @@ def clear_download_dict():
 
 def get_model_from_ip(ip):
     switch = switches.find_one({"ip": ip})
-    for switchdata in switch:
-        print(switchdata)
     return switch["model"]
 
 # flask app
