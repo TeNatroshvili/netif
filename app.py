@@ -38,7 +38,6 @@ from samba import (
 )
 from switch_detection import search_switches
 from model import User
-from login_credentials import switch_login_credentials
 from scraping_1810 import scrap_switch_1810
 from scraping_1820 import scrap_switch_1820
 
@@ -81,7 +80,11 @@ def before_request():
 def login():
     username = request.form["username"]
     password = request.form["password"]
+    print("hierrrr "+username)
+    for user in users.find():
+        print(user)
     find_user = users.find_one({"username": username})
+    print("hier")
     if User.login_valid(username, password):
         loguser = User(find_user["username"],
                        find_user["password"], find_user["_id"])

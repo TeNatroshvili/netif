@@ -1,8 +1,6 @@
 from pymongo import MongoClient
 from cryptography.fernet import Fernet
 
-from login_credentials import mongodb_login_credentials
-
 
 # MongoDB Client
 CONNECTION_STRING = "mongodb://{username}:{password}@10.128.10.7/netif".format(
@@ -21,6 +19,9 @@ switches = db.switches
 settings = db.settings
 users = db.users
 credentials = db.credentials
+
+for user in users.find():
+        print(user)
 
 # Save Settings to MongoDB
 

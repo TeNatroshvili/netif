@@ -1,7 +1,6 @@
 import requests
 
-from mongodb import save_settings_to_db
-from login_credentials import switch_login_credentials
+from mongodb import save_settings_to_db, get_switch_credentials
 
 # ------------------------------------
 # interface to the Samba File Server
@@ -13,7 +12,7 @@ from login_credentials import switch_login_credentials
 def scrap_switch_1810(switch_url):
     #Zuerst 
     session = requests.Session()
-    response = session.post('http://'+switch_url+'/config/login', data=switch_login_credentials["password"])
+    response = session.post('http://'+switch_url+'/config/login', data=get_switch_credentials()["password"])
     seid_cookie = session.cookies.get_dict()
     switch_json_object = {}
     seid_cookie_str = '; '.join([f'{key}={value}' for key, value in seid_cookie.items()])
