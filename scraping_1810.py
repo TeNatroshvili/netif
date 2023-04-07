@@ -25,7 +25,7 @@ def scrap_switch_1810(switch_url):
     switch_json_object['subnet_mask']=datas[2]
     switch_json_object['gateway_address']=datas[3]
     switch_json_object['mac_address']=datas[4].split(",")[0]
-    switch_json_object['snmp_enalbed'] = datas[6].split(",")[1] == '1'
+    switch_json_object['snmp_enalbed'] = datas[6].split(",")[1] == '1' if len(datas) == 8 else datas[7].split(",")[1] == '1' 
 
 
     response=session.get("http://"+switch_url+"/update/config/sysinfo",cookies=cookies)
@@ -94,3 +94,4 @@ def getDataFromPorts(session ,url, cookies,switch_json_object):
         switch_json_object['ports'] = ports
 
     save_settings_to_db(switch_json_object)
+scrap_switch_1810("10.137.4.45")
