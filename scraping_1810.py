@@ -1,7 +1,6 @@
 import requests
 
-from mongodb import save_settings_to_db
-from login_credentials import switch_login_credentials
+from mongodb import save_settings_to_db, get_switch_credentials
 
 # ------------------------------------
 # interface to the Scraping for 1810 Switch
@@ -13,10 +12,7 @@ from login_credentials import switch_login_credentials
 def scrap_switch_1810(switch_url):
     #first a session is created for all the scraping
     session = requests.Session()
-
-    # login to destination website
-    response = session.post('http://'+switch_url+'/config/login', data=switch_login_credentials["password"])
-    # get the cookies after login for authentication in the following code 
+    response = session.post('http://'+switch_url+'/config/login', data=get_switch_credentials()["password"])
     seid_cookie = session.cookies.get_dict()
     seid_cookie_str = '; '.join([f'{key}={value}' for key, value in seid_cookie.items()])
     cookies = {'seid': seid_cookie_str, 'deviceid': 'YWRtaW46U3lwMjAyM2h1cnJh'}
@@ -33,7 +29,8 @@ def scrap_switch_1810(switch_url):
     switch_json_object['subnet_mask']=datas[2]
     switch_json_object['gateway_address']=datas[3]
     switch_json_object['mac_address']=datas[4].split(",")[0]
-    switch_json_object['snmp_enalbed'] = "enabled" if datas[6].split(",")[1] == '1' else "disabled"
+    switch_json_object['snmp_enalbed'] = datas[6].split(",")[1] == '1' if len(datas) == 8 else datas[7].split(",")[1] == '1' 
+
 
     # -------------------------------------------------------
     # Scrape the datas from website config/sysinfo 
@@ -119,6 +116,5 @@ def getDataFromPorts(session ,url, cookies,switch_json_object):
                 ports.append(port)
         switch_json_object['ports'] = ports
 
-    
-
-scrap_switch_1810('10.137.4.42')
+    save_settings_to_db(switch_json_object)
+scrap_switch_1810("10.137.4.45")

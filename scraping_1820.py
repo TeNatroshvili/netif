@@ -2,7 +2,7 @@ from lxml import html
 import requests
 
 from mongodb import save_settings_to_db
-from login_credentials import switch_login_credentials
+from mongodb import get_switch_credentials
 
 # ------------------------------------
 # interface to the Scraping for 1810 Switch
@@ -32,9 +32,7 @@ def scrap_switch_1820(swtich_ip_adresse):
 
     # login to destination website
     response = session.post('http://'+swtich_ip_adresse+'/htdocs/login/login.lua',
-                            data=switch_login_credentials)
-    
-    # get the cookies after login for authentication in the following code 
+                            data=get_switch_credentials())
     cookie = session.cookies.get_dict()
 
     # test If login works
