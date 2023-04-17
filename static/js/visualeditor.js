@@ -19,6 +19,7 @@ function hideShapeById(shape_id) {
 
 window.onload = function () {
     switches = document.getElementsByClassName('switch-list-item-ip');
+    switches_names = document.getElementsByClassName('switch-list-item-name');
     // create stage and point it to the canvas:
     canvas = document.getElementById("switchField");
     stage = new createjs.Stage(canvas);
@@ -55,7 +56,7 @@ function handleImageLoad(event) {
         bitmap.border
         bitmap.width = shape.height = 100;
         
-        var text = new createjs.Text(switches[i].innerHTML, "17px Arial");
+        var text = new createjs.Text(switches_names[i].innerHTML, "20px Arial");
         text.y = 110
         shape.addChild(bitmap)
         shape.addChild(text)
@@ -64,10 +65,10 @@ function handleImageLoad(event) {
         shape.y = posy;
         posx = posx + 110;
 
-        var line = new createjs.Shape();
-        line.graphics.moveTo(shape.x,shape.y); 
-        line.graphics.lineTo(200,200);
-        container.addChild(line);
+        // var line = new createjs.Shape();
+        // line.graphics.moveTo(shape.x,shape.y); 
+        // line.graphics.lineTo(200,200);
+        // container.addChild(line);
         container.addChild(shape);
 
 

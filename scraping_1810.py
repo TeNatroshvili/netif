@@ -1,7 +1,6 @@
 import requests
 
-from mongodb import save_settings_to_db
-from login_credentials import switch_login_credentials
+from mongodb import save_settings_to_db, get_switch_credentials
 
 # ------------------------------------
 # interface to the Samba File Server
@@ -13,7 +12,7 @@ from login_credentials import switch_login_credentials
 def scrap_switch_1810(switch_url):
     #Zuerst 
     session = requests.Session()
-    response = session.post('http://'+switch_url+'/config/login', data=switch_login_credentials["password"])
+    response = session.post('http://'+switch_url+'/config/login', data=get_switch_credentials()["password"])
     seid_cookie = session.cookies.get_dict()
     switch_json_object = {}
     seid_cookie_str = '; '.join([f'{key}={value}' for key, value in seid_cookie.items()])
@@ -26,7 +25,7 @@ def scrap_switch_1810(switch_url):
     switch_json_object['subnet_mask']=datas[2]
     switch_json_object['gateway_address']=datas[3]
     switch_json_object['mac_address']=datas[4].split(",")[0]
-    switch_json_object['snmp_enalbed'] = datas[6].split(",")[1] == '1'
+    switch_json_object['snmp_enalbed'] = datas[6].split(",")[1] == '1' if len(datas) == 8 else datas[7].split(",")[1] == '1' 
 
 
     response=session.get("http://"+switch_url+"/update/config/sysinfo",cookies=cookies)
@@ -95,3 +94,4 @@ def getDataFromPorts(session ,url, cookies,switch_json_object):
         switch_json_object['ports'] = ports
 
     save_settings_to_db(switch_json_object)
+scrap_switch_1810("10.137.4.45")

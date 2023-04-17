@@ -27,7 +27,9 @@ from mongodb import (
     switches,
     settings,
     users,
-    update_switch_ip
+    update_switch_ip,
+    get_switch_credentials,
+    update_switch_credentials
 )
 from samba import (
     get_sharedfiles,
@@ -36,7 +38,6 @@ from samba import (
 )
 from switch_detection import search_switches
 from model import User
-from login_credentials import switch_login_credentials
 from scraping_1810 import scrap_switch_1810
 from scraping_1820 import scrap_switch_1820
 
@@ -79,7 +80,11 @@ def before_request():
 def login():
     username = request.form["username"]
     password = request.form["password"]
+    print("hierrrr "+username)
+    for user in users.find():
+        print(user)
     find_user = users.find_one({"username": username})
+    print("hier")
     if User.login_valid(username, password):
         loguser = User(find_user["username"],
                        find_user["password"], find_user["_id"])
@@ -149,8 +154,7 @@ def scrap_settings(ip):
         return 'not supported', 501
 
     setting = settings.find_one({"ip_address": ip})
-    print(setting)
-    print("ip"+ip)
+  
     del setting["_id"]
     return json.dumps(setting)
 
@@ -204,7 +208,7 @@ def save_system_settings(ip):
     if ("1810" in model):
         session = requests.Session()
         session.post('http://'+ipaddress+'/config/login',
-                     data=switch_login_credentials["password"])
+                     data=get_switch_credentials()["password"])
         seid_cookie = session.cookies.get_dict()
         seid_cookie_str = '; '.join(
             [f'{key}={value}' for key, value in seid_cookie.items()])
@@ -230,7 +234,7 @@ def save_system_settings(ip):
     elif ("1820" in model):
         session = requests.Session()
         session.post('http://'+ip+'/htdocs/login/login.lua',
-                     data=switch_login_credentials)
+                     data=get_switch_credentials())
 
         data = {"sys_name": name,
                 "b_form1_submit": "Apply",
@@ -273,13 +277,67 @@ def save_system_settings(ip):
     return redirect('/')
 
 
-# -------------------------------------------------------
-# Route:    /conf/save_port_configuration/<ipaddress>
-# Method:   POST
-# Description:  Saves the port configuration of a switch
-# -------------------------------------------------------
-# author:       Stiefsohn Lukas
-# -------------------------------------------------------
+@app.route('/dashboard/changeSwitchPasswords', methods=["POST"])
+@login_required
+def update_passwords():
+    old_pw = request.json["old_pw"]
+    new_pw = request.json["new_pw"]
+    conf_pw = request.json["conf_pw"]
+    enc_old_pw = request.json["enc_old_pw"]
+    enc_new_pw = request.json["enc_new_pw"]
+    enc_conf_pw = request.json["enc_conf_pw"]
+
+    for switch in switches.find():
+        ip = switch["ip"]
+        model = get_model_from_ip(ip)
+
+        if ("1820" in model):
+            session = requests.Session()
+            response = session.post(
+                'http://'+ip+'/htdocs/login/login.lua', data=get_switch_credentials())
+
+            data = {"user_name": "admin",
+                    "current_password": old_pw,
+                    "new_password": new_pw,
+                    "confirm_new_passwd": conf_pw,
+                    "b_form1_submit": "Apply",
+                    "b_form1_clicked": "b_form1_submit"}
+
+            response = session.post("http://"+ip+"/htdocs/pages/base/user_accounts.lsp",
+                                    data=data, cookies=session.cookies.get_dict())
+            session.post("http://"+ip+"/htdocs/lua/ajax/save_cfg.lua?save=1",
+                         cookies=session.cookies.get_dict())
+            session.get("http://"+ip+"/htdocs/pages/main/logout.lsp",
+                        cookies=session.cookies.get_dict())
+            print("changed: "+ip)
+
+        elif ("1810" in model):
+            session = requests.Session()
+            response = session.post(
+                'http://'+ip+'/config/login', data=get_switch_credentials()["password"])
+            seid_cookie = session.cookies.get_dict()
+
+            seid_cookie_str = '; '.join(
+                [f'{key}={value}' for key, value in seid_cookie.items()])
+            cookies = {'seid': seid_cookie_str,
+                       'deviceid': 'YWRtaW46U3lwMjAyM2h1cnJh'}
+
+            data = {"oldpass": enc_old_pw,
+                    "pass1": enc_new_pw,
+                    "pass2": enc_conf_pw}
+
+            session.post('http://'+ip+'/update/config/passwd',
+                         data=data, cookies=cookies)
+
+            session.post("http://"+ip+"/config/logout", cookies=cookies)
+
+            print("changed: "+ip)
+
+        update_switch_credentials(new_pw)
+
+    return redirect(url_for("dashboard"))
+
+
 @app.route('/conf/save_port_configuration/<ipaddress>', methods=['POST'])
 @login_required
 def save_port_configuration(ipaddress):
@@ -291,7 +349,7 @@ def save_port_configuration(ipaddress):
         # Create a new session and log in to the switch
         session = requests.Session()
         response = session.post(
-            'http://'+ipaddress+'/htdocs/login/login.lua', data=switch_login_credentials)
+            'http://'+ipaddress+'/htdocs/login/login.lua', data=get_switch_credentials())
 
         # Get form data from the HTTP request
         admin_mode = request.form["admin_mode"]
@@ -323,9 +381,7 @@ def save_port_configuration(ipaddress):
         # Create a new session and log in to the switch
         session = requests.Session()
         response = session.post(
-            'http://'+ipaddress+'/config/login', data=switch_login_credentials["password"])
-        
-        # Get the session ID cookie from the response
+            'http://'+ipaddress+'/config/login', data=get_switch_credentials()["password"])
         seid_cookie = session.cookies.get_dict()
 
         # Convert the session ID cookie to a string format
@@ -398,7 +454,7 @@ def save_all_port_configuration(ipaddress):
     
     # send a POST request to login to the switch
     response = session.post(
-        'http://'+ipaddress+'/htdocs/login/login.lua', data=switch_login_credentials)
+        'http://'+ipaddress+'/htdocs/login/login.lua', data=get_switch_credentials())
 
     # get the physical mode and port description from the form
     phys_mode = request.form["phys_mode"]
@@ -444,7 +500,7 @@ def save_port_mirroring(ipaddress):
         # Create a new session and log in to the switch
         session = requests.Session()
         response = session.post(
-            'http://'+ipaddress+'/htdocs/login/login.lua', data=switch_login_credentials)
+            'http://'+ipaddress+'/htdocs/login/login.lua', data=get_switch_credentials())
 
         # Get form data from the HTTP request
         port_mirroring = request.form["port_mirroring"]
@@ -474,9 +530,7 @@ def save_port_mirroring(ipaddress):
         # Create a new session and log in to the switch
         session = requests.Session()
         response = session.post(
-            'http://'+ipaddress+'/config/login', data=switch_login_credentials["password"])
-        
-        # Get the session ID cookie from the response
+            'http://'+ipaddress+'/config/login', data=get_switch_credentials()["password"])
         seid_cookie = session.cookies.get_dict()
 
         # Convert the session ID cookie to a string format
@@ -545,8 +599,6 @@ def clear_download_dict():
 
 def get_model_from_ip(ip):
     switch = switches.find_one({"ip": ip})
-    for switchdata in switch:
-        print(switchdata)
     return switch["model"]
 
 # flask app

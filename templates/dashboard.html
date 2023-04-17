@@ -21,7 +21,7 @@
     <div class="change-pw">
         <span>Change Switch Passwords</span>
         <img id="changepw" class="changepw icon-button" src="{{url_for('static', filename='images/gear.svg')}}"
-            alt="changepw" onclick="changePassword()">
+            alt="changepw" onclick="changeSwitchPasswords()">
     </div>
     <div class="change-pw">
         <span>Change NETIF Password</span>
@@ -119,12 +119,12 @@
                     <input type="radio" id="snmp-on" name="snmp" value="on">enabled
                 </div>
                 <div class="radio-btn">
-                <input type="radio" id="snmp-off" name="snmp" value="off">disabled
+                    <input type="radio" id="snmp-off" name="snmp" value="off">disabled
+                </div>
             </div>
+            <input class="btn" type="submit" value="Save">
+        </form>
     </div>
-    <input class="btn" type="submit" value="Save">
-    </form>
-</div>
 </div>
 <div id="myModal2" class="modal">
     <div class="modal-load"></div>
@@ -159,6 +159,41 @@
             <input class="btn" type="submit" value="Save">
         </form>
 
+    </div>
+</div>
+<div id="myModal3" class="modal">
+    <div class="modal-load"></div>
+    <!-- Modal content -->
+    <div class="modal-content password-modal">
+        <span class="close" onclick="closeSettings('myModal3')">&times;</span>
+        <form onsubmit="submitPasswordsEncrypted(event)">
+            <div class="form-section">
+                <input type="password" id="old_pw" name="old_pw" minlength="8" maxlength="64" autofocus required>
+                <label for="InputPassword" class="label-name">
+                    <span class="content-name">
+                        Current Passwort
+                    </span>
+                </label>
+            </div>
+            <div class="form-section">
+                <input type="password" id="new_pw" name="new_pw" minlength="8" maxlength="64" required>
+                <label for="InputPassword" class="label-name">
+                    <span class="content-name">
+                        New Password
+                    </span>
+                </label>
+            </div>
+            <div class="form-section">
+                <input type="password" id="conf_pw" name="conf_pw" minlength="8" maxlength="64" required>
+                <label for="InputPassword" class="label-name">
+                    <span class="content-name">
+                        Confirm Password
+                    </span>
+                </label>
+            </div>
+            <input class="btn" type="submit" value="Save">
+        </form>
+        <span style="display: inline-block; width: 300px; word-wrap: break-word; font-size: 12px;">Wenn das Passwort geändert wird, wird das neue Passwort, um auf die Switches zugreifen zu können, in der Datenbank aktualisiert. Sollten nicht alle Switches das selbe Passwort haben, kann die Applikation möglicherweise nicht auf alle Switches zugreifen um diese dann Konfigurien zu können.</span>
     </div>
 </div>
 {% endblock modal %}

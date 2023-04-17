@@ -18,7 +18,8 @@ def search_switches():
     ip_range = "10.137.4." # IP range to scan for switches
     devices = [] # List to store IPs of discovered switches
 
-    # Loop through all possible IP addresses in the range
+    switches.delete_many({})
+
     for j in range(255):
         ip = ip_range + str(j) # IP address to be checked
         print(ip)
