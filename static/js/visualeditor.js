@@ -19,6 +19,7 @@ function hideShapeById(shape_id) {
 
 window.onload = function () {
     switches = document.getElementsByClassName('switch-list-item-ip');
+    switches_names = document.getElementsByClassName('switch-list-item-name');
     // create stage and point it to the canvas:
     canvas = document.getElementById("switchField");
     stage = new createjs.Stage(canvas);
@@ -54,7 +55,8 @@ function handleImageLoad(event) {
         bitmap = new createjs.Bitmap(image)
         bitmap.border
         bitmap.width = shape.height = 100;
-        var text = new createjs.Text(switches[i].innerHTML, "17px Arial");
+        
+        var text = new createjs.Text(switches_names[i].innerHTML, "20px Arial");
         text.y = 110
         shape.addChild(bitmap)
         shape.addChild(text)
@@ -62,6 +64,11 @@ function handleImageLoad(event) {
         shape.x = posx;
         shape.y = posy;
         posx = posx + 110;
+
+        // var line = new createjs.Shape();
+        // line.graphics.moveTo(shape.x,shape.y); 
+        // line.graphics.lineTo(200,200);
+        // container.addChild(line);
         container.addChild(shape);
 
 
@@ -92,15 +99,15 @@ function handleImageLoad(event) {
             this.scale = this.originalScale;
             update = true;
         });
-
-
-
     }
 
     container.children.forEach(shape => {
-        update = true;
-        shape.visible = !document.getElementById('eye-' + shape.id).checked;
-    });
+        console.log(shape.id)
+        if(shape.id != null){
+            update = true;
+            shape.visible = !document.getElementById('eye-' + shape.id).checked; 
+        }
+      });
 
     createjs.Ticker.addEventListener("tick", tick);
 }

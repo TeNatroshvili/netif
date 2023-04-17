@@ -53,6 +53,7 @@ version: 2.0
     padding-right: 1em;
     background-color: var(--white);
     border-radius: 1em;
+    min-width: max-content;
 }
 
 .name-text {
@@ -76,6 +77,10 @@ version: 2.0
     grid-column: 2;
     grid-row: 1;
 }
+.top-buttons div span{
+    font-size: .8rem;
+}
+
 
 .reload-switch, 
 .change-pw{
@@ -225,7 +230,7 @@ version: 2.0
 
 .refresh,
 .changepw {
-    height: 1.4em;
+    height: 1.2em;
     pointer-events: all;
 }
 
