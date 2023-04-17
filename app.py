@@ -173,18 +173,22 @@ def ports():
     return render_template('ports.html', switches=switches.find())
 
 
-@app.route('/ports/scrap')
+@app.route('/ports/scrap/<ip>')
 @login_required
-def scrap_port_settings():
-    # os.chdir(os.path.dirname(__file__)+"/scrapyNetIF/scrapyNetIF")
-    # process = subprocess.Popen(["scrapy", "crawl", "NetIF"])
-    # process.wait()
-    set = list(settings.find())
-    for mydict in set:
-        del mydict["_id"]
-    return json.dumps(set[0])
+def scrap_port_settings(ip):
+    model = get_model_from_ip(ip)
+    if ("1810" in model):
+        scrap_switch_1810(ip)
+    elif ("1820" in model):
+        scrap_switch_1820(ip)
+    else:
+        print("Switch Model not supported")
+        return 'not supported', 501
 
-# download
+    setting = settings.find_one({"ip_address": ip})
+  
+    del setting["_id"]
+    return json.dumps(setting)
 
 
 @app.route('/download/<filename>')
