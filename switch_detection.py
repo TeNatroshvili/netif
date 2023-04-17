@@ -1,9 +1,9 @@
 # -------------------------------------------------------------------
-# Function to search for switches and extract information using SNMP
+# function to search for switches and extract information using SNMP
 # -------------------------------------------------------------------
 # author:   Stiefsohn Lukas
 # created:  2023-01-23
-# version:  1.0
+# version:  1.2
 # -------------------------------------------------------------------
 from pysnmp.hlapi import *
 import socket
@@ -18,6 +18,7 @@ def search_switches():
     ip_range = "10.137.4." # IP range to scan for switches
     devices = [] # List to store IPs of discovered switches
 
+    # delete all stored switches
     switches.delete_many({})
 
     for j in range(255):

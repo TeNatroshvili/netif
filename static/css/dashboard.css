@@ -224,8 +224,8 @@ version: 2.0
 }
 
 .modal input[type!=submit] {
-    padding: .5em;
-    margin: .3em;
+    padding: 0.5em;
+    margin: 0.3em;
 }
 
 .refresh,

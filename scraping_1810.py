@@ -1,14 +1,16 @@
+# ------------------------------------------
+# interface to the Scraping for 1810 Switch
+# ------------------------------------------
+# author:   Chen Junbo
+# created:  2023-02-14
+# version:  1.3
+# ------------------------------------------
+
 import requests
 
 from mongodb import save_settings_to_db, get_switch_credentials
 
-# ------------------------------------
-# interface to the Scraping for 1810 Switch
-# ------------------------------------
-# author:   Chen Junbo
-# created:  2023-02-14
-# version:  1.0
-# ------------------------------------
+
 def scrap_switch_1810(switch_url):
     #first a session is created for all the scraping
     session = requests.Session()
@@ -95,7 +97,6 @@ def scrap_switch_1810(switch_url):
     # -------------------------------------------------------
     # Save the Setting into Database
     save_settings_to_db(switch_json_object)
-    print(switch_json_object)
 
 def getDataFromPorts(session ,url, cookies,switch_json_object):
     response = session.get(url,cookies=cookies)
@@ -115,6 +116,3 @@ def getDataFromPorts(session ,url, cookies,switch_json_object):
                 }
                 ports.append(port)
         switch_json_object['ports'] = ports
-
-    save_settings_to_db(switch_json_object)
-scrap_switch_1810("10.137.4.45")

@@ -1,4 +1,14 @@
+/**********************************************
+Port configuration
+***********************************************
+author:   Baumann Danièl
+created:  2023-02-28
+version:  1.1
+***********************************************/
+
 var modal, btn, span, header, content, footer, settings
+
+
 window.onload = function () {
     modal = document.getElementById("myModal");
     modal2 = document.getElementById("myModal2");
@@ -10,9 +20,13 @@ window.onload = function () {
     refreshbutton = document.getElementById("refreshbutton")
 }
 
+/* open settings modal for given switch with ip adress and scrap current data from target switch */
 function openSettings(ip, modalID) {
+    // show modal
     document.getElementById(modalID).style.display = "block";
-    fetch(window.location.href + "/scrap")
+
+    // send request to backend
+    fetch(window.location.href + "/scrap/" + ip)
         .then(response => {
             if (response.ok) {
                 return response.json();
@@ -25,39 +39,34 @@ function openSettings(ip, modalID) {
             document.getElementById(modalID).children[1].style.display = "block";
             bluredBackground(true)
 
-            // document.getElementById("systemname").value = settings['system_name'][0]
-            // document.getElementById("serialnumber").value = settings['serial_number'][0]
-            // document.getElementById("ipadress").value = settings['ip_adresse'][0]
-            // document.getElementById("subnetmask").value = settings['subnet_mask'][0]
-            // document.getElementById("gatewayadress").value = settings['gateway_ip'][0]
-            // document.getElementById("macadress").value = settings['mac_adreese'][0]
+            // TODO
+            // here should the inputs in the frontend be prefilled with the data from the returned settings json object
+
         }));
 }
 
-function configureAllIntf(modalID) {
-    document.getElementById(modalID).style.display = "block";
-    fetch(window.location.href + "/scrap")
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error('Network response was not ok');
-            }
-        })
-        .then((settings => {
-            document.getElementById(modalID).children[0].style.display = "none";
-            document.getElementById(modalID).children[1].style.display = "block";
-            bluredBackground(true)
+// function configureAllIntf(modalID) {
+//     document.getElementById(modalID).style.display = "block";
+//     fetch(window.location.href + "/scrap")
+//         .then(response => {
+//             if (response.ok) {
+//                 return response.json();
+//             } else {
+//                 throw new Error('Network response was not ok');
+//             }
+//         })
+//         .then((settings => {
+//             document.getElementById(modalID).children[0].style.display = "none";
+//             document.getElementById(modalID).children[1].style.display = "block";
+//             bluredBackground(true)
 
-            // document.getElementById("systemname").value = settings['system_name'][0]
-            // document.getElementById("serialnumber").value = settings['serial_number'][0]
-            // document.getElementById("ipadress").value = settings['ip_adresse'][0]
-            // document.getElementById("subnetmask").value = settings['subnet_mask'][0]
-            // document.getElementById("gatewayadress").value = settings['gateway_ip'][0]
-            // document.getElementById("macadress").value = settings['mac_adreese'][0]
-        }));
-}
+//             // TODO
+//             // here should the inputs in the frontend be prefilled with the data from the returned settings json object
+//         }));
+// }
 
+
+/* blures or unblures the backgorund */
 function bluredBackground(yes) {
     if (yes) {
         header.classList.add('blur')
@@ -70,21 +79,11 @@ function bluredBackground(yes) {
     }
 }
 
+
+// close the modal
 function closeSettings(modalID) {
     bluredBackground(false)
     document.getElementById(modalID).children[0].style.display = "block";
     document.getElementById(modalID).children[1].style.display = "none";
     document.getElementById(modalID).style.display = "none";
-}
-
-function loadSwitches() {
-    refreshbutton.classList.add("refreshing")
-    refreshbutton.onclick = null
-    fetch(window.location.href + "load_switches")
-        .then(response => console.log(response))
-        .then(nothing => {
-            refreshbutton.classList.remove("refreshing")
-            refreshbutton.onclick = loadSwitches
-            location.reload()
-        })
 }

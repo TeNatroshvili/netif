@@ -80,11 +80,7 @@ def before_request():
 def login():
     username = request.form["username"]
     password = request.form["password"]
-    print("hierrrr "+username)
-    for user in users.find():
-        print(user)
     find_user = users.find_one({"username": username})
-    print("hier")
     if User.login_valid(username, password):
         loguser = User(find_user["username"],
                        find_user["password"], find_user["_id"])
@@ -155,7 +151,8 @@ def scrap_settings(ip):
 
     setting = settings.find_one({"ip_address": ip})
   
-    del setting["_id"]
+    if("_id" in setting):
+        del setting["_id"]
     return json.dumps(setting)
 
 
@@ -187,7 +184,8 @@ def scrap_port_settings(ip):
 
     setting = settings.find_one({"ip_address": ip})
   
-    del setting["_id"]
+    if("_id" in setting):
+        del setting["_id"]
     return json.dumps(setting)
 
 
@@ -313,7 +311,7 @@ def update_passwords():
                          cookies=session.cookies.get_dict())
             session.get("http://"+ip+"/htdocs/pages/main/logout.lsp",
                         cookies=session.cookies.get_dict())
-            print("changed: "+ip)
+            print("changed pw for: "+ip)
 
         elif ("1810" in model):
             session = requests.Session()
@@ -335,7 +333,7 @@ def update_passwords():
 
             session.post("http://"+ip+"/config/logout", cookies=cookies)
 
-            print("changed: "+ip)
+            print("changed pw for: "+ip)
 
         update_switch_credentials(new_pw)
 

@@ -1,3 +1,11 @@
+/**********************************************
+Dashboard Frontend interface
+***********************************************
+author:   Baumann Danièl
+created:  2022-11-22
+version:  1.3
+***********************************************/
+
 let modal, btn, span, header, content, footer, settings
 
 window.onload = function () {
@@ -9,12 +17,15 @@ window.onload = function () {
   content = document.getElementsByClassName("content")[0]
   footer = document.getElementsByClassName("footer")[0]
   refreshbutton = document.getElementById("refreshbutton")
-
-
 }
 
+
+/* open settings modal for given switch with ip adress and scrap current data from target switch */
 function openSettings(ip, modalID) {
+  // show modal
   document.getElementById(modalID).style.display = "block";
+
+  // send request to backend
   fetch(window.location.href + "/scrap/" + ip)
     .then(response => {
       if (response.ok) {
@@ -47,6 +58,7 @@ function openSettings(ip, modalID) {
 }
 
 
+/* blures or unblures the backgorund */
 function bluredBackground(yes) {
   if (yes) {
     header.classList.add('blur')
@@ -59,6 +71,8 @@ function bluredBackground(yes) {
   }
 }
 
+
+// close the modal
 function closeSettings(modalID) {
   bluredBackground(false)
   document.getElementById(modalID).children[0].style.display = "block";
@@ -66,20 +80,26 @@ function closeSettings(modalID) {
   document.getElementById(modalID).style.display = "none";
 }
 
+/* send request to backend to start the portscan */
 function loadSwitches() {
   refreshbutton.classList.add("refreshing")
   refreshbutton.onclick = null
   fetch(window.location.href + "/load_switches")
     .then(response => console.log(response))
     .then(nothing => {
+      // when port scan is finished remove loading animation
       refreshbutton.classList.remove("refreshing")
       refreshbutton.onclick = loadSwitches
       location.reload()
     })
 }
 
+
+/* show the modal to change the NETIF password  */
 function changePassword() {
   document.getElementById("myModal2").style.display = "block";
+
+  // request the userdata from the current user (only one admin currently)
   fetch(window.location.href + "/userdata")
     .then(response => {
       if (response.ok) {
@@ -89,16 +109,20 @@ function changePassword() {
       }
     })
     .then((userdata => {
+
       console.log("userdata")
       document.getElementById("myModal2").children[0].style.display = "none";
       document.getElementById("myModal2").children[1].style.display = "block";
       bluredBackground(true)
 
+      // prefill the username input with the current username
       document.getElementById("username").value = userdata['username']
 
     }));
 }
 
+
+/* open modal to change all switch passwords */
 function changeSwitchPasswords() {
   document.getElementById("myModal3").style.display = "block";
   document.getElementById("myModal3").children[0].style.display = "none";
@@ -106,17 +130,25 @@ function changeSwitchPasswords() {
   bluredBackground(true);
 }
 
+/* send request to backend with the old password, new password and the encryped passwords versions for the 1810 switches, cause they need this */
 function submitPasswordsEncrypted(event) {
+  // deactivate default form request to backend
   event.preventDefault();
+
+  // set passwords from input values
   old_pw = document.getElementById("old_pw").value;
   new_pw = document.getElementById("new_pw").value;
   conf_pw = document.getElementById("conf_pw").value;
+
+  // encode the passwords for the 1810 switches
   enc_old_pw = calculateDeviceID(document.getElementById("old_pw").value);
   enc_new_pw = calculateDeviceID(document.getElementById("new_pw").value);
   enc_conf_pw = calculateDeviceID(document.getElementById("conf_pw").value);
 
+  // create destination request url
   url = window.location.href.split("?")[0] + '/changeSwitchPasswords';
-  console.log(url);
+  
+  // send request to backend
   fetch(url, {
     method: 'post',
     headers: {
@@ -134,6 +166,7 @@ function submitPasswordsEncrypted(event) {
   })
   .then(response => console.log(response))
   .then(none => {
+    // when finish clear inputs
     document.getElementById("old_pw").value = "";
     document.getElementById("new_pw").value = "";
     document.getElementById("conf_pw").value = "";
@@ -141,6 +174,8 @@ function submitPasswordsEncrypted(event) {
   closeSettings("myModal3")
 }
 
+
+/* following code is from the orignial 1810 switch password encryption which is needed to encode the passwords, so it can be changed through NETIF */
 
 /*
 Vitesse Switch Software.

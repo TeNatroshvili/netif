@@ -1,16 +1,18 @@
+# ------------------------------------------
+# interface to the Scraping for 1810 Switch
+# ------------------------------------------
+# author:   Chen Junbo
+# created:  2023-02-7   
+# version:  1.2
+# ------------------------------------------
+
 from lxml import html
 import requests
 
 from mongodb import save_settings_to_db
 from mongodb import get_switch_credentials
 
-# ------------------------------------
-# interface to the Scraping for 1810 Switch
-# ------------------------------------
-# author:   Chen Junbo
-# created:  2023-02-7   
-# version:  1.0
-# ------------------------------------
+
 def scrap_switch_1820(swtich_ip_adresse):
     # all urls, that will be scrapped
     urls = ['http://'+swtich_ip_adresse+'/htdocs/pages/base/dashboard.lsp',
@@ -37,7 +39,7 @@ def scrap_switch_1820(swtich_ip_adresse):
 
     # test If login works
     if response.status_code == 200:
-        print('Login erfolgreich')
+        # print('Login erfolgreich')
         # final switch setting object, which will inserted into mongDB
         switch_json_object = {}
 
@@ -46,8 +48,8 @@ def scrap_switch_1820(swtich_ip_adresse):
             # scrape every single url in urls
             response = session.get(url, cookies=cookie)
             if (cookie != {} and response.status_code == 200):
-                print('Scraping für:', url)
-                print('-------------------------------------------')
+                # print('Scraping für:', url)
+                # print('-------------------------------------------')
 
                 # because the response of deviceveiwer_status ......(the url which returns the port status)
                 # isnt a html page like other urls, so if the deviceviewer_status is in url
@@ -98,7 +100,6 @@ def scrap_switch_1820(swtich_ip_adresse):
 
         # Save the Setting into Database
         save_settings_to_db(switch_json_object)
-        print(switch_json_object)
     else:
         if (response == 401):
             print(
@@ -167,7 +168,7 @@ def getDatasFromPortMirror(response,switch_json_object):
     script= response.xpath('//script/text()')
     dataLines=script[1].split(";")[0].split("aDataSet ")[1].split('\n')
     port_mirrors=[]
-    print(dataLines)
+    # print(dataLines)
     # if there is a mirror port, tehre will be more than 2 lines
     if len(dataLines)>2:
         i = 1
@@ -249,5 +250,3 @@ def getDatasFromLocalDevice(response,switch_json_object):
 
         # insert the data into switch setting object
         switch_json_object['local_devices']=local_devices
-
-scrap_switch_1820("10.137.4.41")
