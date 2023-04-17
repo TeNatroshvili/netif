@@ -505,6 +505,8 @@ def save_port_mirroring(ipaddress):
         # Get form data from the HTTP request
         port_mirroring = request.form["port_mirroring"]
         destination_port = request.form["destination_port"]
+        source_port = request.form["source_port"]
+        direction = request.form["direction"]
 
         # Set the data to be sent in the POST request to the switch
         data = {"port_mirroring_sel[]": port_mirroring,
