@@ -1,3 +1,5 @@
+Documentation how to setup VSCode with Gitlab to Develope
+
 - GitLab Workflow Extension hinzufügen (2te von oben wenn man nach GitLab sucht)
 - gitlab.htlstp.ac.at im Browser öffnen und einloggen.
 - Im Projekt NETIF auf Clone klicken
@@ -17,15 +19,15 @@
 - in oberen Zeile statt gitlab.com - gitlab.htlstp.ac.at hinschreiben
 - dann Enter und deinen zuvor erstellten Token eingeben.
 - Terminal in VSCode öffnen
-- "python -m venv .venv" ausführen
+
+- "python -m venv .venv" ausführen (falls ein error kommt zum schritt "--- PowerSell ---" gehen)
 - "./.venv/Scripts/activate"
 - "python.exe -m pip install --upgrade pip"
-- "pip install flask"
-- Comitten und lets goo
-----
+- pip install -r requirements.txt
+
+--- PowerShell ---
 - wenn ein error kommt, dass das laden von scrips disabled ist
 - powershell im admin aufmachen
 - "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned" ausführen
 - "A" eingeben wenn gefragg wird
-----------------
-pip install -r requirements.txt
+------------------
