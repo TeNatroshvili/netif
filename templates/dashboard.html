@@ -45,7 +45,12 @@
 </div>
 <div class="latest-reports">Latest Reports</div>
 <div class="report-list">
-    {% for n in range(5) %}
+    {% if reports|length < 5 %}
+        {% set r = reports|length %}
+    {% else %}
+        {% set r = 5 %}
+    {% endif %}
+    {% for n in range(r) %}
     {% set report = reports[n] %}
 
     <div class="report-list-item">

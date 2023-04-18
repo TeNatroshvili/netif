@@ -654,7 +654,7 @@ def reports():
 @app.before_request
 def clear_download_dict():
     for file in os.listdir('./download'):
-        if (file.endswith(".gitignore")):
+        if (str(file).endswith(".gitkeep") != True):
             os.remove(os.path.join('./download', file))
 
 

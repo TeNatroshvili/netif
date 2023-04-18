@@ -8,22 +8,20 @@
 from influxdb import InfluxDBClient
 import pandas as pd
 from datetime import datetime
-from fpdf import FPDF
+from fpdf import FPDF, YPos
 from datetime import datetime, timedelta
-import numpy as np
+import os
 
-from samba import upload
+from samba import upload as uploadPDF
 
-#Datenbank client für die Datanbankverbindung
-client = InfluxDBClient(host="10.128.10.7", port=8086, username="syp",
-                        password="Syp2022", timeout=2, database="collectd")
+
 
 #hosts angeben
 hosts = ['N304', 'N306', 'N307', 'N310', 'N312', 'N313',
          'N314', 'N315', 'N316', 'N317', 'N318', 'N319']
 
 #Schulstunden in den richtigen format definieren
-now = datetime.now()
+now = datetime.now() - timedelta(days=2)
 time0 = now.replace(hour=7, minute=50, second=0, microsecond=0)
 stunde0 = time0.strftime('%Y-%m-%dT%H:%M:%SZ')
 time1 = now.replace(hour=8, minute=40, second=0, microsecond=0)
@@ -52,6 +50,11 @@ stunden = [stunde10, stunde9, stunde8, stunde7, stunde6, stunde5, stunde4, stund
 
 #Funktion zum PDF generieren
 def generate_pdf_table(result_list_download, result_list_upload, new_col):
+
+    for file in os.listdir('./reports'):
+        if (str(file).endswith(".gitkeep") != True):
+            os.remove(os.path.join('./reports', file))
+
     pdf = FPDF()
     pdf.add_page()
 
@@ -78,21 +81,24 @@ def generate_pdf_table(result_list_download, result_list_upload, new_col):
         j+=1
        
         for i in range(len(stunden)-1):
-            if(j<len(result_list_download[i][0])):
+            if(j<len(result_list_download[i][0])) and i != 7: # TODO in 8 school hour there is an error with the substraction so negative numbers occur
                 pdf.cell(18, 10, str(result_list_download[i][0][j]), border=1)
             else:
                 pdf.cell(18, 10, "-", border=1)
 
         pdf.ln()
 
+    pdf.set_font('Arial', '', 11)
+    pdf.cell(w=106, h=10,txt= ' Angaben in MB', align='R')
     pdf.add_page()
 
     #Überschrift
     s2 = now.strftime("%d.%m.%Y")
     pdf.set_font('Arial', '', 11)
-    pdf.cell(0, 10, ' Datum: ' + s2, 0, 1)
+    pdf.cell(0, 10, 'Datum: ' + s2, 0, 1)
     pdf.set_font('Arial', 'B', 14)
-    pdf.cell(0, 10, 'Upload', 0, 1, 'C')    #Tabellenüberschrifte
+    pdf.cell(0, 10, 'Upload', 0, 1, 'C')
+    #Tabellenüberschrifte
     pdf.cell(15, 10, 'Host', border=1)
     #pdf.cell(50, 10, 'Time', border=1)
 
@@ -108,39 +114,50 @@ def generate_pdf_table(result_list_download, result_list_upload, new_col):
         j+=1
        
         for i in range(len(stunden)-1):
-            if(j<len(result_list_upload[i][0])):
+            if(j<len(result_list_upload[i][0])) and i != 7: # TODO in 8 school hour there is an error with the substraction so negative numbers occur
                 pdf.cell(18, 10, str(result_list_upload[i][0][j]), border=1)
             else:
                 pdf.cell(18, 10, "-", border=1)
 
         pdf.ln()
 
+    pdf.set_font('Arial', '', 11)
+    pdf.cell(w=106, h=10,txt= ' Angaben in MB', align='R')
     s3 = now.strftime("%d-%m-%Y")
     filename = 'DailyReport_' + s3 + '.pdf'
     #PDF Namen zuteilen
-    pdf.output(filename)
+    pdf.output('reports/'+filename)
 
     return filename
 
 
 #Funktion zum RX (Download) daten abholen
 def getBaseRX(hosts, base_str):
-    results = []
-    #for loop um hosts durchzugehen
-    for host in hosts:
-        #query zum abholen der Daten von snmp_rx mit richtigen host und zeit
-        query = f'SELECT FIRST(value) FROM "snmp_rx" WHERE ("host" = \'{host}\' AND "type" = \'if_octets\' AND "type_instance" = \'traffic25 Gigabit - Level\') AND time >= \'{base_str}\' - 20s fill(null)'
-        result = client.query(query)
-       
-        if(len(result)==0):
-            query = f'SELECT FIRST(value) FROM "snmp_rx" WHERE ("host" = \'{host}\' AND "type" = \'if_octets\' AND "type_instance" = \'trafficPort: 25 SFP - Level\') AND time >= \'{base_str}\' - 20s fill(null)'
+
+    client = None
+    try:
+        #Datenbank client für die Datanbankverbindung
+        client = InfluxDBClient(host="10.128.10.7", port=8086, username="syp",
+                            password="Syp2022", timeout=2, database="collectd")
+
+        results = []
+        #for loop um hosts durchzugehen
+        for host in hosts:
+            #query zum abholen der Daten von snmp_rx mit richtigen host und zeit
+            query = f'SELECT FIRST(value) FROM "snmp_rx" WHERE ("host" = \'{host}\' AND "type" = \'if_octets\' AND "type_instance" = \'traffic25 Gigabit - Level\') AND time >= \'{base_str}\' - 20s fill(null)'
             result = client.query(query)
-        #erhaltene Daten speichern
-        points = list(result.get_points())
-        #Datenüberprüfung
-        if points:
-            points[0]['host'] = host
-            results.append(points[0])
+        
+            if(len(result)==0):
+                query = f'SELECT FIRST(value) FROM "snmp_rx" WHERE ("host" = \'{host}\' AND "type" = \'if_octets\' AND "type_instance" = \'trafficPort: 25 SFP - Level\') AND time >= \'{base_str}\' - 20s fill(null)'
+                result = client.query(query)
+            #erhaltene Daten speichern
+            points = list(result.get_points())
+            #Datenüberprüfung
+            if points:
+                points[0]['host'] = host
+                results.append(points[0])
+    finally:
+        client.close()
 
     #Daten in richtigen format speichern
     df = pd.DataFrame(results)
@@ -151,22 +168,30 @@ def getBaseRX(hosts, base_str):
 
 #Funktion zum TX (Upload Daten Abholen)
 def getBaseTX(hosts, base_str):
-    results = []
-    #for loop um hosts durchzugehen
-    for host in hosts:
-        #query zum abholen der Daten von snmp_tx mit richtigen host und zeit
-        query = f'SELECT FIRST(value) FROM "snmp_tx" WHERE ("host" = \'{host}\' AND "type" = \'if_octets\' AND "type_instance" = \'traffic25 Gigabit - Level\') AND time >= \'{base_str}\' - 20s fill(null)'
-        result = client.query(query)
-        
-        if(len(result)==0):
-            query = f'SELECT FIRST(value) FROM "snmp_rx" WHERE ("host" = \'{host}\' AND "type" = \'if_octets\' AND "type_instance" = \'trafficPort: 25 SFP - Level\') AND time >= \'{base_str}\' - 20s fill(null)'
+
+    client = None
+    try:
+        #Datenbank client für die Datanbankverbindung
+        client = InfluxDBClient(host="10.128.10.7", port=8086, username="syp",
+                            password="Syp2022", timeout=2, database="collectd")
+        results = []
+        #for loop um hosts durchzugehen
+        for host in hosts:
+            #query zum abholen der Daten von snmp_tx mit richtigen host und zeit
+            query = f'SELECT FIRST(value) FROM "snmp_tx" WHERE ("host" = \'{host}\' AND "type" = \'if_octets\' AND "type_instance" = \'traffic25 Gigabit - Level\') AND time >= \'{base_str}\' - 20s fill(null)'
             result = client.query(query)
-        #erhaltene Daten speichern
-        points = list(result.get_points())
-        #Datenüberprüfung
-        if points:
-            points[0]['host'] = host
-            results.append(points[0])
+            
+            if(len(result)==0):
+                query = f'SELECT FIRST(value) FROM "snmp_rx" WHERE ("host" = \'{host}\' AND "type" = \'if_octets\' AND "type_instance" = \'trafficPort: 25 SFP - Level\') AND time >= \'{base_str}\' - 20s fill(null)'
+                result = client.query(query)
+            #erhaltene Daten speichern
+            points = list(result.get_points())
+            #Datenüberprüfung
+            if points:
+                points[0]['host'] = host
+                results.append(points[0])
+    finally:
+        client.close()
 
     #Daten in richtigen format speichern
     df = pd.DataFrame(results)
@@ -185,7 +210,6 @@ download = []
 for stunde in stunden:
     #RX (Download) Dataframe
     RXdf = getBaseRX(hosts=hosts, base_str=stunde)
-    print(RXdf)
     #Extrahieren von value der Dataframe
     values = pd.DataFrame(RXdf['first'].values)
     hostiterate = RXdf.index.get_level_values(0)
@@ -203,7 +227,6 @@ for stunde in stunden:
         intersum = pd.concat([intersum, new_col], axis=1)
         #zwischensumme zu der aktuellen df hinzufügen
         download.append(intersum)
-        print(subtractor)
     subtractor = values
 
 #Variablen Resetten
@@ -238,4 +261,4 @@ for stunde in stunden:
 new_col = pd.DataFrame({'host': [index_values]})
 
 #PDF generierungs Funktion aufrufen für TX und RX (Upload und Download)
-upload(generate_pdf_table(result_list_download=download, result_list_upload=upload, new_col=new_col))
+uploadPDF(generate_pdf_table(result_list_download=download, result_list_upload=upload, new_col=new_col))
