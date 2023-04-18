@@ -654,7 +654,8 @@ def reports():
 @app.before_request
 def clear_download_dict():
     for file in os.listdir('./download'):
-        os.remove(os.path.join('./download', file))
+        if (file.endswith(".gitignore")):
+            os.remove(os.path.join('./download', file))
 
 
 # get switch model from ip
