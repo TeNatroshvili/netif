@@ -1,3 +1,11 @@
+# ---------------------------------------------------------
+# Flask Interface
+# ---------------------------------------------------------
+# author:   Baumann Danièl
+# created:  2022-11-22
+# version:  2.3
+# ---------------------------------------------------------
+
 from flask import (
     Flask,
     render_template,
@@ -43,7 +51,7 @@ from scraping_1820 import scrap_switch_1820
 
 import requests
 
-
+# login manager for the user authentification
 login_manager = LoginManager()
 login_manager.session_protection = "strong"
 login_manager.login_view = "login"
@@ -53,7 +61,7 @@ app = Flask(__name__)
 login_manager.init_app(app)
 app.secret_key = os.urandom(43)
 
-
+# user loader
 @login_manager.user_loader
 def load_user(user_id):
     user = User.get_by_id(user_id)
@@ -63,11 +71,13 @@ def load_user(user_id):
         return None
 
 
+# login page route
 @app.get("/login")
 def login_page():
     return render_template("login.html")
 
 
+# before every request reset the session timeout to 15 minutes
 @app.before_request
 def before_request():
     session.permanent = True
@@ -76,11 +86,17 @@ def before_request():
     g.user = current_user
 
 
+# login post request
 @app.post("/login")
 def login():
+    # get username and password from request
     username = request.form["username"]
     password = request.form["password"]
+
+    # find the user by username
     find_user = users.find_one({"username": username})
+
+    # validate user and login when successful
     if User.login_valid(username, password):
         loguser = User(find_user["username"],
                        find_user["password"], find_user["_id"])
@@ -93,6 +109,7 @@ def login():
     return render_template("login.html")
 
 
+# logout route
 @app.route("/logout")
 @login_required
 def logout():
@@ -101,12 +118,16 @@ def logout():
     return redirect(url_for("login"))
 
 
+# post request for NETIF user password change
 @app.route("/changePassword", methods=["POST"])
 @login_required
 def changePassword():
+    # get data from request
     username = request.form["username"]
     password = request.form["password"]
     newpass = request.form["newpass"]
+
+    # when successful redirect to login and clear session
     if User.change_password(username, password, newpass):
         flash("succesfully changed admin password", "success")
         session.clear()
@@ -116,20 +137,21 @@ def changePassword():
         return redirect(url_for("dashboard"))
 
 
-# dashboard
-
+# default route redirect dashboard route
 @app.route("/")
 @login_required
 def default():
     return redirect(url_for("dashboard"))
 
 
+# dashboard route
 @app.route('/dashboard')
 @login_required
 def dashboard():
     return render_template('dashboard.html', switches=switches.find(), reports=get_sharedfiles())
 
 
+# request to get the current userdata as json
 @app.route("/dashboard/userdata", methods=["GET"])
 @login_required
 def userdata():
@@ -137,10 +159,15 @@ def userdata():
     return {"username": user["username"]}
 
 
+# request to beginn scraping script with ip of the 
+# target switch as request paramter and return current settings after
 @app.route('/dashboard/scrap/<ip>')
 @login_required
 def scrap_settings(ip):
+    # get the model from the target switch
     model = get_model_from_ip(ip)
+
+    # check which model it is to call the correct scraping script
     if ("1810" in model):
         scrap_switch_1810(ip)
     elif ("1820" in model):
@@ -151,29 +178,37 @@ def scrap_settings(ip):
 
     setting = settings.find_one({"ip_address": ip})
   
+    # remove the _id field which is automatically created by mongodb
+    # it would cause errors in the javascript json object later
     if("_id" in setting):
         del setting["_id"]
     return json.dumps(setting)
 
 
+# route to call the portscan script
 @app.route('/dashboard/load_switches')
 @login_required
 def load_switches():
     return search_switches()
 
 
-# ports
-
+# ports route
 @app.route('/ports')
 @login_required
 def ports():
     return render_template('ports.html', switches=switches.find())
 
 
+
+# request to beginn scraping script with ip of the 
+# target switch as request paramter and return current settings after
 @app.route('/ports/scrap/<ip>')
 @login_required
 def scrap_port_settings(ip):
+    # get the model from the target switch
     model = get_model_from_ip(ip)
+    
+    # check which model it is to call the correct scraping script
     if ("1810" in model):
         scrap_switch_1810(ip)
     elif ("1820" in model):
@@ -184,30 +219,40 @@ def scrap_port_settings(ip):
 
     setting = settings.find_one({"ip_address": ip})
   
+    
+    # remove the _id field which is automatically created by mongodb
+    # it would cause errors in the javascript json object later
     if("_id" in setting):
         del setting["_id"]
     return json.dumps(setting)
 
 
+# route to download the report file from the fileserver with the filename as reuqest parameter
+# and automatically open the download dialog in the frontend when pop ups are not blocked by the browser
 @app.route('/download/<filename>')
 @login_required
 def download_file(filename):
     return send_file(download(filename), as_attachment=True)
 
 
-# configuration
-
+# configuration post request to save the changes made in the frontend
 @app.route('/conf/save_system_settings/<ip>', methods=['POST'])
 @login_required
 def save_system_settings(ip):
+    # get data from request
     ipaddress = request.form["ipaddress"]
     subnetmask = request.form["subnetmask"]
     gatewayaddress = request.form["gatewayaddress"]
     name = request.form["systemname"]
     snmp = request.form["snmp"]
 
+    # get the model from the ip adress
     model = get_model_from_ip(ip)
+    
+    # check which model it is to make the correct http request to the target switch 
     if ("1810" in model):
+
+        # open session and get the cookies information
         session = requests.Session()
         session.post('http://'+ipaddress+'/config/login',
                      data=get_switch_credentials()["password"])
@@ -217,11 +262,14 @@ def save_system_settings(ip):
         cookies = {'seid': seid_cookie_str,
                    'deviceid': 'YWRtaW46U3lwMjAyM2h1cnJh'}
 
+        # create the data result dictionary
         data = {"sys_name": name}
 
+        # send the post request to the switch
         session.post("http://"+ip+"/update/config/sysinfo",
                      data=data, cookies=cookies)
 
+        # create a new data result dictornary
         data = {"ip_addr": ipaddress,
                 "ip_mask": subnetmask,
                 "gateway_addr": gatewayaddress}
@@ -229,24 +277,30 @@ def save_system_settings(ip):
         if (snmp == "on"):
             data["snmp_mode"] = "on"
 
+        # send the post request to the switch
         session.post("http://"+ip+"/update/config/ip_config",
                      data=data, cookies=cookies)
 
+        # logout from the switch
         session.post("http://"+ip+"/config/logout", cookies=cookies)
     elif ("1820" in model):
+        # create new session and get cookies
         session = requests.Session()
         session.post('http://'+ip+'/htdocs/login/login.lua',
                      data=get_switch_credentials())
 
+        # create a new data result dictornary
         data = {"sys_name": name,
                 "b_form1_submit": "Apply",
                 "b_form1_clicked": "b_form1_submit"}
 
+        # send post request to target switch and call the save button
         session.post("http://"+ip+"/htdocs/pages/base/dashboard.lsp",
                      data=data, cookies=session.cookies.get_dict())
         session.post("http://"+ip+"/htdocs/lua/ajax/save_cfg.lua?save=1",
                      cookies=session.cookies.get_dict())
 
+        # create new data dictionary
         data = {"protocol_type_sel[]": "static",
                 "ip_addr": ipaddress,
                 "subnet_mask": subnetmask,
@@ -263,16 +317,19 @@ def save_system_settings(ip):
         data.update({"b_form1_submit": "Apply",
                      "b_form1_clicked": "b_form1_submit"})
 
+        # send the post request to the target switch and call the save button
         session.post("http://"+ip+"/htdocs/pages/base/network_ipv4_cfg.lsp",
                      data=data, cookies=session.cookies.get_dict())
-
         session.post("http://"+ip+"/htdocs/lua/ajax/save_cfg.lua?save=1",
                      cookies=session.cookies.get_dict())
+        
+        # logout from switch
         session.get("http://"+ip+"/htdocs/pages/main/logout.lsp",
                     cookies=session.cookies.get_dict())
     else:
         print("Switch Model not supported")
 
+    # when switch ip has been changed, change it in switches collections
     if (ip != ipaddress):
         update_switch_ip(ip, ipaddress)
 
@@ -282,6 +339,7 @@ def save_system_settings(ip):
 @app.route('/dashboard/changeSwitchPasswords', methods=["POST"])
 @login_required
 def update_passwords():
+    # get all data from request
     old_pw = request.json["old_pw"]
     new_pw = request.json["new_pw"]
     conf_pw = request.json["conf_pw"]
@@ -291,13 +349,17 @@ def update_passwords():
 
     for switch in switches.find():
         ip = switch["ip"]
+        # get the model from the ip
         model = get_model_from_ip(ip)
 
+        # check which model it is
         if ("1820" in model):
+            # get cookies
             session = requests.Session()
-            response = session.post(
+            session.post(
                 'http://'+ip+'/htdocs/login/login.lua', data=get_switch_credentials())
 
+            # create data dictionary
             data = {"user_name": "admin",
                     "current_password": old_pw,
                     "new_password": new_pw,
@@ -305,15 +367,20 @@ def update_passwords():
                     "b_form1_submit": "Apply",
                     "b_form1_clicked": "b_form1_submit"}
 
-            response = session.post("http://"+ip+"/htdocs/pages/base/user_accounts.lsp",
+            # send post request to target switch and call save butotn
+            session.post("http://"+ip+"/htdocs/pages/base/user_accounts.lsp",
                                     data=data, cookies=session.cookies.get_dict())
             session.post("http://"+ip+"/htdocs/lua/ajax/save_cfg.lua?save=1",
                          cookies=session.cookies.get_dict())
+            
+            # logout from switch
             session.get("http://"+ip+"/htdocs/pages/main/logout.lsp",
                         cookies=session.cookies.get_dict())
+            
             print("changed pw for: "+ip)
 
         elif ("1810" in model):
+            # get cookeis
             session = requests.Session()
             response = session.post(
                 'http://'+ip+'/config/login', data=get_switch_credentials()["password"])
@@ -324,22 +391,27 @@ def update_passwords():
             cookies = {'seid': seid_cookie_str,
                        'deviceid': 'YWRtaW46U3lwMjAyM2h1cnJh'}
 
+            # create data dictionary
             data = {"oldpass": enc_old_pw,
                     "pass1": enc_new_pw,
                     "pass2": enc_conf_pw}
 
+            # send post request to switch
             session.post('http://'+ip+'/update/config/passwd',
                          data=data, cookies=cookies)
 
+            # logout from switch
             session.post("http://"+ip+"/config/logout", cookies=cookies)
 
             print("changed pw for: "+ip)
 
+        # update the new password in the credentials collection
         update_switch_credentials(new_pw)
 
     return redirect(url_for("dashboard"))
 
 
+# route for port configuration
 @app.route('/conf/save_port_configuration/<ipaddress>', methods=['POST'])
 @login_required
 def save_port_configuration(ipaddress):
@@ -441,13 +513,7 @@ def save_port_configuration(ipaddress):
     return redirect('/ports')
 
 
-# ------------------------------------------------------------
-# Route:        /conf/save_all_port_configuration/<ipaddress>
-# Method:       POST
-# Description:  Saves the port configuration of all switches
-# ------------------------------------------------------------
-# author:       Stiefsohn Lukas
-# ------------------------------------------------------------
+# post request for all port configuration
 @app.route('/conf/save_all_port_configuration/<ipaddress>', methods=['POST'])
 @login_required
 def save_all_port_configuration(ipaddress):
@@ -484,13 +550,7 @@ def save_all_port_configuration(ipaddress):
     return redirect('/ports')
 
 
-# ----------------------------------------------------
-# Route:        /conf/save_port_mirroring/<ipaddress>
-# Method:       POST
-# Description:  Saves the port mirroring of a switch
-# ----------------------------------------------------
-# author:       Stiefsohn Lukas
-# ----------------------------------------------------
+# post request for port mirroring configuration
 @app.route('/conf/save_port_mirroring/<ipaddress>', methods=['POST'])
 @login_required
 def save_port_mirroring(ipaddress):
@@ -576,37 +636,32 @@ def save_port_mirroring(ipaddress):
     return redirect('/ports')
 
 
-# visualeditor
-
+# visualeditor route
 @app.route('/visualeditor')
 @login_required
 def visualeditor():
     return render_template('visualeditor.html', switches=switches.find())
 
 
-# reports
-
+# reports route
 @app.route('/reports')
 @login_required
 def reports():
     return render_template('reports.html', reports=get_sharedfiles())
 
 
-# clear download folder
+# clear download folder before every request
 @app.before_request
 def clear_download_dict():
     for file in os.listdir('./download'):
         os.remove(os.path.join('./download', file))
 
+
 # get switch model from ip
-
-
 def get_model_from_ip(ip):
     switch = switches.find_one({"ip": ip})
     return switch["model"]
 
 # flask app
-
-
 if __name__ == '__main__':
     app.run(debug=1)
