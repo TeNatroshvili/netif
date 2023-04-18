@@ -1,7 +1,7 @@
 # ---------------------------------------------------------
 # Code for MongoDB Database Connection and CRUD Operations
 # ---------------------------------------------------------
-# author:   Stiefsohn Lukas, Baumann Danièl
+# authors:   Stiefsohn Lukas, Baumann Danièl
 # created:  2022-12-06
 # version:  1.1
 # ---------------------------------------------------------
